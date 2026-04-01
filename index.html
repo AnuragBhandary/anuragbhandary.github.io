@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anurag Navin Bhandary — Software Engineer</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap');
 
@@ -22,6 +23,7 @@
     --mono: 'Space Mono', 'Courier New', monospace;
     --display: 'Bebas Neue', Impact, sans-serif;
     --body: 'DM Sans', Arial, sans-serif;
+    --hero-pad-top: calc(env(safe-area-inset-top, 0px) + 88px);
   }
 
   html { scroll-behavior: smooth; }
@@ -82,6 +84,7 @@
     min-height: 100vh;
     display: grid; grid-template-columns: 1fr 1fr;
     position: relative; overflow: hidden;
+    padding: 0;
   }
   .hero-grid {
     position: absolute; inset: 0;
@@ -91,8 +94,9 @@
     mask-image: radial-gradient(ellipse at 70% 50%, black 30%, transparent 70%);
   }
   .hero-left {
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 120px 60px 80px 80px; position: relative; z-index: 2;
+    display: flex; flex-direction: column; justify-content: flex-start;
+    padding: var(--hero-pad-top) 60px 80px 80px;
+    position: relative; z-index: 2;
   }
   .hero-tag {
     font-family: var(--mono); font-size: 11px; color: var(--accent);
@@ -125,7 +129,12 @@
 
   /* HERO RIGHT */
   .hero-right {
-    position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: hidden;
+    padding-top: var(--hero-pad-top);
   }
   .orb {
     position: absolute; width: 500px; height: 500px; border-radius: 50%;
@@ -290,7 +299,7 @@
   @media(max-width:900px) {
     #hero { grid-template-columns:1fr; }
     .hero-right { display:none; }
-    .hero-left { padding:120px 32px 80px; }
+    .hero-left { padding:var(--hero-pad-top) 32px 80px; }
     section { padding:80px 32px; }
     .exp-card { grid-template-columns:1fr; }
     .exp-meta { border-right:none; border-bottom:1px solid var(--border); }

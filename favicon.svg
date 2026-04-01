@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="8" fill="#080a0e"/>
+  <text
+    x="16"
+    y="16"
+    dominant-baseline="central"
+    font-family="system-ui, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="15"
+    font-weight="500"
+    letter-spacing="0.5"
+    fill="#00e5ff"
+    text-anchor="middle"
+  >AB</text>
+</svg>
