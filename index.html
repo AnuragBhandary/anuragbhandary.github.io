@@ -248,12 +248,12 @@
 
   /* EXPERIENCE */
   #experience { background: var(--bg); }
-  .exp-card { display: grid; grid-template-columns: 200px 1fr; border: 1px solid var(--border); background: var(--card); margin-bottom: 2px; transition: all 0.3s; position: relative; overflow: hidden; }
+  .exp-card { display: grid; grid-template-columns: 220px 1fr; border: 1px solid var(--border); background: var(--card); margin-bottom: 2px; transition: all 0.3s; position: relative; overflow: hidden; }
   .exp-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); transform:scaleY(0); transition:transform 0.3s; transform-origin:bottom; }
   .exp-card:hover::before { transform:scaleY(1); }
   .exp-card:hover { border-color:rgba(0,229,255,0.2); background:rgba(0,229,255,0.03); }
   .exp-meta { padding:32px 24px; border-right:1px solid var(--border); display:flex; flex-direction:column; gap:8px; }
-  .exp-date { font-family:var(--mono); font-size:10px; color:var(--accent); letter-spacing:2px; }
+  .exp-date { font-family:var(--mono); font-size:10px; color:var(--accent); letter-spacing:2px; white-space:nowrap; }
   .exp-company { font-family:var(--display); font-size:22px; letter-spacing:2px; color:var(--text); }
   .exp-type { font-size:11px; color:var(--muted); font-style:italic; }
   .exp-body { padding:32px 40px; }
