@@ -4,7 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anurag Navin Bhandary — Software Engineer</title>
+<meta name="description" content="Anurag Navin Bhandary — Software Engineer building real-time systems, AI-powered pipelines, and full-stack applications. Low-latency by design, scalable by default.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+<!-- Open Graph / social preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Anurag Navin Bhandary — Software Engineer">
+<meta property="og:description" content="Building real-time systems, AI-powered pipelines, and full-stack applications. Low-latency by design, scalable by default.">
+<meta property="og:image" content="me.jpg">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Anurag Navin Bhandary — Software Engineer">
+<meta name="twitter:description" content="Building real-time systems, AI-powered pipelines, and full-stack applications.">
+<meta name="twitter:image" content="me.jpg">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap');
 
@@ -76,8 +90,23 @@
   }
   .nav-logo { font-family: var(--display); font-size: 22px; letter-spacing: 3px; color: var(--accent); text-decoration: none; }
   .nav-links { display: flex; gap: 32px; list-style: none; }
-  .nav-links a { font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 2px; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a { font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 2px; text-transform: uppercase; transition: color 0.2s; position: relative; padding-bottom: 4px; }
   .nav-links a:hover { color: var(--accent); }
+  .nav-links a.active { color: var(--accent); }
+  .nav-links a.active::after { content:''; position:absolute; left:0; right:0; bottom:0; height:1px; background:var(--accent); }
+
+  /* MOBILE MENU TOGGLE */
+  .nav-toggle {
+    display: none;
+    flex-direction: column; justify-content: center; gap: 5px;
+    width: 34px; height: 34px; padding: 6px;
+    background: none; border: 1px solid var(--border); cursor: pointer;
+    z-index: 210;
+  }
+  .nav-toggle span { display:block; width:100%; height:2px; background:var(--accent); transition: transform 0.3s, opacity 0.3s; }
+  .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
   /* HERO */
   #hero {
@@ -253,6 +282,7 @@
     display: flex;
     justify-content: flex-start;
     width: 100%;
+    margin-top: 32px;
   }
   .leetcode-stats-card {
     position: relative;
@@ -377,6 +407,34 @@
     vertical-align: middle;
   }
 
+  /* ABOUT */
+  #about { background: var(--bg); }
+  .about-grid { display:grid; grid-template-columns: 1.4fr 1fr; gap: 60px; align-items:start; }
+  .about-text p { font-size:15px; line-height:1.9; color:var(--muted); margin-bottom:20px; max-width:560px; }
+  .about-text p strong { color:var(--text); font-weight:400; }
+  .about-facts { display:flex; flex-direction:column; gap:2px; }
+  .about-fact { background:var(--card); border:1px solid var(--border); padding:20px 24px; transition:border-color 0.3s; }
+  .about-fact:hover { border-color:rgba(0,229,255,0.2); }
+  .about-fact-label { font-family:var(--mono); font-size:9px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:8px; }
+  .about-fact-value { font-family:var(--display); font-size:20px; letter-spacing:1px; color:var(--text); }
+
+  /* RECOMMENDATIONS */
+  #recommendations { background: var(--surface); }
+  .rec-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:2px; }
+  .rec-card { background:var(--card); border:1px solid var(--border); padding:32px 28px; position:relative; overflow:hidden; transition:all 0.3s; display:flex; flex-direction:column; }
+  .rec-card::before { content:'\201C'; position:absolute; right:24px; top:6px; font-family:var(--display); font-size:90px; color:rgba(0,229,255,0.06); line-height:1; }
+  .rec-card:hover { border-color:rgba(0,229,255,0.2); background:rgba(0,229,255,0.02); transform:translateY(-3px); box-shadow:0 20px 40px rgba(0,0,0,0.4); }
+  .rec-quote { font-size:13px; line-height:1.9; color:var(--muted); margin-bottom:24px; position:relative; z-index:1; flex:1; }
+  .rec-author { display:flex; align-items:center; gap:14px; border-top:1px solid rgba(255,255,255,0.05); padding-top:18px; }
+  .rec-avatar { width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:18px; color:var(--bg); letter-spacing:1px; flex-shrink:0; overflow:hidden; }
+  .rec-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+  .rec-author-info { display:flex; flex-direction:column; gap:3px; }
+  .rec-name { font-family:var(--display); font-size:17px; letter-spacing:1px; color:var(--text); }
+  .rec-role { font-family:var(--mono); font-size:9px; letter-spacing:1px; color:var(--accent); }
+  .rec-rel { font-family:var(--mono); font-size:9px; letter-spacing:1px; color:var(--muted); }
+  .rec-grid-single { max-width:680px; }
+  .rec-linkedin-cta { margin-top:48px; text-align:center; }
+
   /* PROJECTS */
   #projects { background: var(--bg); }
   .projects-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
@@ -458,7 +516,19 @@
     .projects-grid { grid-template-columns:1fr; }
     .edu-grid { grid-template-columns:1fr; }
     nav { padding:20px 32px; }
-    .nav-links { display:none; }
+    .about-grid { grid-template-columns:1fr; gap:40px; }
+    .nav-toggle { display:flex; }
+    .nav-links {
+      position: fixed; top:0; right:0; bottom:0;
+      width: min(75vw, 280px);
+      flex-direction: column; align-items: flex-start; justify-content: center;
+      gap: 28px; padding: 40px;
+      background: var(--surface); border-left:1px solid var(--border);
+      transform: translateX(100%); transition: transform 0.35s ease;
+      box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+    }
+    .nav-links.open { transform: translateX(0); }
+    .nav-links a { font-size: 14px; }
     footer { padding:24px 32px; flex-direction:column; gap:12px; text-align:center; }
     .divider { margin:0 32px; }
     .leetcode-stats-card { padding: 22px 20px 24px; }
@@ -485,13 +555,18 @@
 <!-- NAV -->
 <nav>
   <a href="#hero" class="nav-logo">ANB</a>
-  <ul class="nav-links">
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">About</a></li>
     <li><a href="#experience">Experience</a></li>
     <li><a href="#skills">Skills</a></li>
+    <li><a href="#recommendations">Recommendations</a></li>
     <li><a href="#projects">Projects</a></li>
     <li><a href="#education">Education</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -509,6 +584,7 @@
     </p>
     <div class="hero-cta">
       <a href="#experience" class="btn btn-primary">View Work</a>
+      <a href="resume.pdf" target="_blank" rel="noopener" class="btn btn-outline">Resume</a>
       <a href="#contact" class="btn btn-outline">Get In Touch</a>
     </div>
   </div>
@@ -538,7 +614,8 @@
           <div class="t-out" style="padding-left:32px"><span class="t-val">"Kafka"</span>, <span class="t-val">"PostgreSQL"</span></div>
           <div class="t-out">],</div>
           <div class="t-out"><span class="t-key">"gpa"</span>: <span class="t-gpa">3.42 / 4.0</span>,</div>
-          <div class="t-out"><span class="t-key">"location"</span>: <span class="t-val">"Arlington, TX"</span></div>
+          <div class="t-out"><span class="t-key">"experience"</span>: <span class="t-val">"1 yr · Backend + AI"</span>,</div>
+          <div class="t-out"><span class="t-key">"location"</span>: <span class="t-val">"Mumbai, India"</span></div>
           <br>
           <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"><span class="cursor-blink"></span></span></div>
         </div>
@@ -588,23 +665,57 @@
   </div>
 </div>
 
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">Profile</div>
+  <h2 class="section-title">ABOUT</h2>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>I'm a <strong>software engineer</strong> who enjoys building systems that are fast, reliable, and scalable. My focus is on backend and real-time architectures — the kind of low-latency, high-throughput services that stay calm under load.</p>
+      <p>Recently I've been working at the intersection of <strong>backend engineering and AI</strong>, building real-time streaming platforms and LLM-powered pipelines. I like turning messy, ambiguous requirements into clean technical designs.</p>
+      <p>I hold a <strong>Master's in Computer Science</strong> from the University of Texas at Arlington. When I'm not coding, I'm usually sharpening my problem-solving on LeetCode or exploring new tools in the data and AI space.</p>
+    </div>
+    <div class="about-facts reveal">
+      <div class="about-fact">
+        <div class="about-fact-label">Focus</div>
+        <div class="about-fact-value">Backend &amp; Real-Time Systems</div>
+      </div>
+      <div class="about-fact">
+        <div class="about-fact-label">Based In</div>
+        <div class="about-fact-value">Mumbai, India</div>
+      </div>
+      <div class="about-fact">
+        <div class="about-fact-label">Education</div>
+        <div class="about-fact-value">M.S. Computer Science</div>
+      </div>
+      <div class="about-fact">
+        <div class="about-fact-label">Currently</div>
+        <div class="about-fact-value">Open To Opportunities</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
 <!-- EXPERIENCE -->
 <section id="experience">
   <div class="section-label">Career</div>
   <h2 class="section-title">EXPERIENCE</h2>
   <div class="exp-card reveal">
     <div class="exp-meta">
-      <div class="exp-date">JUL 2025 — PRESENT</div>
+      <div class="exp-date">JUL 2025 — JUN 2026</div>
       <div class="exp-company">FAYBLE<br>INC.</div>
-      <div class="exp-type">California (Remote)</div>
+      <div class="exp-type">California, USA (Remote)</div>
     </div>
     <div class="exp-body">
       <div class="exp-role">SOFTWARE DEVELOPER INTERN</div>
       <ul class="exp-bullets">
-        <li>Built backend services for a real-time American Football simulation platform using Python, FastAPI, WebSockets, and Apache Kafka — delivering low-latency game-state streaming that supports efficient, scalable data processing.</li>
-        <li>Developed an AI-powered sports commentary system integrating LLMs (Gemini, Groq) with custom prompt engineering, enhancing contextual broadcast-style narration through robust data pipelines.</li>
-        <li>Implemented a text-to-speech pipeline using the ElevenLabs V3 API with audio sequencing logic, generating seamless high-quality broadcast audio for live commentary.</li>
-        <li>Collaborated with stakeholders to analyze data requirements, translating them into technical specifications for backend integration and data processing infrastructure.</li>
+        <li>Architected a Kafka-based game-event replay system in Python that ingested feeds across 19 simulated games (~1,274 messages), deduplicating by (game_id, message_num) and preserving event ordering with both blast and timestamp-accurate real-time replay producers.</li>
+        <li>Developed FastAPI services to serve game events to clients — a polling API with feed-type filtering and a simulator exposing a WebSocket contract (snapshot, play, commentary, game-end) consumed by a React scoreboard for live game state.</li>
+        <li>Implemented an LLM-driven commentary pipeline converting game events into broadcast-style dialogue with Gemini and Groq, then synthesizing speech via ElevenLabs; benchmarked providers (Groq ~10x faster for text) and designed a single-emotion-per-play approach that cut audio generation time roughly threefold.</li>
+        <li>Built an archery video-production pipeline that stitched pre-recorded clips into full matches with ffmpeg (crossfades, multi-channel audio) and synced AI-generated commentary, emitting structured per-play metadata for the platform's feeds.</li>
+        <li>Contributed to a Supabase-backed wagering portal (FastAPI + Jinja2), implementing bet-placement flows via Postgres RPCs with row-level security and a leaderboard.</li>
       </ul>
     </div>
   </div>
@@ -696,6 +807,32 @@
 
 <div class="divider"></div>
 
+<!-- RECOMMENDATIONS -->
+<section id="recommendations">
+  <div class="section-label">Endorsements</div>
+  <h2 class="section-title">RECOMMENDATIONS</h2>
+  <div class="rec-grid rec-grid-single">
+    <div class="rec-card reveal">
+      <p class="rec-quote">I highly recommend Anurag as a junior software developer. He is highly adaptable and contributed across a wide range of components, from database to APIs to media pipelines. Anurag quickly learned new concepts, delivered solid results, and consistently met timelines. He would be a strong addition to any engineering team.</p>
+      <div class="rec-author">
+        <div class="rec-avatar">
+          <img src="alan-moskowitz.jpg" alt="Alan Moskowitz" loading="lazy">
+        </div>
+        <div class="rec-author-info">
+          <div class="rec-name">Alan Moskowitz</div>
+          <div class="rec-role">Founder &amp; CEO · Fayble Inc.</div>
+          <div class="rec-rel">Managed Anurag directly · Apr 2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="rec-linkedin-cta">
+    <a href="https://linkedin.com/in/bhandary-anurag" target="_blank" rel="noopener noreferrer" class="btn btn-outline">See More On LinkedIn</a>
+  </div>
+</section>
+
+<div class="divider"></div>
+
 <!-- PROJECTS -->
 <section id="projects">
   <div class="section-label">Work</div>
@@ -703,10 +840,10 @@
   <div class="projects-grid">
     <div class="proj-card reveal" data-num="01">
       <div class="proj-accent-line"></div>
-      <div class="proj-title">REAL-TIME EVENT STREAMING PLATFORM</div>
-      <p class="proj-desc">A backend service simulating and streaming live sports events with real-time score and state updates. WebSocket broadcasting pushes live updates to clients with low latency, while PostgreSQL schemas persist match state and support failure recovery. Redis pub/sub distributes events to multiple subscribers.</p>
+      <div class="proj-title">REAL-TIME EVENT STREAMING PIPELINE</div>
+      <p class="proj-desc">A pipeline that replays timestamped sports-event feeds through Kafka and ingests them into SQLite with deduplication and ordering guarantees, exposing a FastAPI endpoint to fetch events by sequence number and feed type. Live game-state updates stream to browser clients over WebSockets, driving a React scoreboard with scores, clock, and play data.</p>
       <div class="proj-stack">
-        <span class="proj-tag">Python</span><span class="proj-tag">FastAPI</span><span class="proj-tag">WebSockets</span><span class="proj-tag">PostgreSQL</span><span class="proj-tag">Redis</span>
+        <span class="proj-tag">Python</span><span class="proj-tag">FastAPI</span><span class="proj-tag">Kafka</span><span class="proj-tag">WebSockets</span><span class="proj-tag">SQLite</span>
       </div>
       <div class="proj-links">
         <a class="proj-link-icon" href="https://github.com/AnuragBhandary/Event-streaming" target="_blank" rel="noopener noreferrer" aria-label="Open Event Streaming GitHub repository" title="View on GitHub">
@@ -734,7 +871,7 @@
     <div class="proj-card reveal" data-num="03">
       <div class="proj-accent-line"></div>
       <div class="proj-title">WORKOUT TRACKER WITH PROGRESS VISUALIZATION</div>
-      <p class="proj-desc">A full-stack fitness tracking app with React frontend, Flask REST API, and MySQL for exercise logging and progress visualization. Includes JWT authentication, CRUD operations via SQLAlchemy ORM, statistical analysis endpoints, and interactive Chart.js dashboards. Containerized with Docker.</p>
+      <p class="proj-desc">A full-stack fitness tracker with a React frontend, Flask REST API, and MySQL for exercise logging and progress visualization. Includes JWT authentication, input validation, and interactive Chart.js dashboards — containerized with Docker for consistent deployment.</p>
       <div class="proj-stack">
         <span class="proj-tag">React</span><span class="proj-tag">Flask</span><span class="proj-tag">MySQL</span><span class="proj-tag">Chart.js</span><span class="proj-tag">Docker</span>
       </div>
@@ -750,6 +887,14 @@
             <path d="M5 5h6v2H7v10h10v-4h2v6H5V5z"/>
           </svg>
         </a>
+      </div>
+    </div>
+    <div class="proj-card reveal" data-num="04">
+      <div class="proj-accent-line"></div>
+      <div class="proj-title">AI SPORTS-COMMENTARY ENGINE</div>
+      <p class="proj-desc">A three-stage pipeline (event ticker → LLM brain → TTS voices) that turns play-by-play data into dual-commentator audio, with context tracking for score, momentum, and player performance to shape narration intensity. LLM and TTS providers were benchmarked for latency and cost to balance quality against generation speed.</p>
+      <div class="proj-stack">
+        <span class="proj-tag">Python</span><span class="proj-tag">Gemini</span><span class="proj-tag">Groq</span><span class="proj-tag">ElevenLabs</span><span class="proj-tag">pydub</span>
       </div>
     </div>
   </div>
@@ -768,7 +913,7 @@
       <div class="edu-school">UNIVERSITY OF TEXAS AT ARLINGTON</div>
       <div class="edu-details">
         <div class="edu-detail"><strong>3.42</strong>GPA</div>
-        <div class="edu-detail"><strong>2023–25</strong>ARLINGTON, TX</div>
+        <div class="edu-detail"><strong>2023–25</strong>ARLINGTON, TX, USA</div>
       </div>
     </div>
     <div class="edu-card reveal">
@@ -802,7 +947,7 @@
 
 <footer>
   <p>ANURAG NAVIN BHANDARY</p>
-  <p>SOFTWARE ENGINEER · ARLINGTON, TX</p>
+  <p>SOFTWARE ENGINEER · MUMBAI, INDIA</p>
   <p class="avail-dot">AVAILABLE FOR OPPORTUNITIES</p>
 </footer>
 
@@ -852,7 +997,7 @@
   reveals.forEach(function(r) { observer.observe(r); });
 
   // Set email via JS to prevent scraping/Cloudflare mangling
-  var u = 'anuragb2901';
+  var u = 'bhandaryanurag';
   var d = 'gmail.com';
   var el = document.getElementById('email-link');
   var disp = document.getElementById('email-display');
@@ -860,6 +1005,41 @@
     el.href = 'mailto:' + u + '@' + d;
     disp.textContent = u + '@' + d;
   }
+
+  // Mobile menu toggle
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', function() {
+      var isOpen = navLinks.classList.toggle('open');
+      navToggle.classList.toggle('open', isOpen);
+      navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    navLinks.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        navLinks.classList.remove('open');
+        navToggle.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  // Active nav link on scroll (scroll-spy)
+  var navAnchors = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+  var sections = navAnchors
+    .map(function(a) { return document.querySelector(a.getAttribute('href')); })
+    .filter(Boolean);
+  var spy = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var id = entry.target.getAttribute('id');
+        navAnchors.forEach(function(a) {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  sections.forEach(function(s) { spy.observe(s); });
 </script>
 </body>
 </html>
