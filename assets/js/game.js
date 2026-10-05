@@ -162,7 +162,7 @@
         modules: [["dj", 88, 30], ["pulse", 133, 12]],
         gate: [154, 12],
         signs: [
-          [8.5, 23.5, "← →  move      SPACE  jump"], [19, 20.5, "Q  hold to block · raise it right before a hit to parry"], [16.5, 23, "Z  code slash      hold ↑ / ↓ to aim"],
+          [8.5, 23.5, "A D  move      SPACE  jump"], [19, 20.5, "Q  hold to block · raise it right before a hit to parry"], [16.5, 23, "Z  code slash      arrow keys aim (you stand still)"],
           [24.5, 22.5, "jump into a wall · press jump again to kick off it"], [44, 10, "spikes bite · jump the pit"],
           [69, 28.5, "terminals save your progress and heal you"], [86, 27.5, "wall-jump up the narrow gap →"],
           [110, 10.5, "too far? double jump"], [131, 9.5, "F  hold to focus: spend RAM to heal"],
@@ -205,7 +205,7 @@
       z.carve(71, 14, 95, 39);
       z.plat(73, 77, 35); z.plat(80, 84, 31); z.plat(87, 91, 27); z.plat(80, 84, 23); z.plat(88, 95, 19);
       // dash corridor with a long spike field
-      z.carve(96, 14, 130, 18); z.carve(101, 9, 118, 18); z.carve(105, 19, 113, 20); z.spikes(105, 113, 20);
+      z.carve(96, 14, 130, 18); z.carve(100, 9, 120, 18); z.carve(104, 19, 114, 20); z.spikes(104, 114, 20);
       // final hall
       z.carve(131, 9, 167, 18); z.fill(146, 15, 148, 18, "#");
       return {
@@ -218,7 +218,7 @@
         signs: [
           [12, 29.5, "V  laptop slam · smash through cracked floors"], [40, 36.5, "memory leaks leave toxic puddles"],
           [62, 36.5, "firewall brutes hit hard · strike, then step back"], [101, 15.5, "SHIFT  cache dash · works in mid-air"],
-          [108, 16.5, "jump, double jump, then dash"],
+          [109, 16.5, "jump, double jump, then dash"],
         ],
       };
     } },
@@ -230,7 +230,7 @@
         terminals: [[2, 17, true]],
         enemies: [["coder", 30, 17]],
         shards: [], modules: [], gate: null,
-        signs: [[11, 14.5, "it flashes before it claws · block (Q) or parry, then strike"]],
+        signs: [],
       };
     } },
   ];
@@ -304,15 +304,15 @@
   var Z, L, ART, P, enemies = [], shots = [], walls = [], puddles = [], fx = [], parts = [], motes = [], pickups = [], cam = { x: 0, y: 0 }, state = "boot", zoneIndex = 0;
   var shake = 0, hitstop = 0, flash = 0, fade = 0, fadeTo = null, titleT = 0, banner = null;
   var checkpoint, run;
-  var keys = { left: false, right: false, up: false, down: false, jump: false, slash: false, focus: false, pulse: false, firewall: false, slam: false, dash: false, block: false };
+  var keys = { left: false, right: false, up: false, down: false, aimL: false, aimR: false, aimU: false, aimD: false, jump: false, slash: false, focus: false, pulse: false, firewall: false, slam: false, dash: false, block: false };
   var pressed = {};
   var best = 0;
   try { best = parseInt(localStorage.getItem("anb_devrun_best_time") || "0", 10) || 0; } catch (_) {}
 
   var MAX_HP = 5, RAM_MAX = 99;
   var COST = { pulse: 11, firewall: 33, heal: 33 };
-  var PH = { walk: 250, accG: 2200, accA: 1600, decG: 1900, decA: 700, jump: 610, dj: 545, gHold: 1800, gRel: 4500, gFall: 2300, maxFall: 720,
-    slide: 140, wjX: 300, wjY: 560, dash: 560, dashT: 0.17 };
+  var PH = { walk: 285, accG: 2200, accA: 1600, decG: 1900, decA: 700, jump: 610, dj: 545, gHold: 1800, gRel: 4500, gFall: 2300, maxFall: 720,
+    slide: 140, wjX: 300, wjY: 560, dash: 700, dashT: 0.2 };
   var ABILITY_INFO = {
     dj: ["DOUBLE JUMP", "press SPACE again in mid-air"],
     pulse: ["DEBUG PULSE", "X · a stunning bolt · hold ↑/↓ (and ←/→) to aim up, down or diagonally"],
@@ -474,7 +474,7 @@
     // Debug Shield: hold Q to block hits from the front; raising it just before a hit parries
     var wasBlocking = p.blocking;
     p.blocking = k.block && !busy && p.slashT <= 0 && p.kb <= 0 && !p.sliding;
-    if (p.blocking) { if (!wasBlocking) p.blockT = 0; p.blockT += STEP; if (dir) p.face = dir; }
+    if (p.blocking) { if (!wasBlocking) p.blockT = 0; p.blockT += STEP; var bf = aim().x || dir; if (bf) p.face = bf; }
 
     // focus (heal)
     var focusing = k.focus && p.ground && p.ram >= COST.heal && p.hp < MAX_HP && p.kb <= 0 && p.slashT <= 0 && !busy;
@@ -619,12 +619,21 @@
     return tileAt(Math.floor((P.x + 1) / T), ty) === "=" || tileAt(Math.floor((P.x + P.w - 1) / T), ty) === "=";
   }
 
+  // aim direction: the arrow keys when any is held, otherwise W A S D (touch pad)
+  function aim() {
+    var k = keys;
+    if (k.aimL || k.aimR || k.aimU || k.aimD) return { x: (k.aimR ? 1 : 0) - (k.aimL ? 1 : 0), y: (k.aimD ? 1 : 0) - (k.aimU ? 1 : 0) };
+    return { x: (k.right ? 1 : 0) - (k.left ? 1 : 0), y: (k.down ? 1 : 0) - (k.up ? 1 : 0) };
+  }
+
   /* ---- Code Slash ---- */
   function startSlash() {
     var p = P;
     p.slashT = 0.26; p.slashCd = 0.34; p.hitList = [];
     if (p.sliding) p.face = -p.wallDir;
-    p.slashDir = keys.up ? "u" : keys.down && !p.ground ? "d" : "f";
+    var am = aim();
+    if (am.x && !am.y) p.face = am.x;
+    p.slashDir = am.y < 0 ? "u" : am.y > 0 && !p.ground ? "d" : "f";
     // the arc art bulges toward its left edge; mirror it so it always sweeps outward, away from the hero
     var ox = p.slashDir === "f" ? p.face * 30 : 0, oy = p.slashDir === "u" ? -22 : p.slashDir === "d" ? 66 : 22;
     var rot = p.slashDir === "u" ? -Math.PI / 2 * p.face : p.slashDir === "d" ? Math.PI / 2 * p.face : 0;
@@ -667,7 +676,7 @@
     if (p.sliding) p.face = -p.wallDir;
     p.ram -= COST.pulse; p.pulseCd = 0.32; p.castT = 0.3; p.castKind = "pulse";
     // aim: ↑/↓ alone fires straight up/down, ↑/↓ plus ←/→ fires diagonally
-    var hx = keys.left || keys.right ? (keys.right ? 1 : -1) : 0, vy = keys.up ? -1 : keys.down ? 1 : 0;
+    var am = aim(), hx = am.x, vy = am.y;
     if (hx) p.face = hx;
     if (!vy) hx = p.face;
     var len = Math.hypot(hx, vy), dx = hx / len, dy = vy / len, sp = 470;
@@ -1328,7 +1337,7 @@
     }
     c.font = "500 " + Math.round(9 * u) + "px 'IBM Plex Mono', monospace"; c.textBaseline = "middle";
     c.fillStyle = "#8ff4ff"; c.fillText("◆ " + Object.keys(run.shards).length, cx + R + 9 * u, cy + 15 * u);
-    var ab = [["block", "Q"], ["dj", "↑↑"], ["pulse", "X"], ["firewall", "C"], ["slam", "V"], ["dash", "⇧"]].filter(function (a) { return a[0] === "block" || run.abilities[a[0]]; });
+    var ab = [["block", "Q"], ["dj", "↑↑"], ["pulse", "X"], ["firewall", "C"], ["slam", "V"], ["dash", "»"]].filter(function (a) { return a[0] === "block" || run.abilities[a[0]]; });
     c.font = "600 " + Math.round(7.5 * u) + "px 'IBM Plex Mono', monospace";
     ab.forEach(function (a, i) {
       var bx = cx + R + 40 * u + i * 20 * u, by = cy + 10 * u;
@@ -1347,6 +1356,7 @@
       c.font = Math.round(13 * u) + "px 'Bebas Neue', sans-serif"; c.fillStyle = "#f3d6ff"; c.textAlign = "center";
       c.fillText("CORRUPTED CODER", cv.width / 2, by2 - 9 * u); c.textAlign = "left";
     }
+    if (Z.boss) bossHelp(u);
     if (titleT < 4.2 && state === "play") {
       var a2 = titleT < 0.8 ? titleT / 0.8 : titleT > 3.2 ? Math.max(0, 4.2 - titleT) : 1;
       c.globalAlpha = a2; c.textAlign = "center";
@@ -1370,6 +1380,39 @@
     }
   }
 
+  // the boss room keeps every control on screen as a reminder
+  function bossHelp(u) {
+    var c = ctx, touch = window.matchMedia("(pointer: coarse)").matches;
+    var rows = [
+      ["Q", "block · tap just before a hit to parry"],
+      [touch ? "B" : "Z", "slash"],
+      ["X", "pulse", "pulse"],
+      [touch ? "▲▼◀▶" : "ARROWS", touch ? "aim" : "aim, standing still"],
+      ["C", "firewall stops shots", "firewall"],
+      [touch ? "»" : "SHIFT", "dash through attacks", "dash"],
+      ["V", "slam", "slam"],
+      ["F", "hold to heal", ""],
+      [touch ? "◀▶ A" : "WASD SPACE", "move, jump"],
+    ].filter(function (r) { return !r[2] || run.abilities[r[2]]; });
+    var fs = Math.round(6.5 * u), lh = 9.5 * u, pad = 5 * u, gap = 6 * u; c.save(); if ("letterSpacing" in c) c.letterSpacing = "0px";
+    c.font = "600 " + fs + "px 'IBM Plex Mono', monospace";
+    var kw = Math.max.apply(null, rows.map(function (r) { return c.measureText(r[0]).width; }));
+    var head = "! FLASH = CLAW INCOMING", w = c.measureText(head).width;
+    c.font = "500 " + fs + "px 'IBM Plex Mono', monospace";
+    rows.forEach(function (r) { w = Math.max(w, kw + gap + c.measureText(r[1]).width); });
+    w += pad * 2;
+    var h = (rows.length + 1) * lh + pad * 2, x = cv.width - w - 16 * u, y = 30 * u;
+    c.fillStyle = "rgba(5,10,16,.55)"; c.fillRect(x, y, w, h);
+    c.strokeStyle = "rgba(214,60,255,.4)"; c.lineWidth = Math.max(1, u * 0.5); c.strokeRect(x, y, w, h);
+    c.textBaseline = "middle"; c.textAlign = "left";
+    c.font = "600 " + fs + "px 'IBM Plex Mono', monospace"; c.fillStyle = "#f08bff"; c.fillText(head, x + pad, y + pad + lh * 0.5);
+    rows.forEach(function (r, i) {
+      var ry = y + pad + lh * (i + 1.5);
+      c.font = "600 " + fs + "px 'IBM Plex Mono', monospace"; c.fillStyle = "#8ff4ff"; c.fillText(r[0], x + pad, ry);
+      c.font = "500 " + fs + "px 'IBM Plex Mono', monospace"; c.fillStyle = "rgba(231,235,242,.8)"; c.fillText(r[1], x + pad + kw + gap, ry);
+    });    c.restore();
+  }
+
   /* ======================================================================= LOOP + UI */
 
   function frame(now) {
@@ -1377,7 +1420,7 @@
     var dt = last ? Math.min(0.1, (now - last) / 1000) : STEP;
     last = now; acc += dt;
     var n = 0;
-    while (acc >= STEP && n < 14) { if (L) step(); acc -= STEP; n++; }
+    while (acc >= STEP && n < 14) { if (L && state !== "paused") step(); acc -= STEP; n++; }
     if (ready && L) render(); else { ctx.fillStyle = "#05080d"; ctx.fillRect(0, 0, cv.width, cv.height); }
     raf = requestAnimationFrame(frame);
   }
@@ -1413,7 +1456,7 @@
     var touch = window.matchMedia("(pointer: coarse)").matches, save = loadSave();
     showOverlay("DEV RUN",
       touch ? "◀ ▶ move · ▲ ▼ aim · A jump (again in mid-air, or off a wall) · B slash · Q block · F heal"
-        : "← → move · SPACE jump (again in mid-air · off walls) · Z slash · ↑ / ↓ aim · Q block · F heal",
+        : "W A S D move · ARROWS aim · SPACE jump (again in mid-air · off walls) · Z slash · Q block · F heal · ESC pause",
       (touch ? (window.innerHeight > window.innerWidth ? "tip: turn your phone sideways · " : "") + "tap to start" : "SPACE: new game") + (save ? " · " + (touch ? "F: " : "C: ") + "continue zone " + (save.zone + 1) : "") + " · 3 zones + a boss");
   }
 
@@ -1427,12 +1470,21 @@
   }
 
   var KEYMAP = {
-    ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right", ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down",
+    // WASD moves (and aims when no arrow is held); arrows only aim, so you can shoot without walking
+    KeyA: "left", KeyD: "right", KeyW: "up", KeyS: "down", ArrowLeft: "aimL", ArrowRight: "aimR", ArrowUp: "aimU", ArrowDown: "aimD",
     Space: "jump", KeyK: "jump", KeyZ: "slash", KeyJ: "slash", KeyF: "focus", KeyX: "pulse", KeyI: "pulse", KeyC: "firewall", KeyO: "firewall",
     KeyV: "slam", KeyU: "slam", KeyQ: "block", KeyE: "block", ShiftLeft: "dash", ShiftRight: "dash", KeyL: "dash",
   };
   function onKey(e, down) {
-    if (!running || e.code === "Escape") return;
+    if (!running) return;
+    if (e.code === "Escape") {
+      // first Esc pauses, a second Esc exits; on the title screen Esc just closes the window
+      if (state !== "play" && state !== "dead" && state !== "paused") return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      if (down) { if (state === "paused") exitGame(); else pause(); }
+      return;
+    }
+    if (state === "paused") { e.preventDefault(); e.stopImmediatePropagation(); if (down) menuKey(e.code); return; }
     if (down && (state === "title" || state === "won")) {
       if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); e.stopPropagation(); if (ready) startGame(false); return; }
       if (e.code === "KeyC" && state === "title" && loadSave()) { e.preventDefault(); e.stopPropagation(); if (ready) startGame(true); return; }
@@ -1449,11 +1501,75 @@
     keys[a] = down;
   }
 
+  /* ---- pause menu (Esc) ---- */
+  var menu = null, menuBtns = [], menuSel = 0, pausedFrom = "play";
+  var MENUS = {
+    main: { title: "PAUSED", items: [["resume", "Resume"], ["checkpoint", "Restart from last checkpoint"], ["full", "Restart full game"], ["exit", "Exit"]],
+      note: "↑ ↓ choose · enter select · esc again to exit" },
+    confirm: { title: "ARE YOU SURE?", sub: "Restarting the full game wipes this run and your saved progress.", items: [["yes", "Yes"], ["no", "No"]], row: true,
+      note: "← → choose · enter select" },
+  };
+  function buildMenu() {
+    menu = document.createElement("div"); menu.className = "g-menu"; menu.hidden = true;
+    menu.setAttribute("role", "dialog"); menu.setAttribute("aria-label", "Pause menu");
+    menu.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+    cv.parentNode.appendChild(menu);
+    var pb = document.createElement("button");   // phones have no Esc key
+    pb.type = "button"; pb.className = "g-pausebtn"; pb.setAttribute("aria-label", "Pause"); pb.textContent = "❚❚";
+    pb.addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); pause(); });
+    cv.parentNode.appendChild(pb);
+  }
+  function showMenu(name, sel) {
+    var m = MENUS[name], h = "<b>" + m.title + "</b>" + (m.sub ? "<p>" + m.sub + "</p>" : "");
+    h += '<div class="g-mlist' + (m.row ? " g-mrow" : "") + '">' + m.items.map(function (it) { return '<button type="button" class="g-mi" data-a="' + it[0] + '">' + it[1] + "</button>"; }).join("") + "</div>";
+    menu.innerHTML = h + "<small>" + m.note + "</small>";
+    menuBtns = [].slice.call(menu.querySelectorAll(".g-mi"));
+    menuBtns.forEach(function (b, i) {
+      b.addEventListener("pointerenter", function () { selectItem(i); });
+      b.addEventListener("click", function () { menuAction(b.dataset.a); });
+    });
+    menu.hidden = false;
+    selectItem(sel == null ? (name === "confirm" ? 1 : 0) : sel);   // the confirm screen starts on "No"
+  }
+  function selectItem(i) {
+    menuSel = (i + menuBtns.length) % menuBtns.length;
+    menuBtns.forEach(function (b, j) { b.classList.toggle("sel", j === menuSel); });
+  }
+  function menuKey(code) {
+    if (code === "ArrowUp" || code === "KeyW" || code === "ArrowLeft" || code === "KeyA") selectItem(menuSel - 1);
+    else if (code === "ArrowDown" || code === "KeyS" || code === "ArrowRight" || code === "KeyD" || code === "Tab") selectItem(menuSel + 1);
+    else if (code === "Enter" || code === "NumpadEnter" || code === "Space") menuAction(menuBtns[menuSel].dataset.a);
+  }
+  function releaseKeys() { Object.keys(keys).forEach(function (k) { keys[k] = false; pressed[k] = false; }); }
+  function pause() {
+    if (state !== "play" && state !== "dead") return;
+    pausedFrom = state; state = "paused"; releaseKeys(); showMenu("main");
+  }
+  function closeMenu() { if (menu) menu.hidden = true; releaseKeys(); last = 0; acc = 0; }
+  function menuAction(a) {
+    if (a === "resume") { closeMenu(); state = pausedFrom; }
+    else if (a === "checkpoint") {
+      closeMenu(); fadeTo = null; fade = 1; spawn(); state = "play";
+      banner = { t: "back online", s: "restarted at the last terminal", at: time };
+    }
+    else if (a === "full") showMenu("confirm");
+    else if (a === "no") showMenu("main", 2);
+    else if (a === "yes") {
+      try { localStorage.removeItem("anb_devrun_save"); } catch (_) {}
+      closeMenu(); fadeTo = null; fade = 1; startGame(false);
+    }
+    else if (a === "exit") exitGame();
+  }
+  // leaves the game paused, so reopening the window brings the menu back
+  function exitGame() { releaseKeys(); if (onExit) onExit(); }
+  var onExit = null;
+
   window.ANBGame = {
     init: function (opts) {
       cv = opts.canvas; ctx = cv.getContext("2d");
       low = document.createElement("canvas"); lc = low.getContext("2d");
-      ui = opts.ui || {}; ui.touch = opts.touch || []; root = opts.root || "";
+      ui = opts.ui || {}; ui.touch = opts.touch || []; root = opts.root || ""; onExit = opts.onExit || null;
+      buildMenu();
       if (ui.best) ui.best.textContent = best ? fmtTime(best) : "–";
       ZONES.forEach(function (zn) { TOTAL_SHARDS += zn.build().shards.length; });
       document.addEventListener("keydown", function (e) { onKey(e, true); }, true);
@@ -1473,7 +1589,7 @@
       if (!cv) return;
       running = true; last = 0; acc = 0;
       resize();
-      if (state !== "play" && state !== "dead") {
+      if (state !== "play" && state !== "dead" && state !== "paused") {
         state = "title";
         showOverlay("DEV RUN", "loading sprites…", "");
         loadAssets(root).then(function () { if (state === "title") showTitle(); },

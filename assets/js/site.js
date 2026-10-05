@@ -653,7 +653,8 @@
       canvas: $("#gCanvas"),
       ui: { ov: $("#gOv"), t: $("#gOvT"), l1: $("#gOv1"), l2: $("#gOv2"), best: $("#gBest") },
       touch: $$(".g-touch button"),
-      root: CFG.root || ""
+      root: CFG.root || "",
+      onExit: function () { hideApp($("#gameWin")); }
     });
   }
 

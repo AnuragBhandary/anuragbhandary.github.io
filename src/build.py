@@ -389,7 +389,7 @@ def home(track_key):
     <div class="broadcast card reveal">
       <div class="bc-top">
         <span class="bc-live">● ON AIR</span>
-        <span class="bc-co">FAYBLE, LLC</span>
+        <span class="bc-co">FAYBLE INC.</span>
         <span class="bc-meta">AI sports-simulation startup · California · remote</span>
       </div>
       <div class="bc-roles">{roles}</div>
