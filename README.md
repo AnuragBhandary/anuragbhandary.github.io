@@ -32,5 +32,5 @@ controller icon in the dock.
   loaded only when the game is opened, so they don't slow down the portfolio itself.
 - Levels are built in code (`ZONES` near the top of `game.js`): `carve` cuts rooms, `plat` adds jump-through
   grates, `spikes`, `brk` adds cracked floor that Laptop Slam breaks. Tiles are 32 px.
-- Keys: arrows/WASD move, SPACE jump (again in mid-air, or off a wall), Z slash (hold ↑/↓ to aim), X pulse,
-  C firewall, V slam, SHIFT dash, F (hold) heal.
+- Keys: WASD move, arrows turn and aim without moving, SPACE jump (again in mid-air, or off a wall), E attack,
+  F shoot, Q block/parry, R (hold) heal, C firewall, V slam, SHIFT dash, ESC pause menu (with instructions).
