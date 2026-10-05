@@ -164,8 +164,8 @@
         modules: [["dj", 88, 30], ["pulse", 133, 12]],
         gate: [154, 12],
         signs: [
-          [8.5, 23.5, "A D  move      SPACE  jump"], [19, 20.5, "Q  hold to block · raise it right before a hit to parry"], [16.5, 23, "E  attack      arrow keys turn and aim (you stand still)"],
-          [24.5, 22.5, "jump into a wall · press jump again to kick off it"], [44, 10, "spikes bite · jump the pit"],
+          [6, 23.5, "← →  move · SPACE  jump"], [11.5, 23.5, "E  attack · ↑ to aim up"], [18.5, 23.5, "Q  block · tap it just before a hit to parry"],
+          [28.5, 22, "hold toward a wall and jump to kick off it"], [44, 10, "spikes bite · jump the pit"],
           [69, 28.5, "terminals save your progress and heal you"], [86, 27.5, "wall-jump up the narrow gap →"],
           [110, 10.5, "too far? double jump"], [131, 9.5, "R  hold to regenerate: spend RAM to heal"],
         ],
@@ -192,7 +192,7 @@
         modules: [["firewall", 51, 33]],
         gate: [106, 12],
         signs: [
-          [10, 63.5, "spam drones fire envelopes · slash the envelopes away"], [38, 64.5, "climb: double jump between grates, kick off the walls"],
+          [10, 63.5, "slash or parry an envelope to send it back · two returns down a drone"], [38, 64.5, "climb: double jump between grates, kick off the walls"],
           [52, 30.5, "C  firewall: blocks every projectile for a few seconds"], [75, 30.5, "up the chimney ↑ · kick between the walls"],
         ],
       };
@@ -307,7 +307,7 @@
   var Z, L, ART, P, enemies = [], shots = [], walls = [], puddles = [], fx = [], parts = [], motes = [], pickups = [], cam = { x: 0, y: 0 }, state = "boot", zoneIndex = 0;
   var shake = 0, hitstop = 0, flash = 0, fade = 0, fadeTo = null, titleT = 0, banner = null;
   var checkpoint, run;
-  var keys = { left: false, right: false, up: false, down: false, aimL: false, aimR: false, aimU: false, aimD: false, jump: false, slash: false, focus: false, pulse: false, firewall: false, slam: false, dash: false, block: false };
+  var keys = { left: false, right: false, up: false, down: false, jump: false, slash: false, focus: false, pulse: false, firewall: false, slam: false, dash: false, block: false };
   var pressed = {};
   var best = 0;
   try { best = parseInt(localStorage.getItem("anb_devrun_best_time") || "0", 10) || 0; } catch (_) {}
@@ -318,7 +318,7 @@
     slide: 140, wjX: 300, wjY: 560, dash: 700, dashT: 0.2 };
   var ABILITY_INFO = {
     dj: ["DOUBLE JUMP", "press SPACE again in mid-air"],
-    pulse: ["DEBUG PULSE", "F · shoot a bolt · arrow keys aim up, down or diagonally"],
+    pulse: ["DEBUG PULSE", "F · shoot a bolt · ↑/↓ aims · ↑/↓ + ←/→ fires a diagonal shot that homes in"],
     firewall: ["FIREWALL", "C · a brick barrier that blocks every projectile"],
     slam: ["LAPTOP SLAM", "V · crash down with a shockwave, breaks cracked floors"],
     dash: ["CACHE DASH", "SHIFT · a fast burst that hurts what it passes through"],
@@ -372,11 +372,11 @@
   }
 
   function makeEnemy(kind, tx, ty) {
-    var S = { bug: [30, 18, 3], drone: [28, 24, 3], brute: [46, 66, 9], leak: [30, 16, 4], coder: [40, 72, 28] }[kind];
+    var S = { bug: [30, 18, 3], drone: [28, 24, 2], brute: [46, 66, 9], leak: [30, 16, 4], coder: [40, 72, 28] }[kind];
     var e = { kind: kind, w: S[0], h: S[1], hp: S[2], maxHp: S[2], vx: 0, vy: 0, face: -1, st: "idle", stT: 0, animT: Math.random(), hurt: 0, stun: 0, inv: 0,
       alive: true, dying: false, dieT: 0, kb: 0, kbx: 0, cd: 0, homeX: 0, homeY: 0, ground: false, drip: 0, phase: 1, fired: false };
     e.x = tx * T + 16 - e.w / 2;
-    if (kind === "drone") { e.y = ty * T + 16 - e.h / 2; e.homeX = e.x; e.homeY = e.y; e.st = "patrol"; e.cd = 1 + Math.random(); }
+    if (kind === "drone") { e.y = ty * T + 16 - e.h / 2; e.homeX = e.x; e.homeY = e.y; e.st = "patrol"; e.cd = 1 + Math.random(); e.swCd = 2.5 + Math.random() * 2; }
     else e.y = (ty + 1) * T - e.h;
     if (kind === "bug") { e.st = "walk"; e.face = Math.random() < 0.5 ? -1 : 1; }
     if (kind === "leak") { e.st = "crawl"; }
@@ -428,6 +428,11 @@
   function touchingWall(o, side) {
     var tx = side < 0 ? Math.floor((o.x - 1) / T) : Math.floor((o.x + o.w + 1) / T);
     return solidT(tileAt(tx, Math.floor((o.y + 8) / T))) && solidT(tileAt(tx, Math.floor((o.y + o.h - 8) / T)));
+  }
+  // a wall within reach for a wall jump: up to 10 px away, and any part of the body level with it
+  function nearWall(o, side) {
+    var tx = side < 0 ? Math.floor((o.x - 10) / T) : Math.floor((o.x + o.w + 10) / T);
+    return [8, o.h / 2, o.h - 8].some(function (dy) { return solidT(tileAt(tx, Math.floor((o.y + dy) / T))); });
   }
 
   /* ======================================================================= UPDATE */
@@ -491,7 +496,7 @@
     var touchL = touchingWall(p, -1), touchR = touchingWall(p, 1);
     var sliding = false;
     if (!p.ground && !busy && p.vy > 0 && ((dir < 0 && touchL) || (dir > 0 && touchR))) {
-      sliding = true; p.wallDir = dir < 0 ? -1 : 1; p.wallCoyote = 0.12; p.djUsed = false; p.airDash = true; p.flipT = -1;
+      sliding = true; p.wallDir = dir < 0 ? -1 : 1; p.wallCoyote = 0.2; p.djUsed = false; p.airDash = true; p.flipT = -1;
     } else p.wallCoyote = Math.max(0, p.wallCoyote - STEP);
     p.sliding = sliding;
 
@@ -527,10 +532,6 @@
       }
     }
 
-    // arrow keys turn the hero at once, even standing still (WASD movement can't override them)
-    var ax = (k.aimR ? 1 : 0) - (k.aimL ? 1 : 0);
-    if (ax && !p.sliding && p.dashT <= 0 && !p.slam && p.slashT <= 0) p.face = ax;
-
     // jumping: ground / coyote, wall jump, double jump
     if (pressed.jump) {
       pressed.jump = false;
@@ -543,10 +544,13 @@
       if (p.coyote > 0) {
         p.vy = -PH.jump; p.buf = 0; p.coyote = 0; p.ground = false; p.flipT = -1;
         dust(p.x + p.w / 2, p.y + p.h, 6);
-      } else if (p.wallCoyote > 0 || (dir < 0 && touchL) || (dir > 0 && touchR)) {
-        // only kick off a wall you are holding toward (or just slid off); next to a wall without pointing at it, you double jump
-        var wd = p.wallCoyote > 0 ? p.wallDir : dir;
-        p.vx = -wd * PH.wjX; p.vy = -PH.wjY; p.face = -wd; p.wallLock = 0.15; p.kickT = 0.22; p.buf = 0; p.wallCoyote = 0; p.flipT = -1;
+      } else if (p.wallCoyote > 0 || (dir && !p.ground && (nearWall(p, -1) || nearWall(p, 1)))) {
+        // kick off a wall you just slid on, or one within reach while holding a direction (neutral = double jump).
+        // Holding toward the wall gives a short kick so you come straight back and can climb a single wall.
+        var nl = nearWall(p, -1), nr = nearWall(p, 1);
+        var wd = p.wallCoyote > 0 ? p.wallDir : nl && nr ? dir : nl ? -1 : 1;
+        var climb = dir === wd;
+        p.vx = -wd * PH.wjX * (climb ? 0.45 : 1); p.vy = -PH.wjY; p.face = -wd; p.wallLock = climb ? 0.05 : 0.12; p.kickT = 0.22; p.buf = 0; p.wallCoyote = 0; p.flipT = -1;
         p.djUsed = false; p.airDash = true;
         dust(wd < 0 ? p.x : p.x + p.w, p.y + p.h / 2, 6);
       } else if (run.abilities.dj && !p.djUsed) {
@@ -627,10 +631,9 @@
     return tileAt(Math.floor((P.x + 1) / T), ty) === "=" || tileAt(Math.floor((P.x + P.w - 1) / T), ty) === "=";
   }
 
-  // aim direction: the arrow keys when any is held, otherwise W A S D (touch pad)
+  // aim direction: whatever direction keys are held
   function aim() {
     var k = keys;
-    if (k.aimL || k.aimR || k.aimU || k.aimD) return { x: (k.aimR ? 1 : 0) - (k.aimL ? 1 : 0), y: (k.aimD ? 1 : 0) - (k.aimU ? 1 : 0) };
     return { x: (k.right ? 1 : 0) - (k.left ? 1 : 0), y: (k.down ? 1 : 0) - (k.up ? 1 : 0) };
   }
 
@@ -665,7 +668,10 @@
       p.ram = Math.min(RAM_MAX, p.ram + 10);
     });
     shots.forEach(function (s) {
-      if (s.enemy && !s.dead && p.hitList.indexOf(s) < 0 && overlap(box, s)) { p.hitList.push(s); s.dead = true; any = true; impact(s.x + s.w / 2, s.y + s.h / 2); p.ram = Math.min(RAM_MAX, p.ram + 4); }
+      if (s.enemy && !s.dead && p.hitList.indexOf(s) < 0 && overlap(box, s)) {
+        p.hitList.push(s); any = true; p.ram = Math.min(RAM_MAX, p.ram + 4);
+        if (s.kind === "env") reflectShot(s); else { s.dead = true; impact(s.x + s.w / 2, s.y + s.h / 2); }
+      }
     });
     if (p.slashDir === "d" && p.vy > -100) {
       var ty = Math.floor((box.y + box.h - 8) / T);
@@ -690,7 +696,7 @@
     var len = Math.hypot(hx, vy), dx = hx / len, dy = vy / len, sp = 470;
     var ox = p.x + p.w / 2 + dx * 24, oy = p.y + 20 + dy * 26;
     shots.push({ kind: "pulse", x: ox - 12, y: oy - 10, w: 24, h: 20, vx: dx * sp, vy: dy * sp, t: 0, life: 1.0, face: p.face,
-      rot: p.face > 0 ? Math.atan2(dy, dx) : Math.atan2(dy, dx) - Math.PI, hit: [] });
+      rot: p.face > 0 ? Math.atan2(dy, dx) : Math.atan2(dy, dx) - Math.PI, hit: [], homing: !!(am.x && am.y) && { dx: dx, dy: dy } });
     sparks(ox, oy, p.face, "#00e5ff");
   }
   function castFirewall() {
@@ -778,6 +784,33 @@
   }
 
   /* ---- projectiles ---- */
+  // turn a shot toward a target, keeping its speed
+  function steer(s, t, rate) {
+    var a = Math.atan2(s.vy, s.vx), sp = Math.hypot(s.vx, s.vy);
+    var want = Math.atan2(t.y + t.h / 2 - (s.y + s.h / 2), t.x + t.w / 2 - (s.x + s.w / 2));
+    var d = Math.atan2(Math.sin(want - a), Math.cos(want - a));
+    a += Math.max(-rate * STEP, Math.min(rate * STEP, d));
+    s.vx = Math.cos(a) * sp; s.vy = Math.sin(a) * sp;
+    if (s.kind === "pulse") s.rot = s.face > 0 ? a : a - Math.PI;
+  }
+  // a diagonal pulse locks onto the nearest enemy roughly in the direction it was aimed
+  function homingTarget(s) {
+    var best = null, bd = 480, cx = s.x + s.w / 2, cy = s.y + s.h / 2;
+    enemies.forEach(function (e) {
+      if (!e.alive || e.dying || e.st === "dormant" || s.hit.indexOf(e) >= 0) return;
+      var vx = e.x + e.w / 2 - cx, vy = e.y + e.h / 2 - cy, d = Math.hypot(vx, vy);
+      if (d < bd && (vx * s.homing.dx + vy * s.homing.dy) / d > 0.75) { best = e; bd = d; }
+    });
+    return best;
+  }
+  // a slashed or parried envelope turns into the player's shot and heads back to its drone
+  function reflectShot(s) {
+    var t = s.src && s.src.alive && !s.src.dying ? s.src : null, cx = s.x + s.w / 2, cy = s.y + s.h / 2;
+    var dx = t ? t.x + t.w / 2 - cx : -s.vx, dy = t ? t.y + t.h / 2 - cy : -s.vy, l = Math.hypot(dx, dy) || 1;
+    s.vx = dx / l * 400; s.vy = dy / l * 400; s.enemy = false; s.reflected = true; s.target = t; s.hit = []; s.t = 0; s.life = 2.2;
+    sparks(cx, cy, Math.sign(s.vx) || 1, "#ffffff");
+  }
+
   function updateShots() {
     shots.forEach(function (s) {
       s.t += STEP;
@@ -787,11 +820,27 @@
       if (solidT(tileAt(tx, ty))) { s.dead = true; impact(s.x + s.w / 2, s.y + s.h / 2); return; }
       if (s.enemy) {
         if (wallBlocks(s)) { s.dead = true; impact(s.x + s.w / 2, s.y + s.h / 2); return; }
-        if (P.dashT <= 0 && overlap(s, P)) { s.dead = true; hurtPlayer(s.x + s.w / 2 - Math.sign(s.vx) * 20, s.dmg || 1); }
+        if (P.dashT <= 0 && overlap(s, P)) {
+          // a parried envelope flies back at its drone
+          var front = (s.x + s.w / 2 - (P.x + P.w / 2)) * P.face > -4;
+          if (s.kind === "env" && P.blocking && front && P.blockT < 0.22) {
+            reflectShot(s); P.inv = Math.max(P.inv, 0.2); P.blockFlash = 0.25; P.ram = Math.min(RAM_MAX, P.ram + 20);
+            hitstop = Math.max(hitstop, 0.12); flash = 0.3; banner = { t: "parry", s: "", at: time };
+            return;
+          }
+          s.dead = true; hurtPlayer(s.x + s.w / 2 - Math.sign(s.vx) * 20, s.dmg || 1);
+        }
       } else {
+        if (s.reflected && s.target && s.target.alive && !s.target.dying) steer(s, s.target, 7);
+        if (s.homing) {
+          if (!s.target || !s.target.alive || s.target.dying) s.target = homingTarget(s);
+          if (s.target) steer(s, s.target, 5);
+        }
         enemies.forEach(function (e) {
           if (!s.dead && e.alive && !e.dying && e.st !== "dormant" && s.hit.indexOf(e) < 0 && overlap(s, e)) {
-            s.hit.push(e); hitEnemy(e, e.kind === "coder" ? 1 : 2, Math.sign(s.vx) || P.face, "pulse"); s.dead = true;
+            s.hit.push(e); s.dead = true;
+            if (s.reflected) hitEnemy(e, 1, Math.sign(s.vx) || 1, "reflect");   // two returned envelopes finish a drone
+            else hitEnemy(e, e.kind === "coder" ? 1 : 2, Math.sign(s.vx) || P.face, "pulse");
           }
         });
       }
@@ -820,7 +869,7 @@
     e.hp -= dmg; e.hurt = 0.13;
     var heavy = e.kind === "brute" ? 0.2 : e.kind === "coder" ? 0 : 1;
     e.kb = 0.18; e.kbx = dirx * 280 * heavy;
-    if (e.kind === "drone") { e.vx = dirx * 200; e.vy = -60; }
+    if (e.kind === "drone") { e.vx = dirx * 60; e.vy = -20; }   // small knockback, so a follow-up hit still lands
     if (kind === "pulse" && e.kind !== "coder") e.stun = e.kind === "brute" ? 0.6 : 1.0;   // only a parry stuns the boss
     impact(e.x + e.w / 2, e.y + e.h / 2);
     hitstop = Math.max(hitstop, kind === "slam" ? 0.08 : 0.05); shake = Math.max(shake, 3);
@@ -850,9 +899,20 @@
       }
       if (e.kb > 0) e.kb -= STEP;
       ({ bug: aiBug, drone: aiDrone, brute: aiBrute, leak: aiLeak, coder: aiCoder })[e.kind](e);
-      if (!e.dying && e.st !== "dormant" && e.st !== "out" && P.dashT <= 0 && overlap(P, { x: e.x + 3, y: e.y + 3, w: e.w - 6, h: e.h - 4 })) hurtPlayer(e.x + e.w / 2, 1, e);
+      if (!e.dying && e.st !== "dormant" && e.st !== "out" && e.st !== "dazed" && P.dashT <= 0 && overlap(P, { x: e.x + 3, y: e.y + 3, w: e.w - 6, h: e.h - 4 })) {
+        // landing on a bug from above squashes it, Mario style
+        if (e.kind === "bug" && P.vy > 0 && P.y + P.h - P.vy * STEP <= e.y + 10) stomp(e);
+        else hurtPlayer(e.x + e.w / 2, 1, e);
+      }
     });
     enemies = enemies.filter(function (e) { return e.alive; });
+  }
+
+  function stomp(e) {
+    hitEnemy(e, e.hp, 0, "stomp");
+    P.y = e.y - P.h; P.vy = keys.jump ? -560 : -400; P.djUsed = false; P.airDash = true; P.flipT = -1;
+    P.inv = Math.max(P.inv, 0.1);
+    dust(P.x + P.w / 2, P.y + P.h, 8);
   }
 
   function groundMove(e, speed) {
@@ -901,14 +961,32 @@
       var sp = Math.hypot(e.vx, e.vy); if (sp > 120) { e.vx *= 120 / sp; e.vy *= 120 / sp; }
       e.face = dx > 0 ? 1 : -1;
       if (dist > 520 || P.dead) e.st = "patrol";
+      else if (e.swCd <= 0 && dist < 380 && dy > 40) { e.st = "swoopTell"; e.stT = 0.5; e.animT = 0; }
       else if (e.cd <= 0 && dist < 420) { e.st = "shoot"; e.stT = 0; e.animT = 0; e.fired = false; }
     }
+    // swoop: flash, dive at where the player stands, then hang low and dazed, open to a slash
+    if (e.stun <= 0 && e.st === "swoopTell") {
+      e.vx *= 0.85; e.vy = e.vy * 0.85 - 20; e.stT -= STEP; e.face = dx > 0 ? 1 : -1;
+      if (e.stT <= 0) {
+        var ga = Math.atan2(P.y + P.h - 16 - cy, px - cx);
+        e.st = "dive"; e.stT = 0.75; e.vx = Math.cos(ga) * 440; e.vy = Math.sin(ga) * 440; e.face = e.vx > 0 ? 1 : -1;
+      }
+    } else if (e.stun <= 0 && e.st === "dive") {
+      e.stT -= STEP;
+      var floor = solidT(tileAt(Math.floor(cx / T), Math.floor((e.y + e.h + 4) / T))) || tileAt(Math.floor(cx / T), Math.floor((e.y + e.h + 4) / T)) === "=";
+      if (e.stT <= 0 || floor || cy > P.y + P.h - 8) { e.st = "dazed"; e.stT = 1.3; e.vx = 0; e.vy = 0; }
+    } else if (e.st === "dazed") {
+      e.stT -= STEP; e.vx *= 0.8; e.vy = Math.sin(e.animT * 7) * 14;
+      if (e.stT <= 0) { e.st = "engage"; e.swCd = 3.5 + Math.random() * 2; e.cd = Math.max(e.cd, 0.8); }
+    }
+    if (e.st === "swoopTell" || e.st === "dive" || e.st === "dazed") e.swCd = Math.max(e.swCd, 1);
+    else e.swCd = Math.max(0, e.swCd - STEP);
     if (e.st === "shoot") {
       e.stT += STEP; e.vx *= 0.9; e.vy *= 0.9;
       if (e.stT > 0.16 && !e.fired) {
         e.fired = true;
         var a = Math.atan2(dy, dx);
-        shots.push({ enemy: true, kind: "env", x: cx - 8, y: cy - 8, w: 16, h: 16, vx: Math.cos(a) * 210, vy: Math.sin(a) * 210, t: 0, life: 3, dmg: 1 });
+        shots.push({ enemy: true, kind: "env", src: e, x: cx - 8, y: cy - 8, w: 16, h: 16, vx: Math.cos(a) * 210, vy: Math.sin(a) * 210, t: 0, life: 3, dmg: 1 });
       }
       if (e.stT > 0.34) { e.st = "engage"; e.cd = 1.9 + Math.random() * 0.6; }
     }
@@ -1122,7 +1200,7 @@
     shots.forEach(function (s) {
       var cx = s.x + s.w / 2, cy = s.y + s.h / 2;
       if (s.kind === "pulse") { glow(x, cx - cam.x, cy - cam.y, 30, "rgba(0,229,255,.35)"); drawF(x, frameOf(A.fx.pulse_projectile, s.t), cx, cy, s.face, { add: true, rot: s.rot || 0 }); }
-      else if (s.kind === "env") { glow(x, cx - cam.x, cy - cam.y, 16, "rgba(255,80,80,.3)"); drawF(x, frameOf(A.drone.envelope_projectile, s.t), cx, cy, s.vx < 0 ? -1 : 1); }
+      else if (s.kind === "env") { glow(x, cx - cam.x, cy - cam.y, s.reflected ? 24 : 16, s.reflected ? "rgba(0,229,255,.5)" : "rgba(255,80,80,.3)"); drawF(x, frameOf(A.drone.envelope_projectile, s.t), cx, cy, s.vx < 0 ? -1 : 1); }
       else {
         glow(x, cx - cam.x, cy - cam.y, 20, "rgba(214,60,255,.45)");
         var sx = Math.round(cx - cam.x), sy = Math.round(cy - cam.y), j = Math.floor(s.t * 30) % 3 - 1;
@@ -1236,7 +1314,9 @@
       drawF(x, fr, cx, bottom + 1, face, opt);
     } else if (e.kind === "drone") {
       fr = e.dying ? frameOf(set.death, e.dieT) : e.st === "shoot" ? frameOf(set.shoot, e.animT) : frameOf(set.fly, e.animT);
-      glow(x, cx - cam.x, e.y + e.h / 2 - cam.y, 34, "rgba(255,60,60,.2)");
+      if (e.st === "swoopTell") { opt.flash = Math.floor(time * 18) % 2 === 0; cx += Math.round(Math.sin(time * 70) * 1.5); }
+      if (e.st === "dazed") { opt.alpha = 0.75; cx += Math.round(Math.sin(time * 9) * 2); }
+      glow(x, cx - cam.x, e.y + e.h / 2 - cam.y, e.st === "swoopTell" || e.st === "dive" ? 48 : 34, e.st === "dazed" ? "rgba(140,140,160,.18)" : e.st === "swoopTell" || e.st === "dive" ? "rgba(255,60,60,.45)" : "rgba(255,60,60,.2)");
       drawF(x, fr, cx, e.y + e.h / 2, face, opt);
     } else if (e.kind === "brute") {
       fr = e.dying ? frameOf(set.death, e.dieT) : e.hurt > 0 ? frameOf(set.hurt, 0.13 - e.hurt) : e.st === "windup" ? frameOf(set.windup, e.animT) : e.st === "slam" ? frameOf(set.slam, e.animT) : e.st === "walk" ? frameOf(set.walk, e.animT) : frameOf(set.idle, e.animT);
@@ -1325,11 +1405,14 @@
     if (state !== "play") return;
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.font = "500 " + Math.round(12 * scale) + "px 'IBM Plex Mono', monospace";
-    L.spec.signs.forEach(function (s) {
-      var wx = s[0] * T, wy = s[1] * T;
-      var d = Math.hypot(P.x - wx, (P.y - wy) * 0.6);
+    // only the nearest sign shows, crossfading with its neighbour, so signs never pile up
+    var ds = L.spec.signs.map(function (s) { return Math.hypot(P.x + P.w / 2 - s[0] * T, (P.y - s[1] * T) * 0.6); });
+    L.spec.signs.forEach(function (s, i) {
+      var wx = s[0] * T, wy = s[1] * T, d = ds[i];
       if (d > 340) return;
-      var a = Math.max(0, Math.min(1, (340 - d) / 140));
+      var other = Math.min.apply(null, ds.filter(function (_, j) { return j !== i; }).concat([1e9]));
+      var a = Math.max(0, Math.min(1, (340 - d) / 140)) * Math.max(0, Math.min(1, (other - d) / 48));
+      if (a <= 0.01) return;
       ctx.fillStyle = "rgba(0,0,0," + (a * 0.5).toFixed(2) + ")";
       ctx.fillText(s[2], (wx - cam.x) * scale + 1, (wy - cam.y) * scale + 1);
       ctx.fillStyle = "rgba(220,250,255," + (a * 0.9).toFixed(2) + ")";
@@ -1442,7 +1525,7 @@
     var touch = window.matchMedia("(pointer: coarse)").matches, save = loadSave();
     showOverlay("DEV RUN",
       touch ? "◀ ▶ move · ▲ ▼ aim · A jump (again in mid-air, or off a wall) · B attack · Q block · R heal"
-        : "W A S D move · ARROWS turn + aim · SPACE jump · E attack · F shoot · Q block/parry · R heal · ESC pause",
+        : "ARROWS / WASD move + aim · SPACE jump · E attack · F shoot · Q block/parry · R heal · ESC pause",
       (touch ? (window.innerHeight > window.innerWidth ? "tip: turn your phone sideways · " : "") + "tap to start" : "SPACE: new game") + (save ? " · " + (touch ? "R: " : "C: ") + "continue zone " + (save.zone + 1) : "") + " · 3 zones + a boss");
   }
 
@@ -1456,8 +1539,7 @@
   }
 
   var KEYMAP = {
-    // WASD moves (and aims when no arrow is held); arrows only aim, so you can shoot without walking
-    KeyA: "left", KeyD: "right", KeyW: "up", KeyS: "down", ArrowLeft: "aimL", ArrowRight: "aimR", ArrowUp: "aimU", ArrowDown: "aimD",
+    ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right", ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down",
     Space: "jump", KeyK: "jump", KeyE: "slash", KeyF: "pulse", KeyR: "focus", KeyC: "firewall", KeyO: "firewall",
     KeyV: "slam", KeyU: "slam", KeyQ: "block", ShiftLeft: "dash", ShiftRight: "dash", KeyL: "dash",
   };
@@ -1523,8 +1605,8 @@
   function helpHTML() {
     var touch = window.matchMedia("(pointer: coarse)").matches, has = function (a) { return !a || run.abilities[a]; };
     var rows = [
-      [touch ? "◀ ▶" : "W A S D", "move · S + jump drops through grates"],
-      [touch ? "▲ ▼" : "ARROWS", touch ? "aim" : "turn and aim, standing still"],
+      [touch ? "◀ ▶" : "ARROWS / WASD", "move · down + jump drops through grates"],
+      [touch ? "▲ ▼" : "↑ ↓", "aim attacks and shots up or down · add ← → for diagonal shots"],
       [touch ? "A" : "SPACE", "jump · again in mid-air · jump into a wall, then again to kick off"],
       [touch ? "B" : "E", "attack · aim up, or down in mid-air to bounce off enemies"],
       ["Q", "hold to block · tap just before a hit to parry and stun"],
@@ -1538,7 +1620,7 @@
     return '<dl class="g-help">' + rows.map(function (r) {
       var ok = has(r[2]);
       return '<div' + (ok ? "" : ' class="off"') + "><dt>" + r[0] + "</dt><dd>" + r[1] + (ok ? "" : " · not found yet") + "</dd></div>";
-    }).join("") + '</dl><p class="g-tips">Terminals save and heal you. The boss flashes before it claws: block or parry, then strike.</p>';
+    }).join("") + '</dl><p class="g-tips">Jump on bugs to squash them. Slash or parry an envelope to send it back: two returns down a drone. A flashing drone is about to dive: dodge it, then hit it while it is dazed. Aim a pulse diagonally and it homes in. Terminals save and heal you. The boss flashes before it claws: block or parry, then strike.</p>';
   }
   function selectItem(i) {
     menuSel = (i + menuBtns.length) % menuBtns.length;
