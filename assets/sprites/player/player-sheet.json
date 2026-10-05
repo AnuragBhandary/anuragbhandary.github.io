@@ -1,0 +1,114 @@
+{
+  "image": "player-sheet.png",
+  "size": [
+    512,
+    1024
+  ],
+  "cell": [
+    64,
+    64
+  ],
+  "pivot": [
+    32,
+    62
+  ],
+  "facing": "right",
+  "animations": {
+    "idle": {
+      "row": 0,
+      "frames": 6,
+      "fps": 8,
+      "loop": true
+    },
+    "run": {
+      "row": 1,
+      "frames": 8,
+      "fps": 12,
+      "loop": true
+    },
+    "jump_rise": {
+      "row": 2,
+      "frames": 3,
+      "fps": 10,
+      "loop": false
+    },
+    "fall": {
+      "row": 3,
+      "frames": 3,
+      "fps": 8,
+      "loop": true
+    },
+    "double_jump_frontflip": {
+      "row": 4,
+      "frames": 6,
+      "fps": 14,
+      "loop": false
+    },
+    "land": {
+      "row": 5,
+      "frames": 2,
+      "fps": 12,
+      "loop": false
+    },
+    "slash_forward": {
+      "row": 6,
+      "frames": 5,
+      "fps": 14,
+      "loop": false
+    },
+    "slash_up": {
+      "row": 7,
+      "frames": 5,
+      "fps": 14,
+      "loop": false
+    },
+    "slash_down_air": {
+      "row": 8,
+      "frames": 5,
+      "fps": 14,
+      "loop": false
+    },
+    "hurt": {
+      "row": 9,
+      "frames": 2,
+      "fps": 10,
+      "loop": false
+    },
+    "death": {
+      "row": 10,
+      "frames": 6,
+      "fps": 10,
+      "loop": false
+    },
+    "focus_heal": {
+      "row": 11,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "pulse_cast": {
+      "row": 12,
+      "frames": 4,
+      "fps": 12,
+      "loop": false
+    },
+    "firewall_summon": {
+      "row": 13,
+      "frames": 5,
+      "fps": 12,
+      "loop": false
+    },
+    "laptop_slam": {
+      "row": 14,
+      "frames": 6,
+      "fps": 12,
+      "loop": false
+    },
+    "dash": {
+      "row": 15,
+      "frames": 4,
+      "fps": 16,
+      "loop": false
+    }
+  }
+}

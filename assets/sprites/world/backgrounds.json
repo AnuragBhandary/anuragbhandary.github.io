@@ -1,0 +1,24 @@
+{
+  "size": [
+    1024,
+    512
+  ],
+  "repeatX": true,
+  "layers": {
+    "far": {
+      "image": "far.png",
+      "parallax": 0.15,
+      "repeatX": true
+    },
+    "mid": {
+      "image": "mid.png",
+      "parallax": 0.35,
+      "repeatX": true
+    },
+    "near": {
+      "image": "near.png",
+      "parallax": 0.65,
+      "repeatX": true
+    }
+  }
+}

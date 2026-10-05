@@ -1,0 +1,78 @@
+{
+  "image": "spam-drone-sheet.png",
+  "size": [
+    288,
+    160
+  ],
+  "facing": "right",
+  "animations": {
+    "fly": {
+      "origin": [
+        0,
+        0
+      ],
+      "cell": [
+        48,
+        48
+      ],
+      "pivot": [
+        24,
+        24
+      ],
+      "frames": 4,
+      "fps": 10,
+      "loop": true
+    },
+    "shoot": {
+      "origin": [
+        0,
+        48
+      ],
+      "cell": [
+        48,
+        48
+      ],
+      "pivot": [
+        24,
+        24
+      ],
+      "frames": 4,
+      "fps": 12,
+      "loop": false
+    },
+    "death": {
+      "origin": [
+        0,
+        96
+      ],
+      "cell": [
+        48,
+        48
+      ],
+      "pivot": [
+        24,
+        24
+      ],
+      "frames": 6,
+      "fps": 12,
+      "loop": false
+    },
+    "envelope_projectile": {
+      "origin": [
+        0,
+        144
+      ],
+      "cell": [
+        16,
+        16
+      ],
+      "pivot": [
+        8,
+        8
+      ],
+      "frames": 2,
+      "fps": 12,
+      "loop": true
+    }
+  }
+}

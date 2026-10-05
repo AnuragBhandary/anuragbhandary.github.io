@@ -1,0 +1,112 @@
+{
+  "image": "firewall-brute-sheet.png",
+  "size": [
+    768,
+    576
+  ],
+  "facing": "right",
+  "animations": {
+    "idle": {
+      "origin": [
+        0,
+        0
+      ],
+      "cell": [
+        96,
+        96
+      ],
+      "pivot": [
+        48,
+        94
+      ],
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "walk": {
+      "origin": [
+        0,
+        96
+      ],
+      "cell": [
+        96,
+        96
+      ],
+      "pivot": [
+        48,
+        94
+      ],
+      "frames": 6,
+      "fps": 10,
+      "loop": true
+    },
+    "windup": {
+      "origin": [
+        0,
+        192
+      ],
+      "cell": [
+        96,
+        96
+      ],
+      "pivot": [
+        48,
+        94
+      ],
+      "frames": 3,
+      "fps": 10,
+      "loop": false
+    },
+    "slam": {
+      "origin": [
+        0,
+        288
+      ],
+      "cell": [
+        96,
+        96
+      ],
+      "pivot": [
+        48,
+        94
+      ],
+      "frames": 4,
+      "fps": 12,
+      "loop": false
+    },
+    "hurt": {
+      "origin": [
+        0,
+        384
+      ],
+      "cell": [
+        96,
+        96
+      ],
+      "pivot": [
+        48,
+        94
+      ],
+      "frames": 2,
+      "fps": 10,
+      "loop": false
+    },
+    "death": {
+      "origin": [
+        0,
+        480
+      ],
+      "cell": [
+        96,
+        96
+      ],
+      "pivot": [
+        48,
+        94
+      ],
+      "frames": 8,
+      "fps": 10,
+      "loop": false
+    }
+  }
+}

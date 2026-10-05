@@ -1,0 +1,61 @@
+{
+  "image": "memory-leak-sheet.png",
+  "size": [
+    288,
+    80
+  ],
+  "facing": "right",
+  "animations": {
+    "crawl": {
+      "origin": [
+        0,
+        0
+      ],
+      "cell": [
+        48,
+        32
+      ],
+      "pivot": [
+        24,
+        30
+      ],
+      "frames": 6,
+      "fps": 10,
+      "loop": true
+    },
+    "death": {
+      "origin": [
+        0,
+        32
+      ],
+      "cell": [
+        48,
+        32
+      ],
+      "pivot": [
+        24,
+        30
+      ],
+      "frames": 6,
+      "fps": 12,
+      "loop": false
+    },
+    "puddle": {
+      "origin": [
+        0,
+        64
+      ],
+      "cell": [
+        32,
+        16
+      ],
+      "pivot": [
+        16,
+        14
+      ],
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    }
+  }
+}

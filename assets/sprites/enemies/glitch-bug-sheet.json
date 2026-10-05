@@ -1,0 +1,78 @@
+{
+  "image": "glitch-bug-sheet.png",
+  "size": [
+    288,
+    128
+  ],
+  "facing": "right",
+  "animations": {
+    "walk": {
+      "origin": [
+        0,
+        0
+      ],
+      "cell": [
+        48,
+        32
+      ],
+      "pivot": [
+        24,
+        30
+      ],
+      "frames": 6,
+      "fps": 10,
+      "loop": true
+    },
+    "charge": {
+      "origin": [
+        0,
+        32
+      ],
+      "cell": [
+        48,
+        32
+      ],
+      "pivot": [
+        24,
+        30
+      ],
+      "frames": 4,
+      "fps": 12,
+      "loop": false
+    },
+    "hurt": {
+      "origin": [
+        0,
+        64
+      ],
+      "cell": [
+        48,
+        32
+      ],
+      "pivot": [
+        24,
+        30
+      ],
+      "frames": 2,
+      "fps": 10,
+      "loop": false
+    },
+    "death": {
+      "origin": [
+        0,
+        96
+      ],
+      "cell": [
+        48,
+        32
+      ],
+      "pivot": [
+        24,
+        30
+      ],
+      "frames": 6,
+      "fps": 12,
+      "loop": false
+    }
+  }
+}

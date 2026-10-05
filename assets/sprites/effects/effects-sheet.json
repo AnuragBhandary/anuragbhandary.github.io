@@ -1,0 +1,95 @@
+{
+  "image": "effects-sheet.png",
+  "size": [
+    768,
+    224
+  ],
+  "facing": "right",
+  "animations": {
+    "slash_arc": {
+      "origin": [
+        0,
+        0
+      ],
+      "cell": [
+        96,
+        64
+      ],
+      "pivot": [
+        48,
+        32
+      ],
+      "frames": 5,
+      "fps": 18,
+      "loop": false
+    },
+    "pulse_projectile": {
+      "origin": [
+        0,
+        64
+      ],
+      "cell": [
+        32,
+        32
+      ],
+      "pivot": [
+        16,
+        16
+      ],
+      "frames": 4,
+      "fps": 16,
+      "loop": true
+    },
+    "impact_sparks": {
+      "origin": [
+        0,
+        96
+      ],
+      "cell": [
+        32,
+        32
+      ],
+      "pivot": [
+        16,
+        16
+      ],
+      "frames": 5,
+      "fps": 20,
+      "loop": false
+    },
+    "firewall": {
+      "origin": [
+        0,
+        128
+      ],
+      "cell": [
+        32,
+        64
+      ],
+      "pivot": [
+        16,
+        62
+      ],
+      "frames": 6,
+      "fps": 12,
+      "loop": false
+    },
+    "slam_shockwave": {
+      "origin": [
+        0,
+        192
+      ],
+      "cell": [
+        128,
+        32
+      ],
+      "pivot": [
+        64,
+        30
+      ],
+      "frames": 6,
+      "fps": 18,
+      "loop": false
+    }
+  }
+}

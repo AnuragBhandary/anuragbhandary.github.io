@@ -1,0 +1,106 @@
+{
+  "image": "cyber-cave-tileset.png",
+  "tile": [
+    32,
+    32
+  ],
+  "columns": 8,
+  "tiles": {
+    "rock_top": [
+      0,
+      0
+    ],
+    "rock_bottom": [
+      32,
+      0
+    ],
+    "rock_left": [
+      64,
+      0
+    ],
+    "rock_right": [
+      96,
+      0
+    ],
+    "rock_outer_top_left": [
+      128,
+      0
+    ],
+    "rock_outer_top_right": [
+      160,
+      0
+    ],
+    "rock_outer_bottom_left": [
+      192,
+      0
+    ],
+    "rock_outer_bottom_right": [
+      224,
+      0
+    ],
+    "rock_inner_top_left": [
+      0,
+      32
+    ],
+    "rock_inner_top_right": [
+      32,
+      32
+    ],
+    "rock_inner_bottom_left": [
+      64,
+      32
+    ],
+    "rock_inner_bottom_right": [
+      96,
+      32
+    ],
+    "rock_centre_a": [
+      128,
+      32
+    ],
+    "rock_centre_b": [
+      160,
+      32
+    ],
+    "rock_centre_c": [
+      192,
+      32
+    ],
+    "rock_deep_interior": [
+      224,
+      32
+    ],
+    "grate_platform_left": [
+      0,
+      64
+    ],
+    "grate_platform_middle": [
+      32,
+      64
+    ],
+    "grate_platform_right": [
+      64,
+      64
+    ],
+    "spikes_a": [
+      96,
+      64
+    ],
+    "spikes_b": [
+      128,
+      64
+    ],
+    "hanging_cable": [
+      160,
+      64
+    ],
+    "crystal_cluster": [
+      192,
+      64
+    ],
+    "small_rubble": [
+      224,
+      64
+    ]
+  }
+}

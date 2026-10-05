@@ -1,0 +1,60 @@
+{
+  "image": "props-sheet.png",
+  "size": [
+    384,
+    160
+  ],
+  "animations": {
+    "terminal_checkpoint": {
+      "origin": [
+        0,
+        0
+      ],
+      "cell": [
+        32,
+        48
+      ],
+      "pivot": [
+        16,
+        46
+      ],
+      "frames": 5,
+      "fps": 8,
+      "loop": true
+    },
+    "exit_gate": {
+      "origin": [
+        0,
+        48
+      ],
+      "cell": [
+        64,
+        96
+      ],
+      "pivot": [
+        32,
+        94
+      ],
+      "frames": 6,
+      "fps": 10,
+      "loop": true
+    },
+    "data_shard": {
+      "origin": [
+        0,
+        144
+      ],
+      "cell": [
+        16,
+        16
+      ],
+      "pivot": [
+        8,
+        8
+      ],
+      "frames": 6,
+      "fps": 12,
+      "loop": true
+    }
+  }
+}
