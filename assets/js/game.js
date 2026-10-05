@@ -150,6 +150,8 @@
       z.carve(65, 8, 95, 30); z.plat(67, 71, 17); z.plat(74, 78, 22); z.plat(67, 71, 26);
       z.fill(91, 13, 92, 30, "#"); z.carve(91, 28, 92, 30);
       z.carve(93, 13, 95, 30); z.plat(93, 95, 13);
+      // ledges up the shaft, so you can stop and wait for the bug above to walk away
+      z.plat(93, 95, 27); z.plat(93, 95, 23); z.plat(93, 95, 19); z.plat(93, 95, 16);
       // D: corridor with the double-jump pit
       z.carve(93, 8, 124, 12); z.carve(104, 4, 116, 12); z.carve(107, 13, 113, 16); z.spikes(107, 113, 16);
       // E: the last room
@@ -541,8 +543,9 @@
       if (p.coyote > 0) {
         p.vy = -PH.jump; p.buf = 0; p.coyote = 0; p.ground = false; p.flipT = -1;
         dust(p.x + p.w / 2, p.y + p.h, 6);
-      } else if (p.wallCoyote > 0 || touchL || touchR) {
-        var wd = p.wallCoyote > 0 ? p.wallDir : touchL ? -1 : 1;
+      } else if (p.wallCoyote > 0 || (dir < 0 && touchL) || (dir > 0 && touchR)) {
+        // only kick off a wall you are holding toward (or just slid off); next to a wall without pointing at it, you double jump
+        var wd = p.wallCoyote > 0 ? p.wallDir : dir;
         p.vx = -wd * PH.wjX; p.vy = -PH.wjY; p.face = -wd; p.wallLock = 0.15; p.kickT = 0.22; p.buf = 0; p.wallCoyote = 0; p.flipT = -1;
         p.djUsed = false; p.airDash = true;
         dust(wd < 0 ? p.x : p.x + p.w, p.y + p.h / 2, 6);
