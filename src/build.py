@@ -437,11 +437,10 @@ def home(track_key):
     <div class="win-body game" id="gWrap">
       <canvas id="gCanvas"></canvas>
       <div class="g-ov" id="gOv"><b id="gOvT">DEV RUN</b><span id="gOv1">loading</span><span id="gOv2" class="g-hint"></span></div>
-      <div class="g-touch" aria-hidden="true">
-        <div class="g-pad"><button type="button" data-k="up" class="g-up">▲</button><button type="button" data-k="left">◀</button><button type="button" data-k="right">▶</button><button type="button" data-k="down" class="g-down">▼</button></div>
-        <div class="g-acts"><div class="g-abil"><button type="button" data-k="pulse" class="g-sm">X</button><button type="button" data-k="firewall" class="g-sm">C</button><button type="button" data-k="slam" class="g-sm">V</button><button type="button" data-k="dash" class="g-sm">»</button><button type="button" data-k="block" class="g-sm">Q</button><button type="button" data-k="focus" class="g-sm">R</button></div><button type="button" data-k="slash">B</button><button type="button" data-k="jump" class="g-jump">A</button></div>
-      </div>
+      <div class="g-touch" id="gTouch" aria-hidden="true"></div>
+      <div class="g-rotate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v18H8zM3 9a9 9 0 0 1 4-6M21 15a9 9 0 0 1-4 6"/></svg>Turn your phone sideways to play</div>
     </div>
+    <div class="g-legend" id="gLegend" aria-hidden="true"></div>
   </div>
 </div>
 

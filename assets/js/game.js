@@ -164,10 +164,10 @@
         modules: [["dj", 88, 30], ["pulse", 133, 12]],
         gate: [154, 12],
         signs: [
-          [6, 23.5, "← →  move · SPACE  jump"], [11.5, 23.5, "E  attack · ↑ to aim up"], [18.5, 23.5, "Q  block · tap it just before a hit to parry"],
-          [28.5, 22, "hold toward a wall and jump to kick off it"], [44, 10, "spikes bite · jump the pit"],
+          [6, 23.5, "← →  move · SPACE  jump", "stick: move · arrow button: jump"], [11.5, 23.5, "E  attack · ↑ to aim up", "sword button: attack · push the stick up to aim up"], [18.5, 23.5, "Q  block · tap it just before a hit to parry", "shield button: block · tap it just before a hit to parry"],
+          [28.5, 22, "hold toward a wall and jump to kick off it", "push the stick toward a wall and jump to kick off it"], [44, 10, "spikes bite · jump the pit"],
           [69, 28.5, "terminals save your progress and heal you"], [86, 27.5, "wall-jump up the narrow gap →"],
-          [110, 10.5, "too far? double jump"], [131, 9.5, "R  hold to regenerate: spend RAM to heal"],
+          [110, 10.5, "too far? double jump"], [131, 9.5, "R  tap to heal · spends RAM (the blue orb)", "heart button: heal · spends RAM (the blue orb)"],
         ],
       };
     } },
@@ -193,7 +193,7 @@
         gate: [106, 12],
         signs: [
           [10, 63.5, "slash or parry an envelope to send it back · two returns down a drone"], [38, 64.5, "climb: double jump between grates, kick off the walls"],
-          [52, 30.5, "C  firewall: blocks every projectile for a few seconds"], [75, 30.5, "up the chimney ↑ · kick between the walls"],
+          [52, 30.5, "C  firewall: blocks every projectile for a few seconds", "brick button: firewall · blocks every projectile for a few seconds"], [75, 30.5, "up the chimney ↑ · kick between the walls"],
         ],
       };
     } },
@@ -218,8 +218,8 @@
         modules: [["slam", 12, 32], ["dash", 101, 18]],
         gate: [165, 18],
         signs: [
-          [12, 29.5, "V  laptop slam · smash through cracked floors"], [40, 36.5, "memory leaks leave toxic puddles"],
-          [62, 36.5, "firewall brutes hit hard · strike, then step back"], [101, 15.5, "SHIFT  cache dash · works in mid-air"],
+          [12, 29.5, "V  laptop slam · smash through cracked floors", "laptop button: slam · smash through cracked floors"], [40, 36.5, "memory leaks leave toxic puddles"],
+          [62, 36.5, "firewall brutes hit hard · strike, then step back"], [101, 15.5, "SHIFT  cache dash · works in mid-air", "» button: cache dash · works in mid-air"],
           [109, 16.5, "jump, double jump, then dash"],
         ],
       };
@@ -358,7 +358,7 @@
     var ram = P ? P.ram : 0;
     P = { x: c.tx * T + 6, y: (c.ty + 1) * T - 44, w: 20, h: 44, vx: 0, vy: 0, face: 1, ground: false, coyote: 0, buf: 0,
       hp: MAX_HP, ram: ram, inv: 0, kb: 0, djUsed: false, airDash: true, flipT: -1, wallDir: 0, wallCoyote: 0, wallLock: 0, kickT: 0, sliding: false,
-      slashT: 0, slashCd: 0, slashDir: "f", hitList: [], drop: 0, focusT: 0, castT: 0, castKind: "", pulseCd: 0, fwCd: 0,
+      slashT: 0, slashCd: 0, slashDir: "f", hitList: [], drop: 0, focusT: 0, healCd: 0, castT: 0, castKind: "", pulseCd: 0, fwCd: 0,
       slam: null, slamCd: 0, blocking: false, blockT: 0, blockFlash: 0, dashT: 0, dashCd: 0, dashHit: [], ghosts: [], landT: 0, runT: 0, safe: null, safeT: 0, hazT: 0, dead: false, deadT: 0, anim: 0 };
     P.safe = { x: P.x, y: P.y };
     enemies = L.spec.enemies.map(function (e) { return makeEnemy(e[0], e[1], e[2]); });
@@ -469,7 +469,7 @@
 
   function updatePlayer() {
     var p = P, k = keys;
-    ["inv", "drop", "slashCd", "pulseCd", "fwCd", "slamCd", "dashCd", "wallLock", "kickT", "landT", "castT"].forEach(function (n) { p[n] = Math.max(0, p[n] - STEP); });
+    ["inv", "drop", "slashCd", "pulseCd", "fwCd", "slamCd", "dashCd", "healCd", "wallLock", "kickT", "landT", "castT"].forEach(function (n) { p[n] = Math.max(0, p[n] - STEP); });
     p.anim += STEP; p.blockFlash = Math.max(0, p.blockFlash - STEP);
     p.ram = Math.min(RAM_MAX, p.ram + 6 * STEP);   // RAM slowly recharges, so the pulse never runs dry for long
     if (p.hazT > 0) {
@@ -484,13 +484,17 @@
     p.blocking = k.block && !busy && p.slashT <= 0 && p.kb <= 0 && !p.sliding;
     if (p.blocking) { if (!wasBlocking) p.blockT = 0; p.blockT += STEP; var bf = aim().x || dir; if (bf) p.face = bf; }
 
-    // focus (heal)
-    var focusing = k.focus && p.ground && p.ram >= COST.heal && p.hp < MAX_HP && p.kb <= 0 && p.slashT <= 0 && !busy;
-    if (focusing) {
-      p.focusT += STEP; p.vx *= 0.8;
-      if (Math.random() < 0.7) parts.push({ x: p.x + p.w / 2 + (Math.random() * 60 - 30), y: p.y + p.h, vx: 0, vy: -60 - Math.random() * 60, t: 0, life: 0.6, c: "#8ff4ff", s: 2, glow: true, toward: true });
-      if (p.focusT > 0.9) { p.focusT = 0; p.ram -= COST.heal; p.hp++; flash = 0.25; burst(p.x + p.w / 2, p.y + 20, "#8ff4ff", 18, 200, true); }
-    } else p.focusT = 0;
+    // heal: one tap spends RAM for one health, anywhere, with a short cooldown (focusT only drives the glow)
+    var focusing = false;
+    p.focusT = Math.max(0, p.focusT - STEP);
+    if (pressed.focus) {
+      pressed.focus = false;
+      if (p.ram >= COST.heal && p.hp < MAX_HP && p.healCd <= 0) {
+        p.ram -= COST.heal; p.hp++; p.healCd = 0.8; p.focusT = 0.45; flash = 0.25; buzz(25);
+        burst(p.x + p.w / 2, p.y + 20, "#8ff4ff", 18, 200, true);
+        for (var hp_i = 0; hp_i < 12; hp_i++) parts.push({ x: p.x + p.w / 2 + (Math.random() * 60 - 30), y: p.y + p.h, vx: 0, vy: -80 - Math.random() * 80, t: 0, life: 0.6, c: "#8ff4ff", s: 2, glow: true, toward: true });
+      }
+    }
 
     // wall contact: slide when pushing into a wall while falling
     var touchL = touchingWall(p, -1), touchR = touchingWall(p, 1);
@@ -615,7 +619,7 @@
         else {
           run.abilities[it.ab] = true; p.ram = RAM_MAX; flash = 0.5; hitstop = 0.15; shake = 4;
           burst(it.x, it.y, "#ffffff", 40, 320, true);
-          banner = { t: "new ability · " + ABILITY_INFO[it.ab][0], s: ABILITY_INFO[it.ab][1], at: time, big: true };
+          banner = { t: "new ability · " + ABILITY_INFO[it.ab][0], s: IS_TOUCH ? ABILITY_INFO[it.ab][1].replace(/^[A-Z]+ · /, "new button · ").replace("press SPACE", "tap jump") : ABILITY_INFO[it.ab][1], at: time, big: true };
           updateTouchButtons(); saveRun();
         }
       }
@@ -755,6 +759,7 @@
     var fromFront = (fromX - (p.x + p.w / 2)) * p.face > -4;
     if (p.blocking && fromFront) {
       var parry = p.blockT < 0.22;
+      buzz(parry ? [15, 40, 15] : 12);
       p.inv = 0.35; p.vx = -p.face * (parry ? 120 : 220); p.kb = 0.12;
       hitstop = parry ? 0.16 : 0.07; shake = parry ? 6 : 3; flash = parry ? 0.35 : 0;
       sparks(p.x + p.w / 2 + p.face * 18, p.y + 20, -p.face, parry ? "#ffffff" : "#8ff4ff");
@@ -763,7 +768,7 @@
       p.blockFlash = parry ? 0.25 : 0.12;
       return;
     }
-    p.hp -= dmg || 1; p.inv = 1.2; p.kb = 0.2; p.focusT = 0; p.slam = null; p.dashT = 0;
+    p.hp -= dmg || 1; p.inv = 1.2; p.kb = 0.2; p.focusT = 0; p.slam = null; p.dashT = 0; buzz(70);
     p.vx = (p.x + p.w / 2 < fromX ? -1 : 1) * 260; p.vy = -360;
     hitstop = 0.14; shake = 7; flash = 0.6;
     burst(p.x + p.w / 2, p.y + 20, "#ffffff", 14, 260, false);
@@ -772,7 +777,7 @@
   function hazard() {
     var p = P;
     if (p.hazT > 0 || state !== "play" || p.dead) return;
-    p.hp--; hitstop = 0.12; shake = 6; flash = 0.6;
+    p.hp--; hitstop = 0.12; shake = 6; flash = 0.6; buzz(70);
     burst(p.x + p.w / 2, p.y + 24, "#ff4a5e", 16, 240, false);
     if (p.hp <= 0) { die(); return; }
     p.hazT = 0.55; p.inv = 1.2; p.vx = 0; p.vy = 0; p.slam = null; p.dashT = 0;
@@ -824,7 +829,7 @@
           // a parried envelope flies back at its drone
           var front = (s.x + s.w / 2 - (P.x + P.w / 2)) * P.face > -4;
           if (s.kind === "env" && P.blocking && front && P.blockT < 0.22) {
-            reflectShot(s); P.inv = Math.max(P.inv, 0.2); P.blockFlash = 0.25; P.ram = Math.min(RAM_MAX, P.ram + 20);
+            reflectShot(s); buzz([15, 40, 15]); P.inv = Math.max(P.inv, 0.2); P.blockFlash = 0.25; P.ram = Math.min(RAM_MAX, P.ram + 20);
             hitstop = Math.max(hitstop, 0.12); flash = 0.3; banner = { t: "parry", s: "", at: time };
             return;
           }
@@ -866,7 +871,7 @@
 
   function hitEnemy(e, dmg, dirx, kind) {
     if (e.inv > 0 || e.dying) return;
-    e.hp -= dmg; e.hurt = 0.13;
+    e.hp -= dmg; e.hurt = 0.13; buzz(12);
     var heavy = e.kind === "brute" ? 0.2 : e.kind === "coder" ? 0 : 1;
     e.kb = 0.18; e.kbx = dirx * 280 * heavy;
     if (e.kind === "drone") { e.vx = dirx * 60; e.vy = -20; }   // small knockback, so a follow-up hit still lands
@@ -1344,7 +1349,7 @@
     if (p.dashT > 0) return frameOf(pa.dash, PH.dashT - p.dashT);
     if (p.slam) return p.slam.phase === "land" ? pa.laptop_slam.frames[Math.min(5, 2 + Math.floor(p.slam.t * 14))] : pa.laptop_slam.frames[p.slam.phase === "hop" ? 0 : 1];
     if (p.blocking) return pa.pulse_cast.frames[0];
-    if (p.focusT > 0) return frameOf(pa.focus_heal, p.focusT);
+    if (p.focusT > 0 && p.ground && !p.vx) return frameOf(pa.focus_heal, 0.45 - p.focusT);
     if (p.slashT > 0) { var sa = p.slashDir === "u" ? pa.slash_up : p.slashDir === "d" ? pa.slash_down_air : pa.slash_forward; return sa.frames[Math.min(sa.frames.length - 1, Math.floor((0.26 - p.slashT) / 0.26 * sa.frames.length))]; }
     if (p.castT > 0) { var ca = p.castKind === "pulse" ? pa.pulse_cast : pa.firewall_summon; return ca.frames[Math.min(ca.frames.length - 1, Math.floor((1 - p.castT / 0.35) * ca.frames.length))]; }
     if (p.sliding) return frameOf(ad.wall_slide, p.anim);
@@ -1414,9 +1419,10 @@
       var a = Math.max(0, Math.min(1, (340 - d) / 140)) * Math.max(0, Math.min(1, (other - d) / 48));
       if (a <= 0.01) return;
       ctx.fillStyle = "rgba(0,0,0," + (a * 0.5).toFixed(2) + ")";
-      ctx.fillText(s[2], (wx - cam.x) * scale + 1, (wy - cam.y) * scale + 1);
+      var txt = IS_TOUCH && s[3] ? s[3] : s[2];
+      ctx.fillText(txt, (wx - cam.x) * scale + 1, (wy - cam.y) * scale + 1);
       ctx.fillStyle = "rgba(220,250,255," + (a * 0.9).toFixed(2) + ")";
-      ctx.fillText(s[2], (wx - cam.x) * scale, (wy - cam.y) * scale);
+      ctx.fillText(txt, (wx - cam.x) * scale, (wy - cam.y) * scale);
     });
     ctx.textAlign = "left";
   }
@@ -1442,6 +1448,7 @@
     c.fillStyle = "#8ff4ff"; c.fillText("◆ " + Object.keys(run.shards).length, cx + R + 9 * u, cy + 15 * u);
     var ab = [["block", "Q"], ["dj", "↑↑"], ["pulse", "F"], ["firewall", "C"], ["slam", "V"], ["dash", "»"]].filter(function (a) { return a[0] === "block" || run.abilities[a[0]]; });
     c.font = "600 " + Math.round(7.5 * u) + "px 'IBM Plex Mono', monospace";
+    if (IS_TOUCH) ab = [];   // phones show these as buttons instead of key hints
     ab.forEach(function (a, i) {
       var bx = cx + R + 40 * u + i * 20 * u, by = cy + 10 * u;
       c.strokeStyle = "rgba(143,244,255,.55)"; c.lineWidth = Math.max(1, u * 0.8); c.strokeRect(bx, by, 16 * u, 11 * u);
@@ -1490,6 +1497,7 @@
     last = now; acc += dt;
     var n = 0;
     while (acc >= STEP && n < 14) { if (L && state !== "paused") step(); acc -= STEP; n++; }
+    updateTouchHud();
     if (ready && L) render(); else { ctx.fillStyle = "#05080d"; ctx.fillRect(0, 0, cv.width, cv.height); }
     raf = requestAnimationFrame(frame);
   }
@@ -1514,19 +1522,160 @@
   function hideOverlay() { if (ui.ov) ui.ov.style.display = "none"; }
 
   function updateTouchButtons() {
-    (ui.touch || []).forEach(function (b) {
-      var need = { pulse: 1, firewall: 1, slam: 1, dash: 1 }[b.dataset.k] ? b.dataset.k : null;
-      b.style.display = need && !(run && run.abilities[need]) ? "none" : "";
+    Object.keys(TC.btns).forEach(function (k) {
+      var need = { pulse: 1, firewall: 1, slam: 1, dash: 1 }[k];
+      TC.btns[k].style.display = need && !(run && run.abilities[k]) ? "none" : "";
     });
+    if (TC.legend) [].forEach.call(TC.legend.children, function (sp) {
+      var k = sp.dataset.k; sp.classList.toggle("off", !!({ pulse: 1, firewall: 1, slam: 1, dash: 1 }[k]) && !(run && run.abilities[k]));
+    });
+  }
+
+  /* ======================================================================= TOUCH CONTROLS */
+  // floating stick on the left (heal above it), actions on an arc around jump on the right; mirrored when left-handed
+  var IS_TOUCH = window.matchMedia("(pointer: coarse)").matches;
+  var ICON = {
+    jump: "M12 4l7 8h-4v8H9v-8H5z",
+    slash: "M21 3v4L11 17l-4-4L17 3zM5 13l6 6M8 16l-4 4",
+    block: "M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z",
+    pulse: "M13 3L5 14h6l-1 7 8-11h-6z",
+    dash: "M5 6l6 6-6 6M12 6l6 6-6 6",
+    firewall: "M4 5h16v14H4zM4 9.7h16M4 14.3h16M10 5v4.7M14 9.7v4.6M10 14.3V19",
+    slam: "M5 11h14v7H5zM3 21h18M12 2v6M9 5l3 3 3-3",
+    focus: "M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 .9-.2 1.8-.5 2.6M15 17h6M18 14v6",
+    pause: "M8 5v14M16 5v14",
+  };
+  var NAMES = { jump: "jump", slash: "attack", block: "block / parry", pulse: "shoot", dash: "dash", firewall: "firewall", slam: "slam", focus: "heal" };
+  function icon(k) { return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + ICON[k] + '"/></svg>'; }
+  var TC = { el: null, legend: null, btns: {}, stick: null, knob: null, zone: null, pid: null, base: null, lastTouch: -99, cd: {} };
+  var SET = { size: "M", lefty: false, vib: true };
+  try { var savedSet = JSON.parse(localStorage.getItem("anb_devrun_touch") || "null"); if (savedSet) for (var sk in SET) if (sk in savedSet) SET[sk] = savedSet[sk]; } catch (_) {}
+  function saveSet() { try { localStorage.setItem("anb_devrun_touch", JSON.stringify(SET)); } catch (_) {} }
+  function buzz(pattern) { if (SET.vib && IS_TOUCH && navigator.vibrate) { try { navigator.vibrate(pattern); } catch (_) {} } }
+
+  function buildTouch(el, legend) {
+    if (!el) return;
+    TC.el = el; TC.legend = legend;
+    el.innerHTML = '<div class="g-zone"></div><div class="g-stick"><i class="g-knob"></i></div>';
+    TC.zone = el.querySelector(".g-zone"); TC.stick = el.querySelector(".g-stick"); TC.knob = el.querySelector(".g-knob");
+    ["slash", "block", "pulse", "dash", "jump", "firewall", "slam", "focus"].forEach(function (k) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "g-tb g-tb-" + k; b.dataset.k = k; b.setAttribute("aria-label", NAMES[k]); b.innerHTML = icon(k);
+      var on = function (e) { e.preventDefault(); e.stopPropagation(); touched(); b.classList.add("on"); press(k, true); };
+      var off = function (e) { e.preventDefault(); b.classList.remove("on"); press(k, false); };
+      b.addEventListener("pointerdown", on); b.addEventListener("pointerup", off);
+      b.addEventListener("pointercancel", off); b.addEventListener("pointerleave", off);
+      el.appendChild(b); TC.btns[k] = b;
+    });
+    if (legend) legend.innerHTML = ["jump", "slash", "block", "pulse", "dash", "firewall", "slam", "focus"].map(function (k) {
+      return '<span data-k="' + k + '">' + icon(k) + NAMES[k] + (k === "focus" ? " (tap)" : "") + "</span>";
+    }).join("");
+    TC.zone.addEventListener("pointerdown", stickDown);
+    TC.zone.addEventListener("pointermove", stickMove);
+    TC.zone.addEventListener("pointerup", stickUp);
+    TC.zone.addEventListener("pointercancel", stickUp);
+    layoutTouch();
+  }
+  function touched() { TC.lastTouch = time; if (TC.el) TC.el.classList.remove("idle"); }
+
+  // positions are centres in px from the bottom corner of each side; s scales with the size setting
+  function layoutTouch() {
+    if (!TC.el) return;
+    var W = TC.el.clientWidth, H = TC.el.clientHeight;
+    if (!W || !H) return;
+    var s = { S: 0.85, M: 1, L: 1.18 }[SET.size] || 1;
+    s *= Math.min(1, H / 330);                       // short screens shrink everything a little
+    TC.s = s;
+    var place = function (b, fromSide, fromBottom, d, mirror) {
+      var x = mirror ? fromSide : W - fromSide;
+      b.style.width = b.style.height = Math.round(d) + "px";
+      b.style.left = Math.round(x) + "px"; b.style.top = Math.round(H - fromBottom) + "px";
+    };
+    var right = !SET.lefty;   // actions on the right for right-handed players
+    var J = { x: 64 * s, y: 62 * s }, R = 86 * s;
+    place(TC.btns.jump, J.x, J.y, 62 * s, !right);
+    [["slash", 195], ["block", 155], ["pulse", 115], ["dash", 75]].forEach(function (a) {
+      var ang = a[1] * Math.PI / 180;
+      place(TC.btns[a[0]], J.x - Math.cos(ang) * R, J.y + Math.sin(ang) * R, 46 * s, !right);
+    });
+    place(TC.btns.firewall, 28 * s, 206 * s, 40 * s, !right);
+    place(TC.btns.slam, 28 * s, 254 * s, 40 * s, !right);
+    // left side: heal sits above the stick's resting spot
+    TC.home = { side: 96 * s, bottom: 86 * s };
+    place(TC.btns.focus, 40 * s, 200 * s, 46 * s, right);
+    var ring = 112 * s;
+    TC.stick.style.width = TC.stick.style.height = Math.round(ring) + "px";
+    TC.knob.style.width = TC.knob.style.height = Math.round(ring * 0.42) + "px";
+    TC.zone.classList.toggle("lefty", SET.lefty);
+    if (TC.pid === null) stickRest();
+  }
+  function stickAt(x, y) { TC.stick.style.left = Math.round(x) + "px"; TC.stick.style.top = Math.round(y) + "px"; }
+  function stickRest() {
+    var W = TC.el.clientWidth, H = TC.el.clientHeight;
+    TC.stick.classList.remove("live"); TC.knob.style.transform = "translate(-50%, -50%)";
+    stickAt(SET.lefty ? W - TC.home.side : TC.home.side, H - TC.home.bottom);
+  }
+  function setDir(k, v) { if (v && !keys[k]) pressed[k] = true; keys[k] = v; }
+  function stickDown(e) {
+    e.preventDefault(); touched();
+    if (state === "title" || state === "won") { if (ready) startGame(false); return; }
+    if (TC.pid !== null) return;
+    TC.pid = e.pointerId; try { TC.zone.setPointerCapture(e.pointerId); } catch (_) {}
+    var r = TC.el.getBoundingClientRect(), half = parseFloat(TC.stick.style.width) / 2;
+    // the stick appears under the thumb, kept fully on screen
+    var x = Math.max(half, Math.min(r.width - half, e.clientX - r.left)), y = Math.max(half, Math.min(r.height - half, e.clientY - r.top));
+    TC.base = { x: x, y: y, cx: r.left, cy: r.top };
+    stickAt(x, y); TC.stick.classList.add("live");
+    stickMove(e);
+  }
+  function stickMove(e) {
+    if (e.pointerId !== TC.pid || !TC.base) return;
+    e.preventDefault(); touched();
+    var Rr = parseFloat(TC.stick.style.width) / 2;
+    var dx = e.clientX - TC.base.cx - TC.base.x, dy = e.clientY - TC.base.cy - TC.base.y, d = Math.hypot(dx, dy);
+    if (d > Rr) { dx *= Rr / d; dy *= Rr / d; }
+    TC.knob.style.transform = "translate(calc(-50% + " + Math.round(dx) + "px), calc(-50% + " + Math.round(dy) + "px))";
+    // dead zone in the middle; vertical needs a firmer push so running doesn't aim by accident
+    setDir("left", dx < -Rr * 0.3); setDir("right", dx > Rr * 0.3);
+    setDir("up", dy < -Rr * 0.5); setDir("down", dy > Rr * 0.55);
+  }
+  function stickUp(e) {
+    if (e.pointerId !== TC.pid) return;
+    TC.pid = null; TC.base = null;
+    ["left", "right", "up", "down"].forEach(function (k) { keys[k] = false; });
+    stickRest();
+  }
+  function releaseTouch() {
+    TC.pid = null; TC.base = null;
+    Object.keys(TC.btns).forEach(function (k) { TC.btns[k].classList.remove("on"); });
+    if (TC.el) stickRest();
+  }
+  // per frame: cooldown rings, dimmed buttons when RAM is short, fade out when idle
+  function updateTouchHud() {
+    if (!TC.el || !IS_TOUCH || !P) return;
+    var ring = { pulse: [P.pulseCd, 0.32, COST.pulse], dash: [P.dashCd, 0.5, 0], firewall: [P.fwCd, 0.8, COST.firewall], focus: [P.healCd, 0.8, COST.heal] };
+    Object.keys(ring).forEach(function (k) {
+      var r = ring[k], f = Math.max(0, Math.min(1, r[0] / r[1])), low = P.ram < r[2];
+      var key = f.toFixed(2) + low;
+      if (TC.cd[k] === key) return; TC.cd[k] = key;
+      TC.btns[k].style.setProperty("--cd", f.toFixed(3));
+      TC.btns[k].classList.toggle("cool", f > 0);
+      TC.btns[k].classList.toggle("low", low);
+    });
+    TC.el.classList.toggle("idle", state === "play" && time - TC.lastTouch > 2.5);
+  }
+  // phones held upright: pause and ask to turn sideways (the CSS shows the message)
+  function checkOrientation() {
+    if (IS_TOUCH && running && state === "play" && window.innerHeight > window.innerWidth) pause();
   }
 
   function showTitle() {
     state = "title";
     var touch = window.matchMedia("(pointer: coarse)").matches, save = loadSave();
     showOverlay("DEV RUN",
-      touch ? "◀ ▶ move · ▲ ▼ aim · A jump (again in mid-air, or off a wall) · B attack · Q block · R heal"
-        : "ARROWS / WASD move + aim · SPACE jump · E attack · F shoot · Q block/parry · R heal · ESC pause",
-      (touch ? (window.innerHeight > window.innerWidth ? "tip: turn your phone sideways · " : "") + "tap to start" : "SPACE: new game") + (save ? " · " + (touch ? "R: " : "C: ") + "continue zone " + (save.zone + 1) : "") + " · 3 zones + a boss");
+      touch ? "left thumb: stick to move and aim · right thumb: actions · the key below names every button"
+        : "ARROWS / WASD move + aim · SPACE jump · E attack · F shoot · Q block/parry · R heal (tap) · ESC pause",
+      (touch ? (window.innerHeight > window.innerWidth ? "tip: turn your phone sideways · " : "") + "tap to start" : "SPACE: new game") + (save ? " · " + (touch ? "heal button: " : "C: ") + "continue zone " + (save.zone + 1) : "") + " · 3 zones + a boss");
   }
 
   function startGame(cont) {
@@ -1572,9 +1721,10 @@
   /* ---- pause menu (Esc) ---- */
   var menu = null, menuBtns = [], menuSel = 0, pausedFrom = "play";
   var MENUS = {
-    main: { title: "PAUSED", items: [["resume", "Resume"], ["checkpoint", "Restart from last checkpoint"], ["full", "Restart full game"], ["help", "Instructions"], ["exit", "Exit"]],
+    main: { title: "PAUSED", items: [["resume", "Resume"], ["checkpoint", "Restart from last checkpoint"], ["full", "Restart full game"], ["help", "Instructions"]].concat(window.matchMedia("(pointer: coarse)").matches ? [["touch", "Touch controls"]] : []).concat([["exit", "Exit"]]),
       note: "↑ ↓ choose · enter select · esc resumes" },
     help: { title: "INSTRUCTIONS", items: [["back", "Back"]], note: "esc or enter to go back", help: true },
+    touch: { title: "TOUCH CONTROLS", items: [], row: false, note: "tap an option to change it" },
     confirm: { title: "ARE YOU SURE?", sub: "Restarting the full game wipes this run and your saved progress.", items: [["yes", "Yes"], ["no", "No"]], row: true,
       note: "← → choose · enter select · esc goes back" },
   };
@@ -1584,11 +1734,13 @@
     menu.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
     cv.parentNode.appendChild(menu);
     var pb = document.createElement("button");   // phones have no Esc key
-    pb.type = "button"; pb.className = "g-pausebtn"; pb.setAttribute("aria-label", "Pause"); pb.textContent = "❚❚";
+    pb.type = "button"; pb.className = "g-pausebtn"; pb.setAttribute("aria-label", "Pause"); pb.innerHTML = icon("pause");
     pb.addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); pause(); });
     cv.parentNode.appendChild(pb);
   }
   function showMenu(name, sel) {
+    if (name === "touch") MENUS.touch.items = [["size", "Button size: " + { S: "small", M: "medium", L: "large" }[SET.size]],
+      ["hand", "Left-handed: " + (SET.lefty ? "on" : "off")], ["vib", "Vibration: " + (SET.vib ? "on" : "off")], ["back", "Back"]];
     var m = MENUS[name], h = "<b>" + m.title + "</b>" + (m.sub ? "<p>" + m.sub + "</p>" : "") + (m.help ? helpHTML() : "");
     menu.dataset.screen = name;
     h += '<div class="g-mlist' + (m.row ? " g-mrow" : "") + '">' + m.items.map(function (it) { return '<button type="button" class="g-mi" data-a="' + it[0] + '">' + it[1] + "</button>"; }).join("") + "</div>";
@@ -1605,16 +1757,16 @@
   function helpHTML() {
     var touch = window.matchMedia("(pointer: coarse)").matches, has = function (a) { return !a || run.abilities[a]; };
     var rows = [
-      [touch ? "◀ ▶" : "ARROWS / WASD", "move · down + jump drops through grates"],
-      [touch ? "▲ ▼" : "↑ ↓", "aim attacks and shots up or down · add ← → for diagonal shots"],
-      [touch ? "A" : "SPACE", "jump · again in mid-air · jump into a wall, then again to kick off"],
-      [touch ? "B" : "E", "attack · aim up, or down in mid-air to bounce off enemies"],
-      ["Q", "hold to block · tap just before a hit to parry and stun"],
-      ["R", "hold to regenerate health · uses RAM (the blue orb)"],
-      [touch ? "X" : "F", "shoot a debug pulse · uses RAM", "pulse"],
-      ["C", "firewall · a wall that stops every projectile", "firewall"],
-      ["V", "laptop slam · smashes cracked floors", "slam"],
-      [touch ? "»" : "SHIFT", "cache dash · fast, works in mid-air, hurts what it hits", "dash"],
+      [touch ? "stick" : "ARROWS / WASD", "move · down + jump drops through grates"],
+      [touch ? "stick ↑ ↓" : "↑ ↓", "aim attacks and shots up or down · add ← → for diagonal shots"],
+      [touch ? icon("jump") : "SPACE", "jump · again in mid-air · jump into a wall, then again to kick off"],
+      [touch ? icon("slash") : "E", "attack · aim up, or down in mid-air to bounce off enemies"],
+      [touch ? icon("block") : "Q", "hold to block · tap just before a hit to parry and stun"],
+      [touch ? icon("focus") : "R", "tap to heal · uses RAM (the blue orb)"],
+      [touch ? icon("pulse") : "F", "shoot a debug pulse · uses RAM", "pulse"],
+      [touch ? icon("firewall") : "C", "firewall · a wall that stops every projectile", "firewall"],
+      [touch ? icon("slam") : "V", "laptop slam · smashes cracked floors", "slam"],
+      [touch ? icon("dash") : "SHIFT", "cache dash · fast, works in mid-air, hurts what it hits", "dash"],
       [touch ? "" : "ESC", touch ? "" : "pause"],
     ].filter(function (r) { return r[0]; });
     return '<dl class="g-help">' + rows.map(function (r) {
@@ -1634,7 +1786,7 @@
   function releaseKeys() { Object.keys(keys).forEach(function (k) { keys[k] = false; pressed[k] = false; }); }
   function pause() {
     if (state !== "play" && state !== "dead") return;
-    pausedFrom = state; state = "paused"; releaseKeys(); showMenu("main");
+    pausedFrom = state; state = "paused"; releaseKeys(); releaseTouch(); showMenu("main");
   }
   function closeMenu() { if (menu) menu.hidden = true; releaseKeys(); last = 0; acc = 0; }
   function menuAction(a) {
@@ -1646,7 +1798,11 @@
     else if (a === "full") showMenu("confirm");
     else if (a === "no") showMenu("main", 2);
     else if (a === "help") showMenu("help");
-    else if (a === "back") showMenu("main", 3);
+    else if (a === "touch") showMenu("touch");
+    else if (a === "size") { SET.size = { S: "M", M: "L", L: "S" }[SET.size]; saveSet(); layoutTouch(); showMenu("touch", 0); }
+    else if (a === "hand") { SET.lefty = !SET.lefty; saveSet(); layoutTouch(); showMenu("touch", 1); }
+    else if (a === "vib") { SET.vib = !SET.vib; saveSet(); buzz(30); showMenu("touch", 2); }
+    else if (a === "back") showMenu("main", menu.dataset.screen === "touch" ? 4 : 3);
     else if (a === "yes") {
       try { localStorage.removeItem("anb_devrun_save"); } catch (_) {}
       closeMenu(); fadeTo = null; fade = 1; startGame(false);
@@ -1661,27 +1817,22 @@
     init: function (opts) {
       cv = opts.canvas; ctx = cv.getContext("2d");
       low = document.createElement("canvas"); lc = low.getContext("2d");
-      ui = opts.ui || {}; ui.touch = opts.touch || []; root = opts.root || ""; onExit = opts.onExit || null;
+      ui = opts.ui || {}; root = opts.root || ""; onExit = opts.onExit || null;
       buildMenu();
+      buildTouch(opts.touch, opts.legend);
+      window.addEventListener("resize", function () { layoutTouch(); checkOrientation(); });
       if (ui.best) ui.best.textContent = best ? fmtTime(best) : "–";
       ZONES.forEach(function (zn) { TOTAL_SHARDS += zn.build().shards.length; });
       document.addEventListener("keydown", function (e) { onKey(e, true); }, true);
       document.addEventListener("keyup", function (e) { onKey(e, false); }, true);
       cv.addEventListener("pointerdown", function (e) { if (e.pointerType === "mouse" && (state === "title" || state === "won") && ready) { e.preventDefault(); startGame(false); } });
-      ui.touch.forEach(function (b) {
-        var k = b.dataset.k;
-        var on = function (e) { e.preventDefault(); b.classList.add("on"); press(k, true); };
-        var off = function (e) { e.preventDefault(); b.classList.remove("on"); press(k, false); };
-        b.addEventListener("pointerdown", on); b.addEventListener("pointerup", off);
-        b.addEventListener("pointercancel", off); b.addEventListener("pointerleave", off);
-      });
-      if (window.ResizeObserver) new ResizeObserver(function () { if (running) resize(); }).observe(cv);
+      if (window.ResizeObserver) new ResizeObserver(function () { if (running) { resize(); layoutTouch(); } }).observe(cv);
       newRun(); updateTouchButtons();
     },
     open: function () {
       if (!cv) return;
       running = true; last = 0; acc = 0;
-      resize();
+      resize(); layoutTouch(); TC.lastTouch = time;
       if (state !== "play" && state !== "dead" && state !== "paused") {
         state = "title";
         showOverlay("DEV RUN", "loading sprites…", "");

@@ -33,4 +33,6 @@ controller icon in the dock.
 - Levels are built in code (`ZONES` near the top of `game.js`): `carve` cuts rooms, `plat` adds jump-through
   grates, `spikes`, `brk` adds cracked floor that Laptop Slam breaks. Tiles are 32 px.
 - Keys: arrows or WASD move and aim, SPACE jump (again in mid-air, or off a wall), E attack,
-  F shoot, Q block/parry, R (hold) heal, C firewall, V slam, SHIFT dash, ESC pause menu (with instructions).
+  F shoot, Q block/parry, R (tap) heal, C firewall, V slam, SHIFT dash, ESC pause menu (with instructions).
+- Phones: a floating stick on the left (heal above it), icon buttons on the right, a key of the icons under the game,
+  and size / left-handed / vibration settings in the pause menu.

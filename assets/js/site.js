@@ -652,7 +652,8 @@
     window.ANBGame.init({
       canvas: $("#gCanvas"),
       ui: { ov: $("#gOv"), t: $("#gOvT"), l1: $("#gOv1"), l2: $("#gOv2"), best: $("#gBest") },
-      touch: $$(".g-touch button"),
+      touch: $("#gTouch"),
+      legend: $("#gLegend"),
       root: CFG.root || "",
       onExit: function () { hideApp($("#gameWin")); }
     });
