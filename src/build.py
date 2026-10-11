@@ -2,7 +2,8 @@
 
     python3 src/build.py
 
-Writes index.html, data/index.html, work/<slug>/index.html and data/work/<slug>/index.html.
+Writes index.html, data/index.html, ai/index.html (one per track) and work/<slug>/index.html
+(one per project, shared by every track).
 No dependencies beyond the Python standard library.
 """
 
@@ -10,7 +11,10 @@ from html import escape
 from pathlib import Path
 import json
 
-from content import EDUCATION, PERSON, PROJECTS, ROLES, SKILLS, TESTIMONIAL, TRACKS, USED_EXTRA
+import shutil
+
+from content import (CATEGORIES, EDUCATION, PERSON, PROJECTS, ROLES, SKILLS, TESTIMONIAL, TRACKS,
+                     USED_EXTRA, home_category)
 
 ROOT = Path(__file__).resolve().parent.parent
 def _asset_version():
@@ -105,13 +109,15 @@ def head(title, description, root, noindex, canonical):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <link rel="stylesheet" href="{root}assets/css/site.css?v={ASSET_VERSION}">
-<script>try{{var t=localStorage.getItem("anb-theme");if(t)document.documentElement.dataset.theme=t}}catch(_){{}}</script>
+<script>document.documentElement.classList.add("js");try{{var t=localStorage.getItem("anb-theme");if(t)document.documentElement.dataset.theme=t}}catch(_){{}}</script>
 </head>"""
 
 
 def dock(home, on_home):
     pre = "" if on_home else home
-    item = lambda key, label: (f'<a class="dk" href="{pre}#{key}" data-nav="{key}" aria-label="{label}">'
+    # data-home: on project pages site.js points these at the track page the visitor came from.
+    hl = "" if on_home else " data-home"
+    item = lambda key, label: (f'<a class="dk" href="{pre}#{key}" data-nav="{key}"{hl} aria-label="{label}">'
                                f'<span class="dk-tile">{DOCK_ICONS[key]}</span><span class="dk-tip">{label}</span></a>')
     nav = "".join(item(k, l) for k, l in [("work", "Work"), ("about", "About"), ("skills", "Skills"),
                                           ("experience", "Experience"), ("resume", "Resume"), ("contact", "Contact")])
@@ -122,7 +128,7 @@ def dock(home, on_home):
                 f'<button class="dk dk-app dk-game" type="button" data-open="game" aria-label="Play Dev Run"><span class="dk-tile">{DOCK_ICONS["game"]}</span><span class="dk-tip">Play Dev Run</span></button>')
     return f"""<div class="dock-wrap">
 <nav class="dock" id="dock" aria-label="Site">
-  <a class="dk dk-home" href="{'#top' if on_home else home}" aria-label="Home"><span class="dk-tile">{LOGO}</span><span class="dk-tip">Home</span></a>
+  <a class="dk dk-home" href="{'#top' if on_home else home}"{hl} aria-label="Home"><span class="dk-tile">{LOGO}</span><span class="dk-tip">Home</span></a>
   <span class="dk-sep" aria-hidden="true"></span>
   {nav}
   {apps}
@@ -142,9 +148,11 @@ def footer():
 
 
 def scripts(root, page, track_key):
+    cfg = {"page": page, "track": track_key, "email": PERSON["email"], "root": root,
+           "projects": len(PROJECTS), "role": TRACKS[track_key]["role"].lower() if track_key else ""}
     return f"""<div class="scan" aria-hidden="true"></div>
 {GLASS_FILTER}
-<script>window.ANB={json.dumps({"page": page, "track": track_key, "email": PERSON["email"], "root": root})};</script>
+<script>window.ANB={json.dumps(cfg)};</script>
 {f'<script src="{root}assets/js/game.js?v={ASSET_VERSION}" defer></script>' if page == "home" else ""}
 <script src="{root}assets/js/site.js?v={ASSET_VERSION}" defer></script>
 </body>
@@ -178,8 +186,7 @@ def tile_html(t, root):
 def used_in(name, track_key):
     key = name.lower().replace("aws ", "")
     hits = []
-    for slug in TRACKS[track_key]["projects"]:
-        p = PROJECTS[slug]
+    for p in PROJECTS.values():
         if any(key in s.lower() for s in p["stack"]):
             hits.append(p["short"])
     for extra in USED_EXTRA.get(name, []):
@@ -266,15 +273,14 @@ def contact_html():
 def home(track_key):
     tr = TRACKS[track_key]
     root = "../" * tr["prefix"].count("/")
-    projs = [(slug, PROJECTS[slug]) for slug in tr["projects"]]
-    n = len(projs)
+    n = len(PROJECTS)
 
-    rows = []
-    for i, (slug, p) in enumerate(projs, 1):
+    def row_html(i, slug):
+        p = PROJECTS[slug]
         tiles = "".join(tile_html(t, root) for t in p["tiles"])
-        chips = "".join(f"<li>{e(s)}</li>" for s in p["stack"][:4])
-        rows.append(f"""<li class="row-wrap reveal">
-  <a class="row" href="work/{slug}/" data-slug="{slug}">
+        chips = "".join(f"<li>{e(x)}</li>" for x in p["stack"][:4])
+        return f"""<li class="row-wrap reveal" style="--k:{i - 1}">
+  <a class="row" href="{root}work/{slug}/" data-slug="{slug}">
     <span class="row-idx">0{i}</span>
     <span class="row-main">
       <span class="row-kicker">{e(p['kicker'])}</span>
@@ -286,7 +292,22 @@ def home(track_key):
     <span class="row-arrow" aria-hidden="true">↗</span>
   </a>
   <template class="row-tiles">{tiles}</template>
-</li>""")
+</li>"""
+
+    tabs, panels = [], []
+    for key, cat in CATEGORIES.items():
+        on = key == tr["tab"]
+        tabs.append(f'<button class="wtab{" on" if on else ""}" type="button" role="tab" id="tab-{key}" '
+                    f'aria-controls="work-{key}" aria-selected="{"true" if on else "false"}" tabindex="{0 if on else -1}" '
+                    f'data-tab="{key}" data-blurb="{e(cat["blurb"])}">{e(cat["label"])}<sup>{len(cat["projects"])}</sup></button>')
+        rows = "".join(row_html(i, slug) for i, slug in enumerate(cat["projects"], 1))
+        panels.append(f"""<div class="wpanel{" on" if on else ""}" role="tabpanel" id="work-{key}" aria-labelledby="tab-{key}" data-tab="{key}">
+      <h3 class="wpanel-h">{e(cat["label"])}</h3>
+      <ol class="rows">{rows}</ol>
+    </div>""")
+    work_tabs = (f'<div class="wtabs-bar reveal"><div class="wtabs" role="tablist" aria-label="Project categories">'
+                 f'<span class="wtabs-ind" aria-hidden="true"></span>{"".join(tabs)}</div>'
+                 f'<p class="wtab-blurb" id="wtabBlurb">{e(CATEGORIES[tr["tab"]]["blurb"])}</p></div>')
 
     term_lines = "".join(
         f'<div class="tl {"tl-cmd" if not l.startswith(">") else "tl-out"}" data-type>{e(l if l.startswith(">") else "$ " + l)}</div>'
@@ -302,10 +323,10 @@ def home(track_key):
                    for i, b in enumerate(tr["experience"], 1))
     roles = "".join(f'<div class="role"><b>{e(t)}</b><span>{e(w)}</span></div>' for t, w in ROLES)
     resume = tr["resume"]
-    preview = "assets/img/resume-" + ("Data" if track_key == "data" else "Software") + ".png"
+    preview = tr["preview"]
     resume_name = resume.rsplit("/", 1)[-1]
 
-    page = head(tr["title"], tr["description"], root, tr["noindex"], PERSON["site"] + "/") + f"""
+    page = head(tr["title"], tr["description"], root, False, PERSON["site"] + "/" + tr["prefix"]) + f"""
 <body class="home" id="top">
 <div class="boot" id="boot" aria-hidden="true">
   <div class="boot-log" id="bootLog"></div>
@@ -361,9 +382,10 @@ def home(track_key):
     <div class="sec-head reveal">
       <span class="sec-num">01</span>
       <h2>Selected work</h2>
-      <p class="sec-sub">{n} projects, each with the tests and numbers that back it up. Hover to peek, click for the full story.</p>
+      <p class="sec-sub">{n} projects across software, data and AI/ML, each with the tests and numbers that back it up. Hover to peek, click for the full story.</p>
     </div>
-    <ol class="rows">{''.join(rows)}</ol>
+    {work_tabs}
+    {''.join(panels)}
   </section>
 
   <section class="sec about" id="about">
@@ -464,16 +486,16 @@ def home(track_key):
 # Project page
 # ---------------------------------------------------------------------------
 
-def project(track_key, idx):
-    tr = TRACKS[track_key]
-    slugs = tr["projects"]
-    slug = slugs[idx]
+def project(slug):
+    cat_key = home_category(slug)
+    slugs = CATEGORIES[cat_key]["projects"]
+    idx = slugs.index(slug)
     p = PROJECTS[slug]
     nxt_slug = slugs[(idx + 1) % len(slugs)]
     nxt = PROJECTS[nxt_slug]
-    depth = tr["prefix"].count("/") + 2
-    root = "../" * depth
+    root = "../../"
     home_url = "../../"
+    track_key = {"software": "software", "data": "data", "ai": "ai"}[cat_key]
 
     metrics = "".join(f'<div class="met card reveal"><b>{e(v)}</b><span>{e(l)}</span></div>' for v, l in p["metrics"])
     chips = "".join(f"<li>{e(s)}</li>" for s in p["stack"])
@@ -492,12 +514,12 @@ def project(track_key, idx):
         images = f'<div class="cs-figs">{figs}</div>'
 
     canonical = f"{PERSON['site']}/work/{slug}/"
-    page = head(f"{p['title']} · Anurag Bhandary", p["oneliner"], root, tr["noindex"], canonical) + f"""
+    page = head(f"{p['title']} · Anurag Bhandary", p["oneliner"], root, False, canonical) + f"""
 <body class="case-page" id="top">
 <main class="case">
   <header class="cs-hero">
-    <a class="cs-back" href="{home_url}#work">← all work</a>
-    <p class="cs-kicker">0{idx + 1} / 0{len(slugs)} · {e(p['kicker'])}</p>
+    <a class="cs-back" href="{home_url}#work-{cat_key}" data-home="#work-{cat_key}">← all work</a>
+    <p class="cs-kicker">{e(CATEGORIES[cat_key]['label'])} · 0{idx + 1} / 0{len(slugs)} · {e(p['kicker'])}</p>
     <h1 class="cs-title" style="view-transition-name:t-{slug}">{e(p['title'])}</h1>
     <p class="cs-one">{e(p['oneliner'])}</p>
     <div class="cs-actions">
@@ -544,18 +566,31 @@ def project(track_key, idx):
 {footer()}
 {dock(home_url, False)}
 """ + scripts(root, "project", track_key)
-    out = ROOT / tr["prefix"] / "work" / slug / "index.html"
+    out = ROOT / "work" / slug / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page)
     return out
 
 
+def sitemap():
+    from datetime import date
+    today = date.today().isoformat()
+    urls = [(PERSON["site"] + "/" + tr["prefix"], "1.0" if not tr["prefix"] else "0.9") for tr in TRACKS.values()]
+    urls += [(f"{PERSON['site']}/work/{slug}/", None) for slug in PROJECTS]
+    body = "\n".join(f"  <url><loc>{u}</loc><lastmod>{today}</lastmod>" + (f"<priority>{pr}</priority>" if pr else "") + "</url>"
+                     for u, pr in urls)
+    out = ROOT / "sitemap.xml"
+    out.write_text('<?xml version="1.0" encoding="UTF-8"?>\n'
+                   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + body + "\n</urlset>\n")
+    return out
+
+
 def main():
-    written = []
-    for key, tr in TRACKS.items():
-        written.append(home(key))
-        for i in range(len(tr["projects"])):
-            written.append(project(key, i))
+    # Project pages used to be generated per track (data/work/...); there is one copy now.
+    shutil.rmtree(ROOT / "data" / "work", ignore_errors=True)
+    written = [home(key) for key in TRACKS]
+    written += [project(slug) for slug in PROJECTS]
+    written.append(sitemap())
     for w in written:
         print("wrote", w.relative_to(ROOT))
 

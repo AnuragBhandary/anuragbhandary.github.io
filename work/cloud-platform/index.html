@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud-Native Platform · Anurag Bhandary</title>
+<meta name="description" content="My job queue run the way production runs it: Kubernetes built by Terraform, autoscaled on queue depth, with a node killed mid-run and nothing lost.">
+
+<link rel="canonical" href="https://anuragbhandary.github.io/work/cloud-platform/">
+<meta property="og:title" content="Cloud-Native Platform · Anurag Bhandary">
+<meta property="og:description" content="My job queue run the way production runs it: Kubernetes built by Terraform, autoscaled on queue depth, with a node killed mid-run and nothing lost.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://anuragbhandary.github.io/assets/img/me.jpg">
+<meta name="theme-color" content="#07090d">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="../../assets/css/site.css?v=203aabe2">
+<script>document.documentElement.classList.add("js");try{var t=localStorage.getItem("anb-theme");if(t)document.documentElement.dataset.theme=t}catch(_){}</script>
+</head>
+<body class="case-page" id="top">
+<main class="case">
+  <header class="cs-hero">
+    <a class="cs-back" href="../../#work-software" data-home="#work-software">← all work</a>
+    <p class="cs-kicker">Software · 04 / 06 · Kubernetes · Terraform · Helm</p>
+    <h1 class="cs-title" style="view-transition-name:t-cloud-platform">Cloud-Native Platform</h1>
+    <p class="cs-one">My job queue run the way production runs it: Kubernetes built by Terraform, autoscaled on queue depth, with a node killed mid-run and nothing lost.</p>
+    <div class="cs-actions">
+      <a class="btn" href="https://github.com/AnuragBhandary/Cloud-Native-Platform" target="_blank" rel="noopener"><svg class="bi btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg> source on GitHub ↗</a>
+    </div>
+    <ul class="chips"><li>Kubernetes</li><li>Terraform</li><li>Helm</li><li>KEDA</li><li>CloudNativePG</li><li>PgBouncer</li><li>Prometheus</li><li>Grafana</li></ul>
+  </header>
+
+  <div class="mets"><div class="met card reveal"><b>20,000</b><span>jobs, each run exactly once</span></div><div class="met card reveal"><b>117</b><span>jobs taken over from a killed node, 0 duplicated</span></div><div class="met card reveal"><b>1 → 10</b><span>workers autoscaled on queue depth</span></div><div class="met card reveal"><b>67</b><span>Postgres connections, capped by PgBouncer</span></div></div>
+
+  <section class="cs-sec">
+    <h2 class="cs-h">Why I built this</h2>
+    <div class="why">
+      <div class="why-card card reveal"><span class="why-k">In the real world</span><p>Most services don&#x27;t fail in the code, they fail in how they&#x27;re run: a node dies, traffic spikes, the database runs out of connections at 2 a.m. Platform and SRE teams exist to make that boring, with autoscaling, failover, and alerts that fire before customers notice.</p></div>
+      <div class="why-card card reveal me"><span class="why-k">What I wanted to find out</span><p>My job queue survived killed workers on a laptop. Would it survive a whole machine dying inside a real cluster, while it scaled itself up and down? I wanted to run it the way companies run services, then pull a node out from under it.</p></div>
+    </div>
+  </section>
+
+  <section class="cs-sec">
+    <h2 class="cs-h">What I built</h2>
+    <div class="cs-prose reveal"><p>A five-node Kubernetes cluster created end to end by Terraform, with the job queue packaged as a Helm chart. KEDA scales the workers on Redis stream lag, CloudNativePG runs PostgreSQL with a hot replica, and Prometheus and Grafana track SLOs with burn-rate alerts.</p><p>The first load test OOM-killed the PostgreSQL primary: ten autoscaled workers each opened up to 20 connections. The replica took over by itself and no job was lost. PgBouncer now keeps connections flat however many workers run.</p></div>
+  </section>
+
+  <section class="cs-sec">
+    <h2 class="cs-h">How it works</h2>
+    <div class="flow reveal"><div class="flow-node card"><b>Terraform</b><span>cluster + releases</span></div><span class="flow-arrow" aria-hidden="true"></span><div class="flow-node card"><b>Gateway API</b><span>Traefik</span></div><span class="flow-arrow" aria-hidden="true"></span><div class="flow-node card"><b>jobq API</b><span>HPA on CPU</span></div><span class="flow-arrow" aria-hidden="true"></span><div class="flow-node card"><b>KEDA workers</b><span>scale on stream lag</span></div><span class="flow-arrow" aria-hidden="true"></span><div class="flow-node card"><b>PostgreSQL HA</b><span>CloudNativePG + PgBouncer</span></div></div>
+    <p class="flow-note reveal">The whole platform builds from nothing with one `make up`, in about 10 minutes. An AWS version of the Terraform (VPC, EKS, ECR) is validated in CI but not applied yet.</p>
+  </section>
+
+  <section class="cs-sec"><h2 class="cs-h">How it stays correct</h2><div class="g-list"><div class="g-row card reveal"><b>Node loss loses nothing</b><p>Worker leases expire and other workers take the jobs over; fencing tokens stop the dead node&#x27;s writes.</p></div><div class="g-row card reveal"><b>Scales on the real signal</b><p>KEDA reads Redis stream lag, not CPU, so workers follow the backlog.</p></div><div class="g-row card reveal"><b>The database survives the scale-up</b><p>PgBouncer in transaction mode caps connections at 67.</p></div><div class="g-row card reveal"><b>Problems page you</b><p>SLOs with burn-rate alerts in Prometheus, dashboards in Grafana.</p></div></div></section>
+
+  <section class="cs-sec">
+    <h2 class="cs-h">Measured</h2>
+    <dl class="results reveal"><div class="r-row"><dt>Load</dt><dd>20,000 jobs at 400/s, each 500 ms of work, on a laptop cluster</dd></div><div class="r-row"><dt>Node kill</dt><dd>117 jobs taken over from the dead node, 20,000 / 20,000 done, 0 duplicates</dd></div><div class="r-row"><dt>Autoscaling</dt><dd>Workers 1 → 10 → 1; backlog drained 84 s after the first job</dd></div><div class="r-row"><dt>Failover</dt><dd>Primary OOM-killed in the first run: 18,832 accepted jobs, none lost or run twice</dd></div></dl>
+    
+  </section>
+
+  <a class="next" href="../consumer-benchmark/">
+    <span class="next-label">next project</span>
+    <span class="next-title">Streaming Consumer Benchmark</span>
+    <span class="next-arrow" aria-hidden="true">→</span>
+  </a>
+</main>
+<footer class="foot">
+  <span>© 2026 Anurag Navin Bhandary</span>
+  <span class="foot-mid">Plain HTML, CSS and JavaScript · press <kbd>X</kbd> for a glitch</span>
+  <a href="#top" class="foot-top">back to top ↑</a>
+</footer>
+<div class="dock-wrap">
+<nav class="dock" id="dock" aria-label="Site">
+  <a class="dk dk-home" href="../../" data-home aria-label="Home"><span class="dk-tile"><span class="logo" aria-hidden="true"><span class="lg-a">A</span><span class="lg-dot"></span><span class="lg-b">B</span></span></span><span class="dk-tip">Home</span></a>
+  <span class="dk-sep" aria-hidden="true"></span>
+  <a class="dk" href="../../#work" data-nav="work" data-home aria-label="Work"><span class="dk-tile"><svg class="li" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 10h18"/></svg></span><span class="dk-tip">Work</span></a><a class="dk" href="../../#about" data-nav="about" data-home aria-label="About"><span class="dk-tile"><svg class="li" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><span class="dk-tip">About</span></a><a class="dk" href="../../#skills" data-nav="skills" data-home aria-label="Skills"><span class="dk-tile"><svg class="li" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><path d="M9 2.5v3.5M15 2.5v3.5M9 18v3.5M15 18v3.5M2.5 9H6M2.5 15H6M18 9h3.5M18 15h3.5"/></svg></span><span class="dk-tip">Skills</span></a><a class="dk" href="../../#experience" data-nav="experience" data-home aria-label="Experience"><span class="dk-tile"><svg class="li" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18M11 13v2h2v-2"/></svg></span><span class="dk-tip">Experience</span></a><a class="dk" href="../../#resume" data-nav="resume" data-home aria-label="Resume"><span class="dk-tile"><svg class="li" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span><span class="dk-tip">Resume</span></a><a class="dk" href="../../#contact" data-nav="contact" data-home aria-label="Contact"><span class="dk-tile"><svg class="li" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/></svg></span><span class="dk-tip">Contact</span></a>
+  
+  <span class="dk-sep" aria-hidden="true"></span>
+  <button class="dk dk-theme" id="themeToggle" type="button" aria-label="Toggle light and dark mode">
+  <span class="sw" aria-hidden="true">
+    <span class="sw-stars"><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="sw-cloud"></span>
+    <span class="sw-knob"><span class="sw-rays"></span><span class="sw-crater c1"></span><span class="sw-crater c2"></span><span class="sw-crater c3"></span></span>
+  </span>
+  <span class="dk-tip" id="themeTip">Light mode</span>
+</button>
+  <span class="dk-clock" title="My local time"><i></i><b id="clock">--:--</b><small>IST</small></span>
+</nav>
+</div>
+<div class="scan" aria-hidden="true"></div>
+<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="liquid-glass" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.012" numOctaves="2" seed="7" result="noise"/>
+    <feGaussianBlur in="noise" stdDeviation="3" result="map"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="52" xChannelSelector="R" yChannelSelector="G" result="dR"/>
+    <feColorMatrix in="dR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cR"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="45" xChannelSelector="R" yChannelSelector="G" result="dG"/>
+    <feColorMatrix in="dG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cG"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="38" xChannelSelector="R" yChannelSelector="G" result="dB"/>
+    <feColorMatrix in="dB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="cB"/>
+    <feBlend in="cR" in2="cG" mode="screen" result="rg"/>
+    <feBlend in="rg" in2="cB" mode="screen"/>
+  </filter>
+</svg>
+<script>window.ANB={"page": "project", "track": "software", "email": "bhandaryanurag@gmail.com", "root": "../../", "projects": 11, "role": "software engineer"};</script>
+
+<script src="../../assets/js/site.js?v=203aabe2" defer></script>
+</body>
+</html>

@@ -329,7 +329,85 @@
     if (e.key === "x" || e.key === "X") burst();
   });
 
+  /* ------------------------------------------- back to the right track */
+  // Project pages are shared by all three tracks (/, /data/, /ai/). Links home go back to the
+  // track page the visitor came from, remembered for this tab.
+  if (CFG.page === "home") {
+    store.sset("anb-home", location.pathname);
+  } else {
+    var homePath = store.sget("anb-home");
+    if (homePath && /^\/(data\/|ai\/)?(index\.html)?$/.test(homePath)) {
+      $$("[data-home]").forEach(function (a) {
+        var hash = a.getAttribute("data-home") || (a.getAttribute("href").split("#")[1] ? "#" + a.getAttribute("href").split("#")[1] : "");
+        a.setAttribute("href", homePath + hash);
+      });
+    }
+  }
+
   if (CFG.page !== "home") return;
+
+  /* ------------------------------------------------------------ work tabs */
+  var tabs = $$(".wtab"), panels = $$(".wpanel"), tabInd = $(".wtabs-ind"), tabBlurb = $("#wtabBlurb");
+  function placeInd(btn, instant) {
+    if (!tabInd || !btn) return;
+    if (instant) tabInd.style.transition = "none";
+    tabInd.style.width = btn.offsetWidth + "px";
+    tabInd.style.transform = "translateX(" + btn.offsetLeft + "px)";
+    if (instant) { void tabInd.offsetWidth; tabInd.style.transition = ""; }
+  }
+  function selectTab(key, opts) {
+    opts = opts || {};
+    var btn = null;
+    tabs.forEach(function (t) {
+      var on = t.dataset.tab === key;
+      t.classList.toggle("on", on);
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      if (on) btn = t;
+    });
+    if (!btn) return;
+    panels.forEach(function (pn) {
+      var on = pn.dataset.tab === key;
+      var was = pn.classList.contains("on");
+      pn.classList.toggle("on", on);
+      if (on && !was && !opts.instant) {
+        // replay the row entrance, staggered by --k
+        $$(".row-wrap", pn).forEach(function (r) { r.classList.remove("in"); });
+        void pn.offsetWidth;
+        requestAnimationFrame(function () { $$(".row-wrap", pn).forEach(function (r) { r.classList.add("in", "stag"); }); });
+      }
+    });
+    if (tabBlurb) tabBlurb.textContent = btn.dataset.blurb || "";
+    placeInd(btn, opts.instant);
+    // window.history: the terminal below has its own `history` (typed commands) in this scope.
+    if (opts.push) { try { window.history.replaceState(null, "", "#work-" + key); } catch (_) {} }
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { selectTab(t.dataset.tab, { push: true }); });
+    t.addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (e.key === "Home") d = -i; else if (e.key === "End") d = tabs.length - 1 - i;
+      if (!d) return;
+      e.preventDefault();
+      var nx = tabs[(i + d + tabs.length) % tabs.length];
+      nx.focus(); selectTab(nx.dataset.tab, { push: true });
+    });
+  });
+  var hashTab = /^#work-(software|data|ai)$/.exec(location.hash);
+  var defaultTab = tabs.filter(function (t) { return t.classList.contains("on"); })[0];
+  selectTab(hashTab ? hashTab[1] : (defaultTab ? defaultTab.dataset.tab : "software"), { instant: true });
+  // The panel was hidden when the browser tried to jump to it, so jump once the page has settled.
+  if (hashTab) {
+    var jump = function () { setTimeout(function () { var w = $("#work"); if (w) w.scrollIntoView({ behavior: "instant" }); }, 120); };
+    if (document.readyState === "complete") jump(); else window.addEventListener("load", jump);
+  }
+  window.addEventListener("hashchange", function () {
+    var m = /^#work-(software|data|ai)$/.exec(location.hash);
+    if (m) selectTab(m[1]);
+  });
+  window.addEventListener("resize", function () { placeInd($(".wtab.on"), true); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { placeInd($(".wtab.on"), true); });
+  function visibleRows() { return $$(".wpanel.on .row"); }
 
   /* =============================================================== HOME */
 
@@ -351,7 +429,7 @@
     store.sset("anb-booted", "1");
     boot.classList.add("on");
     var log = $("#bootLog");
-    var nProj = $$(".row").length;
+    var nProj = CFG.projects || $$(".row").length;
     var lines = [
       "A.B/OS 2.6 · booting",
       "<span class=ok>[ ok ]</span> mounting /work (" + nProj + " projects)",
@@ -576,7 +654,6 @@
       else setTimeout(step, 28 + Math.random() * 40);
     })();
   }
-  var projectRows = $$(".row");
   function run(raw) {
     var cmd = raw.trim();
     print("$ " + cmd, "tl-cmd");
@@ -589,16 +666,17 @@
          "glitch      you'll see", "clear       wipe the screen"].forEach(function (l, i) { print("  " + l, i === 0 ? "tl-hi" : "tl-out"); });
         break;
       case "whoami":
-        print(CFG.track === "data" ? "anurag navin bhandary · data engineer" : "anurag navin bhandary · backend engineer", "tl-hi");
+        print("anurag navin bhandary · " + (CFG.role || "software engineer"), "tl-hi");
         print("m.s. computer science, ut arlington. mumbai, ist.");
         print("status: open to work, open to relocation worldwide", "tl-hi");
         break;
       case "ls": case "projects":
+        var projectRows = visibleRows();
         projectRows.forEach(function (r, i) { print("0" + (i + 1) + "  " + $(".row-title", r).textContent, "tl-hi"); });
         print("try `open 1`", "tl-warn");
         break;
       case "open": case "cd":
-        var n = parseInt(arg, 10);
+        var n = parseInt(arg, 10), projectRows = visibleRows();
         if (n >= 1 && n <= projectRows.length) { print("opening " + $(".row-title", projectRows[n - 1]).textContent + " …", "tl-warn"); setTimeout(function () { projectRows[n - 1].click(); }, 350); }
         else print("usage: open <1-" + projectRows.length + ">", "tl-err");
         break;
