@@ -90,9 +90,11 @@ kbd {
 :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
 .defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 
-/* CRT scanlines + vignette, dark mode only */
+/* CRT scanlines + vignette, dark mode only.
+   Stays below the app windows (z 800): over a full-screen game or the resume
+   the cyan lines read as blue tearing and the vignette dulls the page. */
 .scan {
-  position: fixed; inset: 0; pointer-events: none; z-index: 900;
+  position: fixed; inset: 0; pointer-events: none; z-index: 700;
   background:
     radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, .45) 100%),
     repeating-linear-gradient(0deg, transparent 0 2px, rgba(0, 229, 255, .022) 2px 3px);
@@ -488,7 +490,7 @@ kbd {
 .aw-tools a:hover { background: var(--cyan-soft); }
 .resume-body { flex: 1; background: #3b3f45; overflow: auto; }
 .resume-body iframe { width: 100%; height: 100%; border: 0; display: block; background: #3b3f45; }
-.resume-body img { width: min(820px, 100%); margin: 18px auto; box-shadow: 0 10px 40px rgba(0, 0, 0, .5); }
+.resume-body img { width: min(820px, 100%); margin: 18px auto; background: #fff; box-shadow: 0 10px 40px rgba(0, 0, 0, .5); }
 
 /* ==========================================================================
    Sheet: the content that slides over the desktop
