@@ -51,7 +51,7 @@ PROJECTS = {
         "kicker": "Python · Distributed systems",
         "oneliner": "A Celery-style job queue that never runs a job's side effects twice, "
                     "even when workers are killed in the middle of a job.",
-        "headline": ("0", "duplicates across 50,000 jobs"),
+        "headline": ("50,000 / 50,000", "jobs ran exactly once, workers killed mid-run"),
         "repo": "https://github.com/AnuragBhandary/Distributed-Job-Scheduler",
         "stack": ["Python 3.12", "asyncio", "FastAPI", "PostgreSQL", "Redis Streams", "React", "TypeScript", "Docker"],
         "metrics": [
@@ -92,7 +92,7 @@ PROJECTS = {
         ],
         "images": [],
         "tiles": [
-            {"kind": "metric", "big": "0", "small": "duplicate effects"},
+            {"kind": "metric", "big": "50,000 / 50,000", "small": "jobs ran exactly once"},
             {"kind": "code", "text": "UPDATE jobs SET status='done'\nWHERE id=$1\n  AND fence=$2;  -- zombie? rejected"},
             {"kind": "metric", "big": "SIGKILL", "small": "a worker, every 60 s"},
             {"kind": "metric", "big": "7.1 ms", "small": "p95 enqueue"},
@@ -370,7 +370,7 @@ PROJECTS = {
         "kicker": "Java · Spring Boot · React",
         "oneliner": "A BookMyShow-style ticketing app with live seat maps, where a seat is never sold twice "
                     "however many people go for it at once.",
-        "headline": ("0", "seats sold twice in a 200-buyer rush"),
+        "headline": ("50 → 1", "buyers raced for one seat, exactly 1 got it"),
         "repo": "https://github.com/AnuragBhandary/Event-Ticketing-Platform",
         "stack": ["Java 25", "Spring Boot 4", "PostgreSQL", "React", "TypeScript", "Server-Sent Events", "k6", "Playwright"],
         "metrics": [
@@ -410,7 +410,7 @@ PROJECTS = {
         ],
         "images": [],
         "tiles": [
-            {"kind": "metric", "big": "0", "small": "seats sold twice"},
+            {"kind": "metric", "big": "50 → 1", "small": "buyers raced for one seat, 1 got it"},
             {"kind": "code", "text": "SELECT ... FROM seats\nWHERE id = ANY(:ids)\nFOR UPDATE SKIP LOCKED;"},
             {"kind": "metric", "big": "59,119", "small": "hold attempts in 60 s"},
             {"kind": "code", "text": "pg_notify('seat_changes', ...)\n-> SSE to every browser"},

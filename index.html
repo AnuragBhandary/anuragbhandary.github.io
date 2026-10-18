@@ -88,10 +88,10 @@
       <span class="row-one">A BookMyShow-style ticketing app with live seat maps, where a seat is never sold twice however many people go for it at once.</span>
       <ul class="row-chips"><li>Java 25</li><li>Spring Boot 4</li><li>PostgreSQL</li><li>React</li></ul>
     </span>
-    <span class="row-metric"><b>0</b><small>seats sold twice in a 200-buyer rush</small></span>
+    <span class="row-metric"><b>50 → 1</b><small>buyers raced for one seat, exactly 1 got it</small></span>
     <span class="row-arrow" aria-hidden="true">↗</span>
   </a>
-  <template class="row-tiles"><div class="tile tile-metric"><b>0</b><small>seats sold twice</small></div><div class="tile tile-code"><pre>SELECT ... FROM seats
+  <template class="row-tiles"><div class="tile tile-metric"><b>50 → 1</b><small>buyers raced for one seat, 1 got it</small></div><div class="tile tile-code"><pre>SELECT ... FROM seats
 WHERE id = ANY(:ids)
 FOR UPDATE SKIP LOCKED;</pre></div><div class="tile tile-metric"><b>59,119</b><small>hold attempts in 60 s</small></div><div class="tile tile-code"><pre>pg_notify(&#x27;seat_changes&#x27;, ...)
 -&gt; SSE to every browser</pre></div><div class="tile tile-metric"><b>1.6 ms</b><small>p95 hold</small></div></template>
@@ -104,10 +104,10 @@ FOR UPDATE SKIP LOCKED;</pre></div><div class="tile tile-metric"><b>59,119</b><s
       <span class="row-one">A Celery-style job queue that never runs a job&#x27;s side effects twice, even when workers are killed in the middle of a job.</span>
       <ul class="row-chips"><li>Python 3.12</li><li>asyncio</li><li>FastAPI</li><li>PostgreSQL</li></ul>
     </span>
-    <span class="row-metric"><b>0</b><small>duplicates across 50,000 jobs</small></span>
+    <span class="row-metric"><b>50,000 / 50,000</b><small>jobs ran exactly once, workers killed mid-run</small></span>
     <span class="row-arrow" aria-hidden="true">↗</span>
   </a>
-  <template class="row-tiles"><div class="tile tile-metric"><b>0</b><small>duplicate effects</small></div><div class="tile tile-code"><pre>UPDATE jobs SET status=&#x27;done&#x27;
+  <template class="row-tiles"><div class="tile tile-metric"><b>50,000 / 50,000</b><small>jobs ran exactly once</small></div><div class="tile tile-code"><pre>UPDATE jobs SET status=&#x27;done&#x27;
 WHERE id=$1
   AND fence=$2;  -- zombie? rejected</pre></div><div class="tile tile-metric"><b>SIGKILL</b><small>a worker, every 60 s</small></div><div class="tile tile-metric"><b>7.1 ms</b><small>p95 enqueue</small></div><div class="tile tile-code"><pre>@app.task(max_attempts=5)
 def charge(ctx, order_id): ...</pre></div></template>
