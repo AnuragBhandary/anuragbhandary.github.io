@@ -55,10 +55,10 @@ PROJECTS = {
         "repo": "https://github.com/AnuragBhandary/Distributed-Job-Scheduler",
         "stack": ["Python 3.12", "FastAPI", "React", "PostgreSQL", "Redis Streams", "asyncio", "TypeScript", "Docker"],
         "metrics": [
-            ("0", "unrecovered failures in 50,000 jobs"),
-            ("0", "duplicate side effects, audited in SQL"),
+            ("2,633", "retries plus 41 crash-interrupted jobs, all finished"),
             ("7.1 ms", "p95 enqueue latency"),
             ("~1,500/s", "peak jobs on one laptop"),
+            ("0", "duplicate side effects, audited in SQL"),
         ],
         "why": (
             'Every product runs work in the background: sending emails, charging cards, generating reports. Workers crash, deploys restart them, networks time out. If the queue retries a half-finished job carelessly, a customer gets two emails or, worse, two charges. Payment companies, e-commerce and banks all have to solve this.',
@@ -110,9 +110,9 @@ PROJECTS = {
         "stack": ["Python 3.12", "asyncio", "FastAPI", "WebSockets", "PostgreSQL", "Redis pub/sub", "React", "TypeScript"],
         "metrics": [
             ("5M / 5M", "deliveries, every client got every event"),
-            ("0", "duplicate or out-of-order events"),
             ("14,069", "reconnects survived under chaos"),
             ("5 ms", "p95 live delivery latency"),
+            ("0", "duplicate or out-of-order events"),
         ],
         "why": (
             "Live scores, delivery tracking, stock tickers and chat all push updates to millions of phones at once, and mobile connections drop all the time. During an IPL match, a score that skips a wicket or shows it twice breaks trust faster than one that's a second late.",
@@ -215,8 +215,8 @@ PROJECTS = {
         "metrics": [
             ("141 ms", "p95 lag, MySQL commit to Postgres commit"),
             ("1,000,021", "row changes replayed at 3,100/s"),
-            ("0", "missing, extra or mismatched rows"),
             ("Live", "column added mid-run, no restart"),
+            ("0", "missing, extra or mismatched rows"),
         ],
         "why": (
             'Companies keep their live database separate from analytics, search and reporting. Nightly copies are always a day stale, and writing to two places from app code slowly drifts apart. Change data capture is how fintech and e-commerce teams keep those copies in sync within milliseconds, without silently getting balances or reports wrong.',
@@ -267,8 +267,8 @@ PROJECTS = {
         "metrics": [
             ("99,441", "orders, 597,649 source changes"),
             ("85 / 85", "dbt tests passed on every load"),
-            ("R$ 0.00", "revenue gap, source vs warehouse"),
             ("Identical", "incremental vs full rebuild hashes"),
+            ("R$ 0.00", "revenue gap, source vs warehouse"),
         ],
         "why": (
             'Every e-commerce company runs on dashboards fed by a warehouse loaded from the live database. Late updates, crashed loads and customers who change address make those numbers quietly disagree with reality, and business decisions get made on them anyway.',
@@ -374,10 +374,10 @@ PROJECTS = {
         "repo": "https://github.com/AnuragBhandary/Event-Ticketing-Platform",
         "stack": ["Java 25", "Spring Boot 4", "PostgreSQL", "React", "TypeScript", "Server-Sent Events", "k6", "Playwright"],
         "metrics": [
-            ("0", "seats sold twice, audited in SQL"),
             ("59,000+", "hold attempts in a 60 s rush"),
             ("1.6 ms", "p95 hold latency"),
             ("18 / 18", "cross-instance browser races passed"),
+            ("0", "seats sold twice, audited in SQL"),
         ],
         "why": (
             "When a big concert or an IPL final goes on sale, thousands of people click the same seats in the same second. If two of them both get a confirmation, one turns up at the venue to find someone in their seat, and the ticketing company eats the refund and the anger.",
