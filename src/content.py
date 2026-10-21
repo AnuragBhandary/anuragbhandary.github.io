@@ -53,7 +53,7 @@ PROJECTS = {
                     "even when workers are killed in the middle of a job.",
         "headline": ("50,000 / 50,000", "jobs ran exactly once, workers killed mid-run"),
         "repo": "https://github.com/AnuragBhandary/Distributed-Job-Scheduler",
-        "stack": ["Python 3.12", "asyncio", "FastAPI", "PostgreSQL", "Redis Streams", "React", "TypeScript", "Docker"],
+        "stack": ["Python 3.12", "FastAPI", "React", "PostgreSQL", "Redis Streams", "asyncio", "TypeScript", "Docker"],
         "metrics": [
             ("0", "unrecovered failures in 50,000 jobs"),
             ("0", "duplicate side effects, audited in SQL"),
@@ -638,7 +638,9 @@ CATEGORIES = {
     "software": {
         "label": "Software",
         "blurb": "Backend and full-stack systems that stay correct when things crash.",
-        "projects": ["showtime", "job-scheduler", "event-streaming", "cloud-platform", "consumer-benchmark", "cdc-pipeline"],
+        "projects": ["showtime", "cloud-platform", "job-scheduler", "cdc-pipeline"],
+        # Smaller "More projects" list under the featured rows; their pages stay in the next/prev chain.
+        "more": ["event-streaming", "consumer-benchmark"],
     },
     "data": {
         "label": "Data",
@@ -656,7 +658,7 @@ CATEGORIES = {
 def home_category(slug):
     """The category whose list a project's detail page belongs to (first one listing it)."""
     for key, c in CATEGORIES.items():
-        if slug in c["projects"]:
+        if slug in c["projects"] + c.get("more", []):
             return key
     raise KeyError(slug)
 

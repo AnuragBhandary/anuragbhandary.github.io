@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../assets/css/site.css?v=54361d65">
+<link rel="stylesheet" href="../assets/css/site.css?v=94a5d1db">
 <script>document.documentElement.classList.add("js");try{var t=localStorage.getItem("anb-theme");if(t)document.documentElement.dataset.theme=t}catch(_){}</script>
 </head>
 <body class="home" id="top">
@@ -96,38 +96,8 @@ WHERE id = ANY(:ids)
 FOR UPDATE SKIP LOCKED;</pre></div><div class="tile tile-metric"><b>59,119</b><small>hold attempts in 60 s</small></div><div class="tile tile-code"><pre>pg_notify(&#x27;seat_changes&#x27;, ...)
 -&gt; SSE to every browser</pre></div><div class="tile tile-metric"><b>1.6 ms</b><small>p95 hold</small></div></template>
 </li><li class="row-wrap reveal" style="--k:1">
-  <a class="row" href="../work/job-scheduler/" data-slug="job-scheduler">
-    <span class="row-idx">02</span>
-    <span class="row-main">
-      <span class="row-kicker">Python · Distributed systems</span>
-      <span class="row-title" data-vt="job-scheduler">Distributed Job Scheduler</span>
-      <span class="row-one">A Celery-style job queue that never runs a job&#x27;s side effects twice, even when workers are killed in the middle of a job.</span>
-      <ul class="row-chips"><li>Python 3.12</li><li>asyncio</li><li>FastAPI</li><li>PostgreSQL</li></ul>
-    </span>
-    <span class="row-metric"><b>50,000 / 50,000</b><small>jobs ran exactly once, workers killed mid-run</small></span>
-    <span class="row-arrow" aria-hidden="true">↗</span>
-  </a>
-  <template class="row-tiles"><div class="tile tile-metric"><b>50,000 / 50,000</b><small>jobs ran exactly once</small></div><div class="tile tile-code"><pre>UPDATE jobs SET status=&#x27;done&#x27;
-WHERE id=$1
-  AND fence=$2;  -- zombie? rejected</pre></div><div class="tile tile-metric"><b>SIGKILL</b><small>a worker, every 60 s</small></div><div class="tile tile-metric"><b>7.1 ms</b><small>p95 enqueue</small></div><div class="tile tile-code"><pre>@app.task(max_attempts=5)
-def charge(ctx, order_id): ...</pre></div></template>
-</li><li class="row-wrap reveal" style="--k:2">
-  <a class="row" href="../work/event-streaming/" data-slug="event-streaming">
-    <span class="row-idx">03</span>
-    <span class="row-main">
-      <span class="row-kicker">Python · WebSockets</span>
-      <span class="row-title" data-vt="event-streaming">Real-Time Event Streaming</span>
-      <span class="row-one">A live cricket scoreboard feed where 1,000 clients receive every event exactly once and in order, through crashes and reconnects.</span>
-      <ul class="row-chips"><li>Python 3.12</li><li>asyncio</li><li>FastAPI</li><li>WebSockets</li></ul>
-    </span>
-    <span class="row-metric"><b>5M / 5M</b><small>deliveries, 0 out of order</small></span>
-    <span class="row-arrow" aria-hidden="true">↗</span>
-  </a>
-  <template class="row-tiles"><div class="tile tile-metric"><b>5,000,000</b><small>deliveries, none lost</small></div><div class="tile tile-code"><pre>close(4008)  # slow consumer
-# client resumes from its cursor</pre></div><div class="tile tile-metric"><b>14,069</b><small>reconnects survived</small></div><div class="tile tile-score"><span class="live">● LIVE</span><b>MI 186/4</b><small>18.2 ov · live</small></div><div class="tile tile-metric"><b>5 ms</b><small>p95 delivery</small></div></template>
-</li><li class="row-wrap reveal" style="--k:3">
   <a class="row" href="../work/cloud-platform/" data-slug="cloud-platform">
-    <span class="row-idx">04</span>
+    <span class="row-idx">02</span>
     <span class="row-main">
       <span class="row-kicker">Kubernetes · Terraform · Helm</span>
       <span class="row-title" data-vt="cloud-platform">Cloud-Native Platform</span>
@@ -141,23 +111,25 @@ def charge(ctx, order_id): ...</pre></div></template>
 117 jobs taken over, 0 dup</pre></div><div class="tile tile-metric"><b>1 → 10</b><small>KEDA workers</small></div><div class="tile tile-code"><pre>triggers:
 - type: redis-streams
   # scale on stream lag</pre></div><div class="tile tile-metric"><b>67</b><small>pg connections, flat</small></div></template>
-</li><li class="row-wrap reveal" style="--k:4">
-  <a class="row" href="../work/consumer-benchmark/" data-slug="consumer-benchmark">
-    <span class="row-idx">05</span>
+</li><li class="row-wrap reveal" style="--k:2">
+  <a class="row" href="../work/job-scheduler/" data-slug="job-scheduler">
+    <span class="row-idx">03</span>
     <span class="row-main">
-      <span class="row-kicker">Java 21 · Python · Kafka</span>
-      <span class="row-title" data-vt="consumer-benchmark">Streaming Consumer Benchmark</span>
-      <span class="row-one">The same fan-out server written twice, Java 21 virtual threads and Python asyncio, measured by one harness up to 20,000 connections.</span>
-      <ul class="row-chips"><li>Java 21</li><li>Virtual threads</li><li>Python asyncio</li><li>uvloop</li></ul>
+      <span class="row-kicker">Python · Distributed systems</span>
+      <span class="row-title" data-vt="job-scheduler">Distributed Job Scheduler</span>
+      <span class="row-one">A Celery-style job queue that never runs a job&#x27;s side effects twice, even when workers are killed in the middle of a job.</span>
+      <ul class="row-chips"><li>Python 3.12</li><li>FastAPI</li><li>React</li><li>PostgreSQL</li></ul>
     </span>
-    <span class="row-metric"><b>87 → 2.3 ms</b><small>p50 at 20k connections</small></span>
+    <span class="row-metric"><b>50,000 / 50,000</b><small>jobs ran exactly once, workers killed mid-run</small></span>
     <span class="row-arrow" aria-hidden="true">↗</span>
   </a>
-  <template class="row-tiles"><div class="tile tile-img"><img src="../assets/img/work/scaling_p99.png" alt="" loading="lazy"></div><div class="tile tile-metric"><b>87 → 2.3 ms</b><small>one fix, p50</small></div><div class="tile tile-code"><pre>Thread.ofVirtual()
-  .start(() -&gt; serve(socket));</pre></div><div class="tile tile-metric"><b>20,000</b><small>connections</small></div><div class="tile tile-img"><img src="../assets/img/work/scaling_memory.png" alt="" loading="lazy"></div></template>
-</li><li class="row-wrap reveal" style="--k:5">
+  <template class="row-tiles"><div class="tile tile-metric"><b>50,000 / 50,000</b><small>jobs ran exactly once</small></div><div class="tile tile-code"><pre>UPDATE jobs SET status=&#x27;done&#x27;
+WHERE id=$1
+  AND fence=$2;  -- zombie? rejected</pre></div><div class="tile tile-metric"><b>SIGKILL</b><small>a worker, every 60 s</small></div><div class="tile tile-metric"><b>7.1 ms</b><small>p95 enqueue</small></div><div class="tile tile-code"><pre>@app.task(max_attempts=5)
+def charge(ctx, order_id): ...</pre></div></template>
+</li><li class="row-wrap reveal" style="--k:3">
   <a class="row" href="../work/cdc-pipeline/" data-slug="cdc-pipeline">
-    <span class="row-idx">06</span>
+    <span class="row-idx">04</span>
     <span class="row-main">
       <span class="row-kicker">Kafka · Debezium · PostgreSQL</span>
       <span class="row-title" data-vt="cdc-pipeline">CDC Pipeline</span>
@@ -170,7 +142,17 @@ def charge(ctx, order_id): ...</pre></div></template>
   <template class="row-tiles"><div class="tile tile-code"><pre>ON CONFLICT (id) DO UPDATE ...
 WHERE t.pos &lt; EXCLUDED.pos;</pre></div><div class="tile tile-metric"><b>141 ms</b><small>p95 lag</small></div><div class="tile tile-metric"><b>SHA-256</b><small>source = replica</small></div><div class="tile tile-code"><pre>ALTER TABLE orders
   ADD COLUMN coupon ...;  -- live</pre></div><div class="tile tile-metric"><b>1,000,021</b><small>changes</small></div></template>
-</li></ol>
+</li></ol><details class="more reveal"><summary class="more-h"><span>More projects</span><sup>2</sup><i class="more-chev" aria-hidden="true"></i></summary><ul class="minis"><li><a class="mini" href="../work/event-streaming/">
+  <span class="mini-title">Real-Time Event Streaming</span>
+  <span class="mini-one">A live cricket scoreboard feed where 1,000 clients receive every event exactly once and in order, through crashes and reconnects.</span>
+  <span class="mini-stack">Python 3.12 · asyncio · FastAPI</span>
+  <span class="mini-arrow" aria-hidden="true">↗</span>
+</a></li><li><a class="mini" href="../work/consumer-benchmark/">
+  <span class="mini-title">Streaming Consumer Benchmark</span>
+  <span class="mini-one">The same fan-out server written twice, Java 21 virtual threads and Python asyncio, measured by one harness up to 20,000 connections.</span>
+  <span class="mini-stack">Java 21 · Virtual threads · Python asyncio</span>
+  <span class="mini-arrow" aria-hidden="true">↗</span>
+</a></li></ul></details>
     </div><div class="wpanel" role="tabpanel" id="work-data" aria-labelledby="tab-data" data-tab="data">
       <h3 class="wpanel-h">Data</h3>
       <ol class="rows"><li class="row-wrap reveal" style="--k:0">
@@ -486,7 +468,7 @@ QUALIFY ROW_NUMBER() OVER (...) = 1</pre></div><div class="tile tile-metric"><b>
   </filter>
 </svg>
 <script>window.ANB={"page": "home", "track": "ai", "email": "bhandaryanurag@gmail.com", "root": "../", "projects": 11, "role": "ai/ml engineer"};</script>
-<script src="../assets/js/game.js?v=54361d65" defer></script>
-<script src="../assets/js/site.js?v=54361d65" defer></script>
+<script src="../assets/js/game.js?v=94a5d1db" defer></script>
+<script src="../assets/js/site.js?v=94a5d1db" defer></script>
 </body>
 </html>

@@ -299,11 +299,22 @@ def home(track_key):
         on = key == tr["tab"]
         tabs.append(f'<button class="wtab{" on" if on else ""}" type="button" role="tab" id="tab-{key}" '
                     f'aria-controls="work-{key}" aria-selected="{"true" if on else "false"}" tabindex="{0 if on else -1}" '
-                    f'data-tab="{key}" data-blurb="{e(cat["blurb"])}">{e(cat["label"])}<sup>{len(cat["projects"])}</sup></button>')
+                    f'data-tab="{key}" data-blurb="{e(cat["blurb"])}">{e(cat["label"])}<sup>{len(cat["projects"]) + len(cat.get("more", []))}</sup></button>')
         rows = "".join(row_html(i, slug) for i, slug in enumerate(cat["projects"], 1))
+        more = ""
+        if cat.get("more"):
+            minis = "".join(f"""<li><a class="mini" href="{root}work/{slug}/">
+  <span class="mini-title">{e(PROJECTS[slug]['title'])}</span>
+  <span class="mini-one">{e(PROJECTS[slug]['oneliner'])}</span>
+  <span class="mini-stack">{e(" · ".join(PROJECTS[slug]['stack'][:3]))}</span>
+  <span class="mini-arrow" aria-hidden="true">↗</span>
+</a></li>""" for slug in cat["more"])
+            more = (f'<details class="more reveal"><summary class="more-h"><span>More projects</span>'
+                    f'<sup>{len(cat["more"])}</sup><i class="more-chev" aria-hidden="true"></i></summary>'
+                    f'<ul class="minis">{minis}</ul></details>')
         panels.append(f"""<div class="wpanel{" on" if on else ""}" role="tabpanel" id="work-{key}" aria-labelledby="tab-{key}" data-tab="{key}">
       <h3 class="wpanel-h">{e(cat["label"])}</h3>
-      <ol class="rows">{rows}</ol>
+      <ol class="rows">{rows}</ol>{more}
     </div>""")
     work_tabs = (f'<div class="wtabs-bar reveal"><div class="wtabs" role="tablist" aria-label="Project categories">'
                  f'<span class="wtabs-ind" aria-hidden="true"></span>{"".join(tabs)}</div>'
@@ -488,7 +499,7 @@ def home(track_key):
 
 def project(slug):
     cat_key = home_category(slug)
-    slugs = CATEGORIES[cat_key]["projects"]
+    slugs = CATEGORIES[cat_key]["projects"] + CATEGORIES[cat_key].get("more", [])
     idx = slugs.index(slug)
     p = PROJECTS[slug]
     nxt_slug = slugs[(idx + 1) % len(slugs)]
