@@ -912,6 +912,7 @@ kbd {
 .cs-figs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
 .cs-fig { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px; }
 .cs-fig img { border-radius: 6px; width: 100%; }
+.cs-fig:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .js .cs-fig img { cursor: zoom-in; }
 .cs-fig img:focus-visible { outline: 2px solid var(--cyan-ink); outline-offset: 3px; }
 

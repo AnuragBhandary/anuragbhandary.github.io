@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../../assets/css/site.css?v=c0aa98c2">
+<link rel="stylesheet" href="../../assets/css/site.css?v=1d561278">
 <script>document.documentElement.classList.add("js");try{var t=localStorage.getItem("anb-theme");if(t)document.documentElement.dataset.theme=t}catch(_){}</script>
 </head>
 <body class="case-page" id="top">
@@ -58,7 +58,7 @@
   <section class="cs-sec">
     <h2 class="cs-h">Measured</h2>
     <dl class="results reveal"><div class="r-row"><dt>Up to 5,000 connections</dt><dd>Both about 2 ms p50. Java p99 4-5 ms, Python 5-10 ms</dd></div><div class="r-row"><dt>10,000 connections</dt><dd>Java p99 8 ms. Python on one process: p99 253 ms (one core at 100%)</dd></div><div class="r-row"><dt>20,000 connections</dt><dd>Java with 2 dispatch threads: p50 2.5 ms. Python on 2 processes: p50 184 ms</dd></div><div class="r-row"><dt>Memory per connection</dt><dd>Java about 28 KiB (+190 MiB JVM). Python about 12 KiB (+45 MiB)</dd></div></dl>
-    <div class="cs-figs"><figure class="cs-fig card reveal"><img src="../../assets/img/work/scaling_p99.png" alt="p99 latency as connections grow, Java vs Python" loading="lazy"><figcaption>p99 latency as connections grow.</figcaption></figure><figure class="cs-fig card reveal"><img src="../../assets/img/work/scaling_memory.png" alt="Memory as connections grow, Java vs Python" loading="lazy"><figcaption>Memory as connections grow.</figcaption></figure></div>
+    <div class="cs-figs"><figure class="cs-fig card reveal"><img src="../../assets/img/work/scaling_p99.png" alt="p99 latency as connections grow, Java vs Python" loading="lazy"><figcaption>p99 latency as connections grow.</figcaption></figure><figure class="cs-fig card reveal"><img src="../../assets/img/work/scaling_memory.png" alt="Memory as connections grow, Java vs Python" loading="lazy"><figcaption>Memory as connections grow.</figcaption></figure><figure class="cs-fig card reveal"><img src="../../assets/img/work/scaling_cpu.png" alt="Server CPU as connections grow, Java vs Python" loading="lazy"><figcaption>Server CPU as connections grow: Python on 2 processes hits the 200% limit first.</figcaption></figure><figure class="cs-fig card reveal"><img src="../../assets/img/work/saturation_p99.png" alt="p99 latency as offered load grows at 2,000 connections" loading="lazy"><figcaption>p99 latency as load rises at 2,000 connections.</figcaption></figure></div>
   </section>
 
   <nav class="pn" aria-label="Other projects">
@@ -110,6 +110,6 @@
 </svg>
 <script>window.ANB={"page": "project", "track": "software", "email": "bhandaryanurag@gmail.com", "root": "../../", "projects": 11, "role": "software engineer"};</script>
 
-<script src="../../assets/js/site.js?v=c0aa98c2" defer></script>
+<script src="../../assets/js/site.js?v=1d561278" defer></script>
 </body>
 </html>

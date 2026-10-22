@@ -194,6 +194,8 @@ PROJECTS = {
         "images": [
             ("assets/img/work/scaling_p99.png", "p99 latency as connections grow, Java vs Python", "p99 latency as connections grow."),
             ("assets/img/work/scaling_memory.png", "Memory as connections grow, Java vs Python", "Memory as connections grow."),
+            ("assets/img/work/scaling_cpu.png", "Server CPU as connections grow, Java vs Python", "Server CPU as connections grow: Python on 2 processes hits the 200% limit first."),
+            ("assets/img/work/saturation_p99.png", "p99 latency as offered load grows at 2,000 connections", "p99 latency as load rises at 2,000 connections."),
         ],
         "tiles": [
             {"kind": "img", "src": "assets/img/work/scaling_p99.png"},
@@ -304,6 +306,8 @@ PROJECTS = {
         "images": [
             ("assets/img/work/powerbi-olist-overview.png", "Power BI overview page", "Power BI overview: revenue against the prior year and the top categories."),
             ("assets/img/work/powerbi-olist-seller.png", "Power BI seller drill-through page", "Right-click any seller to drill through to its own page."),
+            ("assets/img/work/powerbi-olist-sales.png", "Power BI sales trends page", "Sales trends: month-on-month growth, running total, 3-month moving average, YoY and YTD."),
+            ("assets/img/work/powerbi-olist-delivery.png", "Power BI delivery and reviews page", "Delivery and reviews: late orders score 2.27 against 4.29 on time, plus the cohort triangle."),
             ("assets/img/work/metabase-revenue.png", "Metabase revenue dashboard", "Revenue dashboard, built through Metabase's API."),
             ("assets/img/work/metabase-delivery-performance.png", "Delivery performance dashboard", "Late deliveries vs review scores."),
         ],
@@ -625,6 +629,9 @@ PROJECTS = {
         "images": [
             ("assets/img/work/powerbi-ab-experiment.png", "Power BI experiment page", "Experiment page: naive vs adjusted lift, peeking, SRM and a what-if sample-size calculator."),
             ("assets/img/work/powerbi-ab-funnel.png", "Power BI funnel page", "Checkout funnel with drop-off at each step, by device and channel."),
+            ("assets/img/work/powerbi-ab-overview.png", "Power BI overview page", "Overview: sessions, purchases, revenue and conversion by acquisition channel."),
+            ("assets/img/work/powerbi-ab-retention.png", "Power BI retention page", "Weekly cohort retention and the pooled retention curve."),
+            ("assets/img/work/evidence-ab-criteo.png", "Evidence dashboard page on the Criteo experiment", "The live Evidence dashboard: the split passes SRM, but features sit up to 60 standard errors apart."),
         ],
         "tiles": [
             {"kind": "metric", "big": "29.7%", "small": "false positives, daily peeking"},
