@@ -275,12 +275,12 @@ def home(track_key):
     root = "../" * tr["prefix"].count("/")
     n = len(PROJECTS)
 
-    def row_html(i, slug):
+    def row_html(i, slug, key):
         p = PROJECTS[slug]
         tiles = "".join(tile_html(t, root) for t in p["tiles"])
         chips = "".join(f"<li>{e(x)}</li>" for x in p["stack"][:4])
         return f"""<li class="row-wrap reveal" style="--k:{i - 1}">
-  <a class="row" href="{root}work/{slug}/" data-slug="{slug}">
+  <a class="row" href="{root}work/{slug}/?c={key}" data-slug="{slug}">
     <span class="row-idx">0{i}</span>
     <span class="row-main">
       <span class="row-kicker">{e(p['kicker'])}</span>
@@ -300,10 +300,10 @@ def home(track_key):
         tabs.append(f'<button class="wtab{" on" if on else ""}" type="button" role="tab" id="tab-{key}" '
                     f'aria-controls="work-{key}" aria-selected="{"true" if on else "false"}" tabindex="{0 if on else -1}" '
                     f'data-tab="{key}" data-blurb="{e(cat["blurb"])}">{e(cat["label"])}<sup>{len(cat["projects"]) + len(cat.get("more", []))}</sup></button>')
-        rows = "".join(row_html(i, slug) for i, slug in enumerate(cat["projects"], 1))
+        rows = "".join(row_html(i, slug, key) for i, slug in enumerate(cat["projects"], 1))
         more = ""
         if cat.get("more"):
-            minis = "".join(f"""<li><a class="mini" href="{root}work/{slug}/">
+            minis = "".join(f"""<li><a class="mini" href="{root}work/{slug}/?c={key}">
   <span class="mini-title">{e(PROJECTS[slug]['title'])}</span>
   <span class="mini-one">{e(PROJECTS[slug]['oneliner'])}</span>
   <span class="mini-stack">{e(" · ".join(PROJECTS[slug]['stack'][:3]))}</span>
@@ -497,15 +497,15 @@ def home(track_key):
 # Project page
 # ---------------------------------------------------------------------------
 
-def project(slug):
-    cat_key = home_category(slug)
+def project_nav(slug, cat_key):
+    """Prev/next links, position and count for a project within one category's order.
+    Links carry ?c=<cat> so a project listed in two tabs keeps the order of the tab it was opened from."""
     slugs = CATEGORIES[cat_key]["projects"] + CATEGORIES[cat_key].get("more", [])
     idx = slugs.index(slug)
-    p = PROJECTS[slug]
     nxt_slug = slugs[idx + 1] if idx + 1 < len(slugs) else None
     next_link = ""
     if nxt_slug:
-        next_link = f"""<a class="next" href="../{nxt_slug}/">
+        next_link = f"""<a class="next" href="../{nxt_slug}/?c={cat_key}">
     <span class="next-label">next project</span>
     <span class="next-title">{e(PROJECTS[nxt_slug]['title'])}</span>
     <span class="next-arrow" aria-hidden="true">→</span>
@@ -513,12 +513,26 @@ def project(slug):
     prev_slug = slugs[idx - 1] if idx > 0 else None
     prev_link = ""
     if prev_slug:
-        prev_link = f"""<a class="next prev" href="../{prev_slug}/">
+        prev_link = f"""<a class="next prev" href="../{prev_slug}/?c={cat_key}">
     <span class="next-label">previous project</span>
     <span class="next-title">{e(PROJECTS[prev_slug]['title'])}</span>
     <span class="next-arrow" aria-hidden="true">←</span>
   </a>
   """
+    return {"cls": "pn pn-two" if prev_slug and nxt_slug else "pn", "html": prev_link + next_link,
+            "pos": f"{CATEGORIES[cat_key]['label']} · 0{idx + 1} / 0{len(slugs)}"}
+
+
+def project(slug):
+    cat_key = home_category(slug)
+    p = PROJECTS[slug]
+    navs = {k: project_nav(slug, k) for k, c in CATEGORIES.items() if slug in c["projects"] + c.get("more", [])}
+    nav = navs[cat_key]
+    # Shared projects: site.js swaps in the variant for the tab named in ?c=.
+    nav_data = ""
+    if len(navs) > 1:
+        nav_json = json.dumps(navs).replace("</", "<\\/")
+        nav_data = f'<script type="application/json" id="pn-data">{nav_json}</script>'
     root = "../../"
     home_url = "../../"
     track_key = {"software": "software", "data": "data", "ai": "ai"}[cat_key]
@@ -545,7 +559,7 @@ def project(slug):
 <main class="case">
   <header class="cs-hero">
     <a class="cs-back" href="{home_url}#work-{cat_key}" data-home="#work-{cat_key}">← all work</a>
-    <p class="cs-kicker">{e(CATEGORIES[cat_key]['label'])} · 0{idx + 1} / 0{len(slugs)} · {e(p['kicker'])}</p>
+    <p class="cs-kicker"><span class="cs-pos">{e(nav['pos'])}</span> · {e(p['kicker'])}</p>
     <h1 class="cs-title" style="view-transition-name:t-{slug}">{e(p['title'])}</h1>
     <p class="cs-one">{e(p['oneliner'])}</p>
     <div class="cs-actions">
@@ -583,9 +597,9 @@ def project(slug):
     {images}
   </section>
 
-  <nav class="pn{' pn-two' if prev_slug and nxt_slug else ''}" aria-label="Other projects">
-  {prev_link}{next_link}
-  </nav>
+  <nav class="{nav['cls']}" aria-label="Other projects">
+  {nav['html']}
+  </nav>{nav_data}
 </main>
 {footer()}
 {dock(home_url, False)}

@@ -312,7 +312,7 @@
     if (!ev.viewTransition || !window.navigation || !navigation.activation || !navigation.activation.from) return;
     var m = /\/work\/([^/]+)\//.exec(navigation.activation.from.url || "");
     if (!m) return;
-    var t = $('.row-title[data-vt="' + m[1] + '"]');
+    var t = $('.wpanel.on .row-title[data-vt="' + m[1] + '"]') || $('.row-title[data-vt="' + m[1] + '"]');
     if (!t) return;
     t.style.viewTransitionName = "t-" + m[1];
     ev.viewTransition.ready.catch(function () {});
@@ -328,6 +328,26 @@
     if (typing) return;
     if (e.key === "x" || e.key === "X") burst();
   });
+
+  /* ------------------------------------------ prev/next in the right tab */
+  // A project listed in two tabs (CDC, A/B) follows the order of the tab it was opened from (?c=).
+  var pnData = document.getElementById("pn-data");
+  if (pnData) {
+    var navs = {};
+    try { navs = JSON.parse(pnData.textContent); } catch (err) {}
+    var cat = new URLSearchParams(location.search).get("c");
+    var v = cat && Object.prototype.hasOwnProperty.call(navs, cat) ? navs[cat] : null;
+    var pnEl = $(".pn"), posEl = $(".cs-pos"), backEl = $(".cs-back");
+    if (v && pnEl) {
+      pnEl.className = v.cls;
+      pnEl.innerHTML = v.html;
+      if (posEl) posEl.textContent = v.pos;
+      if (backEl) {
+        backEl.setAttribute("data-home", "#work-" + cat);
+        backEl.setAttribute("href", backEl.getAttribute("href").split("#")[0] + "#work-" + cat);
+      }
+    }
+  }
 
   /* ------------------------------------------- back to the right track */
   // Project pages are shared by all three tracks (/, /data/, /ai/). Links home go back to the

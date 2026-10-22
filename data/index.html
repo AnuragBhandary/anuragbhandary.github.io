@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-<link rel="stylesheet" href="../assets/css/site.css?v=1d561278">
+<link rel="stylesheet" href="../assets/css/site.css?v=a487c4c0">
 <script>document.documentElement.classList.add("js");try{var t=localStorage.getItem("anb-theme");if(t)document.documentElement.dataset.theme=t}catch(_){}</script>
 </head>
 <body class="home" id="top">
@@ -80,7 +80,7 @@
     <div class="wpanel" role="tabpanel" id="work-software" aria-labelledby="tab-software" data-tab="software">
       <h3 class="wpanel-h">Software</h3>
       <ol class="rows"><li class="row-wrap reveal" style="--k:0">
-  <a class="row" href="../work/showtime/" data-slug="showtime">
+  <a class="row" href="../work/showtime/?c=software" data-slug="showtime">
     <span class="row-idx">01</span>
     <span class="row-main">
       <span class="row-kicker">Java · Spring Boot · React</span>
@@ -96,7 +96,7 @@ WHERE id = ANY(:ids)
 FOR UPDATE SKIP LOCKED;</pre></div><div class="tile tile-metric"><b>59,119</b><small>hold attempts in 60 s</small></div><div class="tile tile-code"><pre>pg_notify(&#x27;seat_changes&#x27;, ...)
 -&gt; SSE to every browser</pre></div><div class="tile tile-metric"><b>1.6 ms</b><small>p95 hold</small></div></template>
 </li><li class="row-wrap reveal" style="--k:1">
-  <a class="row" href="../work/cloud-platform/" data-slug="cloud-platform">
+  <a class="row" href="../work/cloud-platform/?c=software" data-slug="cloud-platform">
     <span class="row-idx">02</span>
     <span class="row-main">
       <span class="row-kicker">Kubernetes · Terraform · Helm</span>
@@ -112,7 +112,7 @@ FOR UPDATE SKIP LOCKED;</pre></div><div class="tile tile-metric"><b>59,119</b><s
 - type: redis-streams
   # scale on stream lag</pre></div><div class="tile tile-metric"><b>67</b><small>pg connections, flat</small></div></template>
 </li><li class="row-wrap reveal" style="--k:2">
-  <a class="row" href="../work/job-scheduler/" data-slug="job-scheduler">
+  <a class="row" href="../work/job-scheduler/?c=software" data-slug="job-scheduler">
     <span class="row-idx">03</span>
     <span class="row-main">
       <span class="row-kicker">Python · Distributed systems</span>
@@ -128,7 +128,7 @@ WHERE id=$1
   AND fence=$2;  -- zombie? rejected</pre></div><div class="tile tile-metric"><b>SIGKILL</b><small>a worker, every 60 s</small></div><div class="tile tile-metric"><b>7.1 ms</b><small>p95 enqueue</small></div><div class="tile tile-code"><pre>@app.task(max_attempts=5)
 def charge(ctx, order_id): ...</pre></div></template>
 </li><li class="row-wrap reveal" style="--k:3">
-  <a class="row" href="../work/cdc-pipeline/" data-slug="cdc-pipeline">
+  <a class="row" href="../work/cdc-pipeline/?c=software" data-slug="cdc-pipeline">
     <span class="row-idx">04</span>
     <span class="row-main">
       <span class="row-kicker">Kafka · Debezium · PostgreSQL</span>
@@ -142,12 +142,12 @@ def charge(ctx, order_id): ...</pre></div></template>
   <template class="row-tiles"><div class="tile tile-code"><pre>ON CONFLICT (id) DO UPDATE ...
 WHERE t.pos &lt; EXCLUDED.pos;</pre></div><div class="tile tile-metric"><b>141 ms</b><small>p95 lag</small></div><div class="tile tile-metric"><b>SHA-256</b><small>source = replica</small></div><div class="tile tile-code"><pre>ALTER TABLE orders
   ADD COLUMN coupon ...;  -- live</pre></div><div class="tile tile-metric"><b>1,000,021</b><small>changes</small></div></template>
-</li></ol><details class="more reveal"><summary class="more-h"><span>More projects</span><sup>2</sup><i class="more-chev" aria-hidden="true"></i></summary><ul class="minis"><li><a class="mini" href="../work/event-streaming/">
+</li></ol><details class="more reveal"><summary class="more-h"><span>More projects</span><sup>2</sup><i class="more-chev" aria-hidden="true"></i></summary><ul class="minis"><li><a class="mini" href="../work/event-streaming/?c=software">
   <span class="mini-title">Real-Time Event Streaming</span>
   <span class="mini-one">A live cricket scoreboard feed where 1,000 clients receive every event exactly once and in order, through crashes and reconnects.</span>
   <span class="mini-stack">Python 3.12 · asyncio · FastAPI</span>
   <span class="mini-arrow" aria-hidden="true">↗</span>
-</a></li><li><a class="mini" href="../work/consumer-benchmark/">
+</a></li><li><a class="mini" href="../work/consumer-benchmark/?c=software">
   <span class="mini-title">Streaming Consumer Benchmark</span>
   <span class="mini-one">The same fan-out server written twice, Java 21 virtual threads and Python asyncio, measured by one harness up to 20,000 connections.</span>
   <span class="mini-stack">Java 21 · Virtual threads · Python asyncio</span>
@@ -156,7 +156,7 @@ WHERE t.pos &lt; EXCLUDED.pos;</pre></div><div class="tile tile-metric"><b>141 m
     </div><div class="wpanel on" role="tabpanel" id="work-data" aria-labelledby="tab-data" data-tab="data">
       <h3 class="wpanel-h">Data</h3>
       <ol class="rows"><li class="row-wrap reveal" style="--k:0">
-  <a class="row" href="../work/analytics-warehouse/" data-slug="analytics-warehouse">
+  <a class="row" href="../work/analytics-warehouse/?c=data" data-slug="analytics-warehouse">
     <span class="row-idx">01</span>
     <span class="row-main">
       <span class="row-kicker">dbt · Airflow · Power BI</span>
@@ -170,7 +170,7 @@ WHERE t.pos &lt; EXCLUDED.pos;</pre></div><div class="tile tile-metric"><b>141 m
   <template class="row-tiles"><div class="tile tile-img"><img src="../assets/img/work/metabase-revenue.png" alt="" loading="lazy"></div><div class="tile tile-metric"><b>R$ 15,843,553.24</b><small>matched to the cent</small></div><div class="tile tile-code"><pre>dbt build
 ✓ 85 of 85 tests passed</pre></div><div class="tile tile-img"><img src="../assets/img/work/powerbi-olist-overview.png" alt="" loading="lazy"></div><div class="tile tile-metric"><b>1.7 ★</b><small>avg review when 8+ days late</small></div></template>
 </li><li class="row-wrap reveal" style="--k:1">
-  <a class="row" href="../work/cdc-pipeline/" data-slug="cdc-pipeline">
+  <a class="row" href="../work/cdc-pipeline/?c=data" data-slug="cdc-pipeline">
     <span class="row-idx">02</span>
     <span class="row-main">
       <span class="row-kicker">Kafka · Debezium · PostgreSQL</span>
@@ -185,7 +185,7 @@ WHERE t.pos &lt; EXCLUDED.pos;</pre></div><div class="tile tile-metric"><b>141 m
 WHERE t.pos &lt; EXCLUDED.pos;</pre></div><div class="tile tile-metric"><b>141 ms</b><small>p95 lag</small></div><div class="tile tile-metric"><b>SHA-256</b><small>source = replica</small></div><div class="tile tile-code"><pre>ALTER TABLE orders
   ADD COLUMN coupon ...;  -- live</pre></div><div class="tile tile-metric"><b>1,000,021</b><small>changes</small></div></template>
 </li><li class="row-wrap reveal" style="--k:2">
-  <a class="row" href="../work/ab-testing/" data-slug="ab-testing">
+  <a class="row" href="../work/ab-testing/?c=data" data-slug="ab-testing">
     <span class="row-idx">03</span>
     <span class="row-main">
       <span class="row-kicker">BigQuery · dbt · Statistics</span>
@@ -199,7 +199,7 @@ WHERE t.pos &lt; EXCLUDED.pos;</pre></div><div class="tile tile-metric"><b>141 m
   <template class="row-tiles"><div class="tile tile-metric"><b>29.7%</b><small>false positives, daily peeking</small></div><div class="tile tile-code"><pre>SELECT COUNT(*) ... 
 QUALIFY ROW_NUMBER() OVER (...) = 1</pre></div><div class="tile tile-metric"><b>+27% → +19.5%</b><small>confounded lift, fixed</small></div><div class="tile tile-metric"><b>190 vs 17</b><small>days to detect +10%</small></div><div class="tile tile-code"><pre>aipw = mu1 - mu0 + ipw_residuals</pre></div></template>
 </li><li class="row-wrap reveal" style="--k:3">
-  <a class="row" href="../work/taxi-postgres-tuning/" data-slug="taxi-postgres-tuning">
+  <a class="row" href="../work/taxi-postgres-tuning/?c=data" data-slug="taxi-postgres-tuning">
     <span class="row-idx">04</span>
     <span class="row-main">
       <span class="row-kicker">PostgreSQL · SQL · MySQL</span>
@@ -217,7 +217,7 @@ QUALIFY ROW_NUMBER() OVER (...) = 1</pre></div><div class="tile tile-metric"><b>
     </div><div class="wpanel" role="tabpanel" id="work-ai" aria-labelledby="tab-ai" data-tab="ai">
       <h3 class="wpanel-h">AI / ML</h3>
       <ol class="rows"><li class="row-wrap reveal" style="--k:0">
-  <a class="row" href="../work/fraud-detection/" data-slug="fraud-detection">
+  <a class="row" href="../work/fraud-detection/?c=ai" data-slug="fraud-detection">
     <span class="row-idx">01</span>
     <span class="row-main">
       <span class="row-kicker">LightGBM · MLflow · FastAPI</span>
@@ -232,7 +232,7 @@ QUALIFY ROW_NUMBER() OVER (...) = 1</pre></div><div class="tile tile-metric"><b>
           &gt; 10  # dollars</pre></div><div class="tile tile-metric"><b>68.5%</b><small>fraud cost saved</small></div><div class="tile tile-code"><pre>labels usable after 30 days
 # a chargeback takes weeks</pre></div><div class="tile tile-metric"><b>1.1 ms</b><small>p95 score</small></div></template>
 </li><li class="row-wrap reveal" style="--k:1">
-  <a class="row" href="../work/rag-qa/" data-slug="rag-qa">
+  <a class="row" href="../work/rag-qa/?c=ai" data-slug="rag-qa">
     <span class="row-idx">02</span>
     <span class="row-main">
       <span class="row-kicker">RAG · pgvector · LangGraph</span>
@@ -247,7 +247,7 @@ QUALIFY ROW_NUMBER() OVER (...) = 1</pre></div><div class="tile tile-metric"><b>
 LIMIT 100;  -- HNSW</pre></div><div class="tile tile-metric"><b>−14%</b><small>the textbook reranker</small></div><div class="tile tile-code"><pre>Interest compounds monthly [2].
 Your bank sets the rate [4].</pre></div><div class="tile tile-metric"><b>93%</b><small>sentences supported</small></div></template>
 </li><li class="row-wrap reveal" style="--k:2">
-  <a class="row" href="../work/ab-testing/" data-slug="ab-testing">
+  <a class="row" href="../work/ab-testing/?c=ai" data-slug="ab-testing">
     <span class="row-idx">03</span>
     <span class="row-main">
       <span class="row-kicker">BigQuery · dbt · Statistics</span>
@@ -468,7 +468,7 @@ QUALIFY ROW_NUMBER() OVER (...) = 1</pre></div><div class="tile tile-metric"><b>
   </filter>
 </svg>
 <script>window.ANB={"page": "home", "track": "data", "email": "bhandaryanurag@gmail.com", "root": "../", "projects": 11, "role": "data engineer"};</script>
-<script src="../assets/js/game.js?v=1d561278" defer></script>
-<script src="../assets/js/site.js?v=1d561278" defer></script>
+<script src="../assets/js/game.js?v=a487c4c0" defer></script>
+<script src="../assets/js/site.js?v=a487c4c0" defer></script>
 </body>
 </html>
