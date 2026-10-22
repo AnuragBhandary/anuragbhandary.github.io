@@ -670,14 +670,14 @@ def home_category(slug):
 # ---------------------------------------------------------------------------
 
 EXPERIENCE_BASE = [
-    "Built the audio pipeline for a real-time AI sports commentary system: dual-commentator speech "
+    "Built the audio pipeline for an AI sports commentary system: dual-commentator speech "
     "with ElevenLabs, stitched per play into continuous broadcast audio.",
-    "Benchmarked Gemini against Groq for commentary generation and redesigned generation around one "
-    "emotion per play, cutting audio-generation time about threefold.",
-    "Automated archery match production with ffmpeg: commentary, crossfades, multi-channel audio "
-    "and per-play metadata into finished match videos.",
+    "Moved commentary text generation from Gemini to Groq and chose a one-emotion-per-play voice design "
+    "over per-segment emotion stitching, keeping full-game audio generation fast and within free-tier limits.",
+    "Automated archery match production with ffmpeg: commentary, crossfades, 7.1 (8-channel) audio "
+    "with 1 kHz broadcast trigger tones, and per-play metadata into finished match videos.",
     "Integrated Kafka into the animation flow, replaying 19 games (about 1,274 messages) through an "
-    "ordered, de-duplicated path served over FastAPI and WebSockets.",
+    "ordered, de-duplicated path served through a FastAPI API.",
 ]
 
 TRACKS = {
@@ -702,9 +702,9 @@ TRACKS = {
             "services where a hundred milliseconds is a design constraint rather than a rounding error.",
             "At Fayble I owned the audio side of an AI commentary system. Two synthetic commentators, an "
             "intensity model driven by game state, and per play speech stitched into continuous broadcast "
-            "output. The interesting part was never the prompt, it was the latency budget. I benchmarked "
-            "providers, cut a TTS call per sentence down to one per play, and got generation roughly three "
-            "times faster without losing the live feel.",
+            "output. The interesting part was never the prompt, it was the time and cost of generating a whole "
+            "game. I moved text generation to Groq and kept one emotion per play instead of stitching "
+            "emotional segments, which kept a full game fast to regenerate and inside free-tier limits.",
             "Lately I've been building in Java and Spring Boot alongside Python, mostly event-driven services "
             "with Kafka, Postgres and Redis behind them. M.S. in Computer Science from UT Arlington. Off hours "
             "I'm on LeetCode or pulling apart whatever showed up in the data and AI space that week.",
@@ -771,9 +771,9 @@ TRACKS = {
         "about": [
             "I'm an ML engineer who trusts a number only after trying to break it. A model that looks great "
             "in a notebook and falls apart on next month's data isn't a model, it's a demo.",
-            "At Fayble I built the LLM and text-to-speech side of a live AI commentary system: two synthetic "
-            "commentators, generation designed around a latency budget, and benchmarks that decided which "
-            "provider we used.",
+            "At Fayble I built the LLM and text-to-speech side of an AI commentary system: two synthetic "
+            "commentators, emotion driven by game state, and a generation design shaped by time and "
+            "free-tier cost.",
             "Since then I've built a RAG system where every design choice was measured against human labels, a "
             "fraud model trained on the past and tested on the future, and an A/B testing toolkit that read out "
             "a 14-million-user experiment. M.S. in Computer Science from UT Arlington, with a focus on AI.",
@@ -785,7 +785,7 @@ TRACKS = {
             ("currently", "Open to work · relocation worldwide"),
         ],
         "experience": [
-            "Built the audio pipeline for a real-time AI sports commentary system, turning LLM-generated "
+            "Built the audio pipeline for an AI sports commentary system, turning LLM-generated "
             "play-by-play into dual-commentator speech with ElevenLabs, stitched into continuous broadcast audio.",
             EXPERIENCE_BASE[1], EXPERIENCE_BASE[2], EXPERIENCE_BASE[3],
         ],
