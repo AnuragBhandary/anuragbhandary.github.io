@@ -502,8 +502,14 @@ def project(slug):
     slugs = CATEGORIES[cat_key]["projects"] + CATEGORIES[cat_key].get("more", [])
     idx = slugs.index(slug)
     p = PROJECTS[slug]
-    nxt_slug = slugs[(idx + 1) % len(slugs)]
-    nxt = PROJECTS[nxt_slug]
+    nxt_slug = slugs[idx + 1] if idx + 1 < len(slugs) else None
+    next_link = ""
+    if nxt_slug:
+        next_link = f"""<a class="next" href="../{nxt_slug}/">
+    <span class="next-label">next project</span>
+    <span class="next-title">{e(PROJECTS[nxt_slug]['title'])}</span>
+    <span class="next-arrow" aria-hidden="true">→</span>
+  </a>"""
     prev_slug = slugs[idx - 1] if idx > 0 else None
     prev_link = ""
     if prev_slug:
@@ -577,12 +583,8 @@ def project(slug):
     {images}
   </section>
 
-  <nav class="pn{' pn-two' if prev_slug else ''}" aria-label="Other projects">
-  {prev_link}<a class="next" href="../{nxt_slug}/">
-    <span class="next-label">next project</span>
-    <span class="next-title">{e(nxt['title'])}</span>
-    <span class="next-arrow" aria-hidden="true">→</span>
-  </a>
+  <nav class="pn{' pn-two' if prev_slug and nxt_slug else ''}" aria-label="Other projects">
+  {prev_link}{next_link}
   </nav>
 </main>
 {footer()}
