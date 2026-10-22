@@ -29,7 +29,7 @@
     <div class="cs-actions">
       <a class="btn" href="https://github.com/AnuragBhandary/Product-Analytics-AB-Testing" target="_blank" rel="noopener"><svg class="bi btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg> source on GitHub ↗</a>
     </div>
-    <ul class="chips"><li>BigQuery</li><li>dbt</li><li>SQL</li><li>Python</li><li>SciPy</li><li>scikit-learn</li><li>Evidence</li></ul>
+    <ul class="chips"><li>BigQuery</li><li>dbt</li><li>SQL</li><li>Python</li><li>SciPy</li><li>scikit-learn</li><li>Power BI</li><li>Evidence</li></ul>
   </header>
 
   <div class="mets"><div class="met card reveal"><b>4.3M</b><span>GA4 events modelled in dbt</span></div><div class="met card reveal"><b>314</b><span>duplicated purchases caught (6.3% of revenue)</span></div><div class="met card reveal"><b>29.7% → 1.5%</b><span>false positives: daily peeking vs sequential test</span></div><div class="met card reveal"><b>14M</b><span>users in the real experiment read out</span></div></div>
@@ -44,13 +44,13 @@
 
   <section class="cs-sec">
     <h2 class="cs-h">What I built</h2>
-    <div class="cs-prose reveal"><p>Google&#x27;s public GA4 ecommerce export modelled in BigQuery with dbt: sessions, checkout funnel, retention cohorts, channels and products, with tests that reconcile revenue against an independent deduplication of the raw events.</p><p>Then an experimentation toolkit (SRM checks, power, CUPED, the delta method, sequential tests, doubly robust estimation), validated by simulation on real GA4 users before reading out Criteo&#x27;s 14-million-user randomised ad experiment. Results are published on an Evidence dashboard.</p></div>
+    <div class="cs-prose reveal"><p>Google&#x27;s public GA4 ecommerce export modelled in BigQuery with dbt: sessions, checkout funnel, retention cohorts, channels and products, with tests that reconcile revenue against an independent deduplication of the raw events.</p><p>Then an experimentation toolkit (SRM checks, power, CUPED, the delta method, sequential tests, doubly robust estimation), validated by simulation on real GA4 users before reading out Criteo&#x27;s 14-million-user randomised ad experiment. Results are published on an Evidence dashboard and in a Power BI report with a sample-size calculator.</p></div>
   </section>
 
   <section class="cs-sec">
     <h2 class="cs-h">How it works</h2>
     <div class="flow reveal"><div class="flow-node card"><b>GA4 export</b><span>BigQuery public data</span></div><span class="flow-arrow" aria-hidden="true"></span><div class="flow-node card"><b>dbt</b><span>13 models, 27 tests</span></div><span class="flow-arrow" aria-hidden="true"></span><div class="flow-node card"><b>Marts</b><span>funnel, cohorts, users</span></div><span class="flow-arrow" aria-hidden="true"></span><div class="flow-node card"><b>Simulations</b><span>A/A, power, peeking</span></div><span class="flow-arrow" aria-hidden="true"></span><div class="flow-node card"><b>Readout</b><span>Criteo, AIPW</span></div></div>
-    <p class="flow-note reveal">The dashboard is a static Evidence site, rebuilt and deployed to GitHub Pages by CI.</p>
+    <p class="flow-note reveal">The dashboard is a static Evidence site, rebuilt and deployed to GitHub Pages by CI. The same marts and results also feed a 5-page Power BI report.</p>
   </section>
 
   <section class="cs-sec"><h2 class="cs-h">How it stays correct</h2><div class="g-list"><div class="g-row card reveal"><b>Revenue to the cent</b><p>dbt tests reconcile purchases against a separate deduplication of the raw events.</p></div><div class="g-row card reveal"><b>Tests that hold 5%</b><p>A/A simulations on real users: false positives between 4.1% and 5.7%.</p></div><div class="g-row card reveal"><b>Peeking is priced in</b><p>Daily looks push false positives to 29.7%; mSPRT keeps them at 1.5%.</p></div><div class="g-row card reveal"><b>Balance checked, not assumed</b><p>Criteo&#x27;s split passed SRM but covariates were imbalanced, so four adjusted estimators replace the naive lift.</p></div></div></section>
@@ -58,7 +58,7 @@
   <section class="cs-sec">
     <h2 class="cs-h">Measured</h2>
     <dl class="results reveal"><div class="r-row"><dt>GA4</dt><dd>360,129 sessions, 4,922 purchases; 314 duplicate purchases worth 6.3% of revenue caught</dd></div><div class="r-row"><dt>Metric choice</dt><dd>Detecting +10%: revenue per user needs 190 days, add-to-cart rate 17</dd></div><div class="r-row"><dt>Criteo</dt><dd>Naive visit lift +27.1%; doubly robust +19.5% (four estimators agree, +19.2% to +20.5%)</dd></div><div class="r-row"><dt>Tests</dt><dd>33 Python tests, 93% coverage; sqlfluff and dbt parse in CI</dd></div></dl>
-    
+    <div class="cs-figs"><figure class="cs-fig card reveal"><img src="../../assets/img/work/powerbi-ab-experiment.png" alt="Power BI experiment page" loading="lazy"><figcaption>Experiment page: naive vs adjusted lift, peeking, SRM and a what-if sample-size calculator.</figcaption></figure><figure class="cs-fig card reveal"><img src="../../assets/img/work/powerbi-ab-funnel.png" alt="Power BI funnel page" loading="lazy"><figcaption>Checkout funnel with drop-off at each step, by device and channel.</figcaption></figure></div>
   </section>
 
   <a class="next" href="../taxi-postgres-tuning/">

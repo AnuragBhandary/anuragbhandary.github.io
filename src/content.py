@@ -258,12 +258,12 @@ PROJECTS = {
     "analytics-warehouse": {
         "title": "E-Commerce Analytics Warehouse",
         "short": "Analytics Warehouse",
-        "kicker": "dbt · Airflow · PostgreSQL",
+        "kicker": "dbt · Airflow · Power BI",
         "oneliner": "100,000 real orders replayed as a live source into a dbt star schema that is tested "
                     "and reconciled to the cent on every run.",
         "headline": ("85 / 85", "dbt tests, every load"),
         "repo": "https://github.com/AnuragBhandary/Ecommerce-Analytics-Warehouse",
-        "stack": ["MySQL 8.4", "Python", "PostgreSQL 16", "dbt", "Airflow", "Metabase", "Docker"],
+        "stack": ["MySQL 8.4", "Python", "PostgreSQL 16", "dbt", "Airflow", "Power BI", "Excel", "Metabase", "Docker"],
         "metrics": [
             ("99,441", "orders, 597,649 source changes"),
             ("85 / 85", "dbt tests passed on every load"),
@@ -277,13 +277,14 @@ PROJECTS = {
         "problem": [
             'The Olist dataset is a static snapshot, so I built a simulator that replays its own timeline into MySQL: orders arrive, get approved, ship and get delivered, and reviews come in later.',
             'A Python loader moves changes into PostgreSQL incrementally, dbt models them into a star schema, Airflow runs it every ten minutes, and every run is tested and reconciled against the source before anyone reads a number.',
+            'On top of the marts sit a 4-page Power BI report (37 DAX measures, seller drill-through, row-level security by seller state) and an Excel seller workbook built with Power Query, PivotTables and XLOOKUP. Both match the warehouse revenue to the cent.',
         ],
         "flow": [
             ("Simulator", "replays business time"),
             ("MySQL", "operational source"),
             ("Python EL", "watermark + lookback"),
             ("PostgreSQL", "raw → dbt star schema"),
-            ("Metabase", "dashboards on marts"),
+            ("Power BI", "report, Excel, Metabase"),
         ],
         "flow_note": "Airflow runs extract → snapshot → dbt run → dbt test → reconcile. A failing test stops the "
                      "run before anyone reads a bad number.",
@@ -298,8 +299,11 @@ PROJECTS = {
             ("Every tick", "85/85 dbt tests and 32/32 reconciliation checks passed"),
             ("Revenue", "R$ 15,843,553.24 in the source and the marts, to the cent"),
             ("Finding", "Orders 8+ days late average a 1.7 review score, against 4.3 when on time"),
+            ("BI", "Power BI report and Excel workbook agree on R$ 15,735,527.03 of non-cancelled revenue"),
         ],
         "images": [
+            ("assets/img/work/powerbi-olist-overview.png", "Power BI overview page", "Power BI overview: revenue against the prior year and the top categories."),
+            ("assets/img/work/powerbi-olist-seller.png", "Power BI seller drill-through page", "Right-click any seller to drill through to its own page."),
             ("assets/img/work/metabase-revenue.png", "Metabase revenue dashboard", "Revenue dashboard, built through Metabase's API."),
             ("assets/img/work/metabase-delivery-performance.png", "Delivery performance dashboard", "Late deliveries vs review scores."),
         ],
@@ -307,7 +311,7 @@ PROJECTS = {
             {"kind": "img", "src": "assets/img/work/metabase-revenue.png"},
             {"kind": "metric", "big": "R$ 15,843,553.24", "small": "matched to the cent"},
             {"kind": "code", "text": "dbt build\n✓ 85 of 85 tests passed"},
-            {"kind": "img", "src": "assets/img/work/metabase-cohort-retention.png"},
+            {"kind": "img", "src": "assets/img/work/powerbi-olist-overview.png"},
             {"kind": "metric", "big": "1.7 ★", "small": "avg review when 8+ days late"},
         ],
     },
@@ -583,7 +587,7 @@ PROJECTS = {
                     "of simulated experiments before reading out a real 14M-user one.",
         "headline": ("+27% → +19.5%", "a confounded lift, corrected"),
         "repo": "https://github.com/AnuragBhandary/Product-Analytics-AB-Testing",
-        "stack": ["BigQuery", "dbt", "SQL", "Python", "SciPy", "scikit-learn", "Evidence"],
+        "stack": ["BigQuery", "dbt", "SQL", "Python", "SciPy", "scikit-learn", "Power BI", "Evidence"],
         "metrics": [
             ("4.3M", "GA4 events modelled in dbt"),
             ("314", "duplicated purchases caught (6.3% of revenue)"),
@@ -596,7 +600,7 @@ PROJECTS = {
         ),
         "problem": [
             "Google's public GA4 ecommerce export modelled in BigQuery with dbt: sessions, checkout funnel, retention cohorts, channels and products, with tests that reconcile revenue against an independent deduplication of the raw events.",
-            "Then an experimentation toolkit (SRM checks, power, CUPED, the delta method, sequential tests, doubly robust estimation), validated by simulation on real GA4 users before reading out Criteo's 14-million-user randomised ad experiment. Results are published on an Evidence dashboard.",
+            "Then an experimentation toolkit (SRM checks, power, CUPED, the delta method, sequential tests, doubly robust estimation), validated by simulation on real GA4 users before reading out Criteo's 14-million-user randomised ad experiment. Results are published on an Evidence dashboard and in a Power BI report with a sample-size calculator.",
         ],
         "flow": [
             ("GA4 export", "BigQuery public data"),
@@ -605,7 +609,7 @@ PROJECTS = {
             ("Simulations", "A/A, power, peeking"),
             ("Readout", "Criteo, AIPW"),
         ],
-        "flow_note": "The dashboard is a static Evidence site, rebuilt and deployed to GitHub Pages by CI.",
+        "flow_note": "The dashboard is a static Evidence site, rebuilt and deployed to GitHub Pages by CI. The same marts and results also feed a 5-page Power BI report.",
         "guarantees": [
             ("Revenue to the cent", "dbt tests reconcile purchases against a separate deduplication of the raw events."),
             ("Tests that hold 5%", "A/A simulations on real users: false positives between 4.1% and 5.7%."),
@@ -618,7 +622,10 @@ PROJECTS = {
             ("Criteo", "Naive visit lift +27.1%; doubly robust +19.5% (four estimators agree, +19.2% to +20.5%)"),
             ("Tests", "33 Python tests, 93% coverage; sqlfluff and dbt parse in CI"),
         ],
-        "images": [],
+        "images": [
+            ("assets/img/work/powerbi-ab-experiment.png", "Power BI experiment page", "Experiment page: naive vs adjusted lift, peeking, SRM and a what-if sample-size calculator."),
+            ("assets/img/work/powerbi-ab-funnel.png", "Power BI funnel page", "Checkout funnel with drop-off at each step, by device and channel."),
+        ],
         "tiles": [
             {"kind": "metric", "big": "29.7%", "small": "false positives, daily peeking"},
             {"kind": "code", "text": "SELECT COUNT(*) ... \nQUALIFY ROW_NUMBER() OVER (...) = 1"},
@@ -738,8 +745,9 @@ TRACKS = {
             "right: reconciled against the source, to the cent, on every run.",
             "At Fayble, game events flowed through Kafka into live sports statistics and an AI commentary "
             "system. I learned there that a pipeline is only as good as its worst late-arriving record.",
-            "Since then I've built a dbt warehouse fed by a live replay of 100,000 real orders, a change data "
-            "capture pipeline that proves its replica is identical, a tuning study on 38 million taxi trips, "
+            "Since then I've built a dbt warehouse fed by a live replay of 100,000 real orders, with a Power BI "
+            "report and an Excel workbook on top that agree with it to the cent, a change data capture pipeline "
+            "that proves its replica is identical, a tuning study on 38 million taxi trips, "
             "and an A/B testing toolkit checked on thousands of simulated experiments. Each one comes with the "
             "checks that caught its bugs.",
         ],
@@ -836,8 +844,9 @@ SKILLS = {
             ("PostgreSQL", "postgresql", None), ("MySQL", "mysql", None), ("BigQuery", "googlebigquery", None), ("Redis", "redis", None)],
          "tags": ["partitioning", "BRIN & covering indexes", "materialized views", "EXPLAIN ANALYZE"]},
         {"title": "Analysis", "cls": "sk-data", "items": [
-            ("pandas", "pandas", None), ("SciPy", None, "Sci"), ("Metabase", "metabase", None), ("Evidence", None, "Ev")],
-         "tags": ["A/B testing", "CUPED", "funnels", "cohorts", "star schemas"]},
+            ("Power BI", None, "BI"), ("Excel", None, "XL"), ("pandas", "pandas", None), ("SciPy", None, "Sci"),
+            ("Metabase", "metabase", None), ("Evidence", None, "Ev")],
+         "tags": ["DAX", "row-level security", "A/B testing", "CUPED", "funnels", "cohorts"]},
         {"title": "AI", "cls": "sk-ai", "items": [
             ("Claude", "claude", None), ("OpenAI", "openai", None), ("Gemini", "googlegemini", None), ("Groq", None, "GQ")]},
         {"title": "Infra & tools", "cls": "sk-infra", "items": [
