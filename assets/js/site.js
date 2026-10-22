@@ -344,6 +344,207 @@
     }
   }
 
+  /* ------------------------------------------------------------- lightbox */
+  // Project figures open full screen: wheel / pinch / double-click to zoom, drag to pan,
+  // arrow keys or buttons to step through the page's images.
+  var figImgs = $$(".cs-fig img");
+  if (figImgs.length) {
+    var MAX_ZOOM = 6;
+    var lb, stage, lbImg, lbCap, lbCount, lbZoom, lbPrev, lbNext, lbClose;
+    var cur = 0, scale = 1, tx = 0, ty = 0, lastFocus = null;
+    var pointers = {}, pinch = null, drag = null, moved = false, lastTap = 0;
+
+    var buildLb = function () {
+      lb = document.createElement("div");
+      lb.className = "lb";
+      lb.setAttribute("role", "dialog");
+      lb.setAttribute("aria-modal", "true");
+      lb.setAttribute("aria-label", "Image viewer");
+      lb.innerHTML =
+        '<div class="lb-stage"><img class="lb-img" alt="" draggable="false"></div>' +
+        '<div class="lb-bar">' +
+        '<span class="lb-cap"></span><span class="lb-count"></span>' +
+        '<button class="lb-btn" type="button" data-act="out" aria-label="Zoom out">−</button>' +
+        '<button class="lb-btn lb-zoom" type="button" data-act="reset" aria-label="Reset zoom">100%</button>' +
+        '<button class="lb-btn" type="button" data-act="in" aria-label="Zoom in">+</button>' +
+        '<button class="lb-btn" type="button" data-act="prev" aria-label="Previous image">←</button>' +
+        '<button class="lb-btn" type="button" data-act="next" aria-label="Next image">→</button>' +
+        '<button class="lb-btn" type="button" data-act="close" aria-label="Close">✕</button>' +
+        "</div>";
+      document.body.appendChild(lb);
+      stage = $(".lb-stage", lb); lbImg = $(".lb-img", lb); lbCap = $(".lb-cap", lb);
+      lbCount = $(".lb-count", lb); lbZoom = $(".lb-zoom", lb);
+      lbPrev = $('[data-act="prev"]', lb); lbNext = $('[data-act="next"]', lb); lbClose = $('[data-act="close"]', lb);
+
+      $(".lb-bar", lb).addEventListener("click", function (ev) {
+        var b = ev.target.closest("[data-act]");
+        if (!b) return;
+        var act = b.dataset.act;
+        if (act === "in") zoomAt(scale * 1.5, 0, 0, true);
+        else if (act === "out") zoomAt(scale / 1.5, 0, 0, true);
+        else if (act === "reset") zoomAt(1, 0, 0, true);
+        else if (act === "prev") show(cur - 1);
+        else if (act === "next") show(cur + 1);
+        else if (act === "close") closeLb();
+      });
+      stage.addEventListener("wheel", function (ev) {
+        ev.preventDefault();
+        var p = stagePoint(ev);
+        zoomAt(scale * Math.exp(-ev.deltaY * (ev.ctrlKey ? 0.01 : 0.0015)), p.x, p.y, false);
+      }, { passive: false });
+      stage.addEventListener("pointerdown", onDown);
+      stage.addEventListener("pointermove", onMove);
+      stage.addEventListener("pointerup", onUp);
+      stage.addEventListener("pointercancel", onUp);
+      stage.addEventListener("dblclick", function (ev) {
+        var p = stagePoint(ev);
+        zoomAt(scale > 1.05 ? 1 : 2.5, p.x, p.y, true);
+      });
+      lb.addEventListener("keydown", onKey);
+    };
+
+    // Point relative to the stage centre, which is where the image is centred at scale 1.
+    var stagePoint = function (ev) {
+      var r = stage.getBoundingClientRect();
+      return { x: ev.clientX - r.left - r.width / 2, y: ev.clientY - r.top - r.height / 2 };
+    };
+    var clampPan = function () {
+      var r = stage.getBoundingClientRect();
+      var mx = Math.max(0, (lbImg.offsetWidth * scale - r.width) / 2 + 24);
+      var my = Math.max(0, (lbImg.offsetHeight * scale - r.height) / 2 + 24);
+      if (scale <= 1) { mx = 0; my = 0; }
+      tx = Math.min(mx, Math.max(-mx, tx));
+      ty = Math.min(my, Math.max(-my, ty));
+    };
+    var apply = function (animate) {
+      clampPan();
+      lbImg.classList.toggle("anim", !!animate && !reduced);
+      lbImg.style.transform = "translate(calc(-50% + " + tx + "px), calc(-50% + " + ty + "px)) scale(" + scale + ")";
+      lbZoom.textContent = Math.round(scale * 100) + "%";
+      stage.classList.toggle("zoomed", scale > 1.01);
+    };
+    // Zoom to `next`, keeping the stage point (px, py) fixed under the cursor or fingers.
+    var zoomAt = function (next, px, py, animate) {
+      next = Math.min(MAX_ZOOM, Math.max(1, next));
+      tx = px - (px - tx) * (next / scale);
+      ty = py - (py - ty) * (next / scale);
+      scale = next;
+      if (scale === 1) { tx = 0; ty = 0; }
+      apply(animate);
+    };
+    var show = function (i) {
+      cur = (i + figImgs.length) % figImgs.length;
+      var src = figImgs[cur];
+      var fig = src.closest("figure");
+      var cap = fig && $("figcaption", fig);
+      lbImg.src = src.currentSrc || src.src;
+      lbImg.alt = src.alt;
+      lbCap.textContent = cap ? cap.textContent : src.alt;
+      lbCount.textContent = figImgs.length > 1 ? (cur + 1) + " / " + figImgs.length : "";
+      lbPrev.hidden = lbNext.hidden = figImgs.length < 2;
+      scale = 1; tx = 0; ty = 0;
+      apply(false);
+    };
+    var openLb = function (i) {
+      if (!lb) buildLb();
+      lastFocus = document.activeElement;
+      lb.classList.add("open");
+      doc.style.overflow = "hidden";
+      show(i);
+      lbClose.focus();
+    };
+    var closeLb = function () {
+      lb.classList.remove("open");
+      doc.style.overflow = "";
+      pointers = {}; pinch = null; drag = null;
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    };
+
+    function onDown(ev) {
+      stage.setPointerCapture(ev.pointerId);
+      pointers[ev.pointerId] = { x: ev.clientX, y: ev.clientY };
+      var ids = Object.keys(pointers);
+      moved = false;
+      if (ids.length === 2) {
+        var a = pointers[ids[0]], b = pointers[ids[1]];
+        pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: scale };
+        drag = null;
+      } else if (ids.length === 1) {
+        drag = { x: ev.clientX, y: ev.clientY, tx: tx, ty: ty };
+      }
+    }
+    function onMove(ev) {
+      if (!pointers[ev.pointerId]) return;
+      pointers[ev.pointerId] = { x: ev.clientX, y: ev.clientY };
+      var ids = Object.keys(pointers);
+      if (pinch && ids.length === 2) {
+        var a = pointers[ids[0]], b = pointers[ids[1]];
+        var mid = stagePoint({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 });
+        zoomAt(pinch.s * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d, mid.x, mid.y, false);
+        moved = true;
+      } else if (drag) {
+        var dx = ev.clientX - drag.x, dy = ev.clientY - drag.y;
+        if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
+        if (scale > 1) {
+          stage.classList.add("dragging");
+          tx = drag.tx + dx; ty = drag.ty + dy;
+          apply(false);
+        }
+      }
+    }
+    function onUp(ev) {
+      var wasPinch = !!pinch;
+      delete pointers[ev.pointerId];
+      stage.classList.remove("dragging");
+      if (Object.keys(pointers).length < 2) pinch = null;
+      if (Object.keys(pointers).length) return;
+      drag = null;
+      if (moved || wasPinch || ev.type === "pointercancel") return;
+      if (ev.pointerType === "mouse") {
+        // A plain click on the dark backdrop (not the image) closes the viewer.
+        if (ev.target === stage && scale <= 1) closeLb();
+        return;
+      }
+      // Touch: double-tap toggles zoom; a single tap on the backdrop closes.
+      var now = Date.now();
+      if (now - lastTap < 300) {
+        var p = stagePoint(ev);
+        zoomAt(scale > 1.05 ? 1 : 2.5, p.x, p.y, true);
+        lastTap = 0;
+      } else {
+        lastTap = now;
+        if (ev.target === stage && scale <= 1) setTimeout(function () { if (lastTap === now) closeLb(); }, 300);
+      }
+    }
+    function onKey(ev) {
+      var k = ev.key;
+      if (k === "Escape") { ev.preventDefault(); closeLb(); }
+      else if (k === "ArrowRight") { ev.preventDefault(); show(cur + 1); }
+      else if (k === "ArrowLeft") { ev.preventDefault(); show(cur - 1); }
+      else if (k === "+" || k === "=") { ev.preventDefault(); zoomAt(scale * 1.5, 0, 0, true); }
+      else if (k === "-" || k === "_") { ev.preventDefault(); zoomAt(scale / 1.5, 0, 0, true); }
+      else if (k === "0") { ev.preventDefault(); zoomAt(1, 0, 0, true); }
+      else if (k === "Tab") {
+        // Keep focus inside the dialog.
+        var btns = $$(".lb-btn", lb).filter(function (b) { return !b.hidden; });
+        var first = btns[0], last = btns[btns.length - 1];
+        if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+        else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+      }
+    }
+
+    figImgs.forEach(function (img, i) {
+      img.tabIndex = 0;
+      img.setAttribute("role", "button");
+      img.setAttribute("aria-label", "Open image: " + img.alt);
+      img.addEventListener("click", function () { openLb(i); });
+      img.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openLb(i); }
+      });
+    });
+    window.addEventListener("resize", function () { if (lb && lb.classList.contains("open")) apply(false); });
+  }
+
   if (CFG.page !== "home") return;
 
   /* ------------------------------------------------------------ work tabs */

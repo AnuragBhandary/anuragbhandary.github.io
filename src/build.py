@@ -504,6 +504,15 @@ def project(slug):
     p = PROJECTS[slug]
     nxt_slug = slugs[(idx + 1) % len(slugs)]
     nxt = PROJECTS[nxt_slug]
+    prev_slug = slugs[idx - 1] if idx > 0 else None
+    prev_link = ""
+    if prev_slug:
+        prev_link = f"""<a class="next prev" href="../{prev_slug}/">
+    <span class="next-label">previous project</span>
+    <span class="next-title">{e(PROJECTS[prev_slug]['title'])}</span>
+    <span class="next-arrow" aria-hidden="true">←</span>
+  </a>
+  """
     root = "../../"
     home_url = "../../"
     track_key = {"software": "software", "data": "data", "ai": "ai"}[cat_key]
@@ -568,11 +577,13 @@ def project(slug):
     {images}
   </section>
 
-  <a class="next" href="../{nxt_slug}/">
+  <nav class="pn{' pn-two' if prev_slug else ''}" aria-label="Other projects">
+  {prev_link}<a class="next" href="../{nxt_slug}/">
     <span class="next-label">next project</span>
     <span class="next-title">{e(nxt['title'])}</span>
     <span class="next-arrow" aria-hidden="true">→</span>
   </a>
+  </nav>
 </main>
 {footer()}
 {dock(home_url, False)}

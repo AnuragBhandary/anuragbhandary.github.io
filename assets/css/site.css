@@ -912,6 +912,34 @@ kbd {
 .cs-figs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
 .cs-fig { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px; }
 .cs-fig img { border-radius: 6px; width: 100%; }
+.js .cs-fig img { cursor: zoom-in; }
+.cs-fig img:focus-visible { outline: 2px solid var(--cyan-ink); outline-offset: 3px; }
+
+/* Image viewer (lightbox): wheel/pinch zoom, drag to pan */
+.lb { position: fixed; inset: 0; z-index: 1000; display: none; background: rgba(4, 6, 10, .97); color: #e7ebf2; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.lb.open { display: block; animation: lb-in .2s ease; }
+@keyframes lb-in { from { opacity: 0; } }
+.lb-stage { position: absolute; inset: 0 0 64px; overflow: hidden; touch-action: none; cursor: zoom-in; }
+.lb-stage.zoomed { cursor: grab; }
+.lb-stage.dragging { cursor: grabbing; }
+.lb-img { position: absolute; left: 50%; top: 50%; max-width: calc(100% - 48px); max-height: calc(100% - 48px);
+  transform-origin: center; user-select: none; -webkit-user-drag: none; border-radius: 6px; background: #fff; box-shadow: 0 30px 80px rgba(0, 0, 0, .6); }
+.lb-img.anim { transition: transform .25s var(--ease); }
+.lb-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: flex; align-items: center; gap: 10px;
+  padding: 0 16px; border-top: 1px solid rgba(255, 255, 255, .1); background: rgba(10, 14, 20, .9); }
+.lb-cap { flex: 1; min-width: 0; font: 500 13px var(--f-mono); color: #b8c1d1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-count { font: 500 12px var(--f-mono); color: #8c96aa; }
+.lb-btn { min-width: 40px; height: 40px; padding: 0 10px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .04); color: #e7ebf2; font: 500 15px var(--f-mono); cursor: pointer; }
+.lb-btn:hover { border-color: #00e5ff; color: #00e5ff; }
+.lb-btn:focus-visible { outline: 2px solid #00e5ff; outline-offset: 2px; }
+.lb-btn[disabled] { opacity: .35; cursor: default; border-color: rgba(255, 255, 255, .14); color: #e7ebf2; }
+.lb-zoom { min-width: 64px; }
+@media (max-width: 640px) {
+  .lb-cap { display: none; }
+  .lb-bar { justify-content: center; gap: 6px; padding: 0 8px; }
+  .lb-btn { min-width: 36px; padding: 0 6px; }
+}
 .cs-fig figcaption { font: 500 12px var(--f-mono); color: #4e586a; padding: 10px 6px 4px; }
 
 .bugs { list-style: none; display: grid; gap: 14px; }
@@ -920,9 +948,22 @@ kbd {
 .bug h3 { font-size: 19px; font-weight: 600; margin-bottom: 6px; }
 .bug p { color: var(--muted); }
 
-.next {
-  display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 6px 20px;
-  margin: clamp(70px, 10vw, 130px) 0 clamp(50px, 6vw, 80px); padding: 34px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+.pn { margin: clamp(70px, 10vw, 130px) 0 clamp(50px, 6vw, 80px); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.pn-two { display: grid; grid-template-columns: 1fr 1fr; }
+.next { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 6px 20px; padding: 34px 0; }
+.pn-two .next { align-items: start; align-content: start; }
+.pn-two .next-arrow { align-self: center; }
+.pn-two .next-title { font-size: clamp(32px, 4vw, 60px); }
+.pn-two .next:not(.prev) { border-left: 1px solid var(--line); padding-left: clamp(18px, 3vw, 40px); }
+.pn-two .prev { padding-right: clamp(18px, 3vw, 40px); }
+.prev { grid-template-columns: auto 1fr; }
+.prev .next-label, .prev .next-title { grid-column: 2; }
+.prev .next-arrow { grid-column: 1; grid-row: 1 / span 2; }
+.prev:hover .next-title, .prev:hover .next-arrow { transform: translateX(-10px); }
+@media (max-width: 760px) {
+  .pn-two { grid-template-columns: 1fr; }
+  .pn-two .next:not(.prev) { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); }
+  .pn-two .prev { padding-right: 0; }
 }
 .next-label { font: 500 12px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); grid-column: 1; }
 .next-title { font: 400 clamp(40px, 6vw, 88px)/.9 var(--f-display); grid-column: 1; transition: color .3s, transform .5s var(--ease); }
