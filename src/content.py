@@ -690,8 +690,8 @@ EXPERIENCE_BASE = [
     "over per-segment emotion stitching, keeping full-game audio generation fast and within free-tier limits.",
     "Automated archery match production with ffmpeg: commentary, crossfades, 7.1 (8-channel) audio "
     "with 1 kHz broadcast trigger tones, and per-play metadata into finished match videos.",
-    "Integrated Kafka into the animation flow, replaying 19 games (about 1,274 messages) through an "
-    "ordered, de-duplicated path served through a FastAPI API.",
+    "Integrated Kafka into the animation flow, replaying 19 games (about 1,274 messages) keyed by a global "
+    "sequence number, with idempotent ingestion into SQLite and in-order reads through a FastAPI API.",
 ]
 
 TRACKS = {
