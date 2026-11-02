@@ -13,20 +13,24 @@ import json
 
 import shutil
 
-from content import (CATEGORIES, EDUCATION, PERSON, PROJECTS, ROLES, SKILLS, TESTIMONIAL, TRACKS,
+import knowledge
+import os
+from content import (ASSISTANT, CATEGORIES, EDUCATION, PERSON, PROJECTS, ROLES, SKILLS, TESTIMONIAL, TRACKS,
                      USED_EXTRA, home_category)
 
 ROOT = Path(__file__).resolve().parent.parent
 def _asset_version():
     import hashlib
     h = hashlib.md5()
-    for f in ("assets/js/site.js", "assets/js/game.js", "assets/css/site.css"):
+    for f in ("assets/js/site.js", "assets/js/game.js", "assets/js/anurag.js", "assets/css/site.css"):
         h.update((ROOT / f).read_bytes())
     return h.hexdigest()[:8]
 
 
 ASSET_VERSION = _asset_version()
 ICONS = json.loads((Path(__file__).parent / "icons.json").read_text())
+# ANURAG_ENDPOINT points the chat at a local worker while testing.
+CHAT_URL = os.environ.get("ANURAG_ENDPOINT") or ASSISTANT["endpoint"]
 
 
 def e(s):
@@ -121,6 +125,10 @@ def dock(home, on_home):
                                f'<span class="dk-tile">{DOCK_ICONS[key]}</span><span class="dk-tip">{label}</span></a>')
     nav = "".join(item(k, l) for k, l in [("work", "Work"), ("about", "About"), ("skills", "Skills"),
                                           ("experience", "Experience"), ("resume", "Resume"), ("contact", "Contact")])
+    ask = ""
+    if CHAT_URL:
+        ask = (f'<button class="dk dk-ask" type="button" id="askToggle" aria-label="Ask {ASSISTANT["name"]}" aria-expanded="false" aria-controls="askPanel">'
+               f'<span class="dk-tile"><span class="ask-face" aria-hidden="true"></span></span><span class="dk-tip">Ask {ASSISTANT["name"]}</span></button>')
     apps = ""
     if on_home:
         apps = ('<span class="dk-sep" aria-hidden="true"></span>'
@@ -131,6 +139,7 @@ def dock(home, on_home):
   <a class="dk dk-home" href="{'#top' if on_home else home}"{hl} aria-label="Home"><span class="dk-tile">{LOGO}</span><span class="dk-tip">Home</span></a>
   <span class="dk-sep" aria-hidden="true"></span>
   {nav}
+  {ask}
   {apps}
   <span class="dk-sep" aria-hidden="true"></span>
   {THEME_SWITCH}
@@ -147,10 +156,32 @@ def footer():
 </footer>"""
 
 
+def ask_panel():
+    name = e(ASSISTANT["name"])
+    chips = "".join(f'<button type="button" class="ask-chip">{e(q)}</button>' for q in ASSISTANT["suggestions"])
+    return f"""<section class="ask" id="askPanel" role="dialog" aria-label="Chat with {name}" hidden>
+  <header class="ask-bar"><span class="ask-face" aria-hidden="true"></span><b>{name}</b><span>{e(ASSISTANT["tagline"])}</span>
+    <button type="button" class="ask-close" id="askClose" aria-label="Close chat">×</button></header>
+  <div class="ask-log" id="askLog" aria-live="polite">
+    <div class="ask-intro"><span class="ask-hero" aria-hidden="true"></span>
+      <p class="ask-msg bot">{e(ASSISTANT["greeting"])}</p></div>
+    <div class="ask-chips" id="askChips">{chips}</div>
+  </div>
+  <form class="ask-form" id="askForm">
+    <input id="askInput" type="text" maxlength="500" autocomplete="off" placeholder="Ask a question" aria-label="Your question">
+    <button type="submit" aria-label="Send">↑</button>
+  </form>
+  <p class="ask-note">{name} is an AI, not Anurag. Questions go to Google Gemini to generate answers, so please don't share private details. Answers can be wrong; check the linked pages.</p>
+</section>
+<script src="{{root}}assets/js/anurag.js?v={ASSET_VERSION}" defer></script>"""
+
+
 def scripts(root, page, track_key):
     cfg = {"page": page, "track": track_key, "email": PERSON["email"], "root": root,
-           "projects": len(PROJECTS), "role": TRACKS[track_key]["role"].lower() if track_key else ""}
+           "projects": len(PROJECTS), "role": TRACKS[track_key]["role"].lower() if track_key else "", "chat": CHAT_URL,
+           "chatLines": ASSISTANT["lines"] if CHAT_URL else {}}
     return f"""<div class="scan" aria-hidden="true"></div>
+{ask_panel().replace("{root}", root) if CHAT_URL else ""}
 {GLASS_FILTER}
 <script>window.ANB={json.dumps(cfg)};</script>
 {f'<script src="{root}assets/js/game.js?v={ASSET_VERSION}" defer></script>' if page == "home" else ""}
@@ -404,7 +435,7 @@ def home(track_key):
     <div class="about-grid">
       <div class="about-text reveal">{''.join(f'<p>{e(p)}</p>' for p in tr['about'])}</div>
       <div class="sysinfo card reveal">
-        <div class="sys-head">{LOGO}<div><b>anurag@anb</b><span>uptime: 1 yr production</span></div></div>
+        <div class="sys-head">{LOGO}<div><b>anurag@anb</b><span>uptime: shipping since 2025</span></div></div>
         <dl>{facts}</dl>
       </div>
     </div>
@@ -626,7 +657,8 @@ def sitemap():
 def main():
     # Project pages used to be generated per track (data/work/...); there is one copy now.
     shutil.rmtree(ROOT / "data" / "work", ignore_errors=True)
-    written = [home(key) for key in TRACKS]
+    written = [knowledge.build()]
+    written += [home(key) for key in TRACKS]
     written += [project(slug) for slug in PROJECTS]
     written.append(sitemap())
     for w in written:

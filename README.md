@@ -22,6 +22,11 @@ LeetCode's API can't be called from a browser, so `.github/workflows/leetcode.ym
 every 6 hours on GitHub, writes `assets/data/leetcode.json` and commits it if anything changed. The Skills
 section reads that file. To refresh by hand: `python3 src/leetcode.py`, or "Run workflow" in the repo's Actions tab.
 
+## AnuRAG (the chat)
+
+A small Cloudflare Worker in `worker/` holds the Gemini key and answers only from `src/content.py`. The chat stays hidden
+until `ASSISTANT["endpoint"]` is set. See `worker/README.md`.
+
 ## Dev Run (the game)
 
 `assets/js/game.js` is a small Hollow Knight-style action platformer: 3 zones and a boss, with wall jumps,

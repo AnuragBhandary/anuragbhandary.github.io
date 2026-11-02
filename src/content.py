@@ -13,6 +13,32 @@ PERSON = {
     "site": "https://anuragbhandary.github.io",
 }
 
+# The chat on the site. It stays hidden until `endpoint` holds the deployed worker's /chat URL (see worker/README.md).
+ASSISTANT = {
+    "name": "AnuRAG",
+    "endpoint": "https://anurag-chat.anuragbhandary.workers.dev/chat",
+    "greeting": "Hey, I'm AnuRAG, the pixel version of Anurag. I've read everything on this site, so go ahead and grill me.",
+    "tagline": "no receipts, no answer",
+    "suggestions": [
+        "List all of Anurag's projects",
+        "Give me the quick tour",
+        "What did he do at Fayble?",
+        "Are you actually AI?",
+    ],
+    # Fixed lines, never generated: these show when something has already gone wrong.
+    "lines": {
+        "waiting": ["Flipping through his work…", "Digging through the projects…", "One sec, checking my notes…", "Looking that up…"],
+        "hello": ["Hey! Ask me anything about Anurag's work.", "Hi there! What do you want to know about Anurag?", "Hello! Pick a project, or ask me anything about his work."],
+        "not_found": [
+            "I can't find that on this site, and I don't make things up. Anurag can tell you himself: use the contact section.",
+            "No idea, and I won't guess! The contact section will get you the real Anurag.",
+            "You've got me there. That's one for the real Anurag, and his details are in the contact section.",
+        ],
+        "busy": ["Phew, too many questions at once. Give me a minute.", "Hang on, I need a breather. Try again in a minute?", "You're faster than I am! Give me a minute to catch up."],
+        "error": ["I tripped over something. Try again in a bit.", "Oops, that one's on me. Mind trying again shortly?", "Something glitched on my end. Give it another go in a bit."],
+    },
+}
+
 EDUCATION = [
     {
         "degree": "M.S. Computer Science",
@@ -750,8 +776,9 @@ TRACKS = {
         "about": [
             "I'm a data engineer who cares whether the number on the dashboard is actually right. Not roughly "
             "right: reconciled against the source, to the cent, on every run.",
-            "At Fayble, game events flowed through Kafka into live sports statistics and an AI commentary "
-            "system. I learned there that a pipeline is only as good as its worst late-arriving record.",
+            "At Fayble I replayed 19 recorded football games through Kafka, about 1,274 messages, with idempotent "
+            "ingestion into SQLite and in-order reads through an API. It taught me that Kafka alone doesn't give "
+            "you order across partitions: the order has to come from your own sequence numbers.",
             "Since then I've built a dbt warehouse fed by a live replay of 100,000 real orders, with a Power BI "
             "report and an Excel workbook on top that agree with it to the cent, a change data capture pipeline "
             "that proves its replica is identical, a tuning study on 38 million taxi trips, "

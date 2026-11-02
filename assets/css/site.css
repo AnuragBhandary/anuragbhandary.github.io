@@ -1118,3 +1118,48 @@ html:not(.js) .wtabs-bar { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .wtabs-ind { transition: none; }
 }
+
+/* ---------------------------------------------------------------- AnuRAG chat */
+.ask {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 700; width: min(480px, 100vw);
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--panel); border-left: 1px solid var(--line2); box-shadow: var(--shadow);
+}
+.ask[hidden] { display: none; }
+/* The hero's idle frames are 64 px cells; these crop to his face at whole-number scales so pixels stay square. */
+.ask-face, .ask-hero { display: block; flex: none; background: url(../img/anurag-idle.png) no-repeat; image-rendering: pixelated; }
+.ask-face { width: 40px; height: 40px; background-size: 768px 128px; background-position: -44px -26px; }
+.ask-hero { width: 128px; height: 128px; background-size: 768px 128px; background-position: 0 0; }
+.ask-hero.thinking { animation: askIdle .75s steps(6) infinite; }
+@keyframes askIdle { to { background-position-x: -768px; } }
+.ask-bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 16px; background: var(--panel2); border-bottom: 1px solid var(--line); }
+.ask-bar .ask-face { border-radius: 50%; background-color: var(--cyan-soft); }
+.ask-bar b { font: 600 15px var(--f-mono); color: var(--cyan-ink); }
+.ask-bar > span:not(.ask-face) { flex: 1; font: 400 11.5px var(--f-mono); color: var(--muted); }
+.ask-close { width: 36px; height: 36px; border-radius: 8px; font-size: 22px; line-height: 1; color: var(--muted); }
+.ask-close:hover, .ask-close:focus-visible { color: var(--text); background: var(--cyan-soft); }
+.ask-log { flex: 1; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+.ask-intro { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.ask-msg { max-width: 90%; margin: 0; padding: 10px 13px; border-radius: 12px; font-size: 14.5px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-wrap; }
+.ask-msg.bot { align-self: flex-start; background: var(--panel2); border: 1px solid var(--line); color: var(--text); }
+.ask-msg.me { align-self: flex-end; background: var(--cyan); color: var(--on-cyan); }
+.ask-msg.wait { color: var(--muted); font-family: var(--f-mono); font-size: 13px; }
+.ask-src { align-self: flex-start; display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: -4px; }
+.ask-src a { font: 400 11.5px var(--f-mono); color: var(--cyan-ink); text-decoration: underline; text-underline-offset: 2px; }
+.ask-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ask-chip { padding: 7px 12px; border: 1px solid var(--line2); border-radius: 999px; font-size: 13px; color: var(--text); text-align: left; }
+.ask-chip:hover, .ask-chip:focus-visible { border-color: var(--cyan-ink); background: var(--cyan-soft); }
+.ask-form { display: flex; gap: 8px; padding: 12px 14px 6px; border-top: 1px solid var(--line); }
+.ask-form input { flex: 1; min-width: 0; padding: 10px 12px; font: inherit; font-size: 16px; color: var(--text); background: var(--panel2); border: 1px solid var(--line2); border-radius: 10px; }
+.ask-form input:focus { outline: 2px solid var(--cyan-ink); outline-offset: 1px; }
+.ask-form button { width: 44px; flex: none; border-radius: 10px; font-size: 18px; color: var(--on-cyan); background: var(--cyan); }
+.ask-form button:disabled { opacity: .5; }
+.ask-note { margin: 0; padding: 0 14px 12px; font-size: 11px; line-height: 1.4; color: var(--muted); }
+.dk-ask .ask-face { width: 40px; height: 40px; }
+@media (max-width: 900px) {
+  .ask { width: 100vw; height: 100dvh; bottom: auto; }
+  .dk-ask .ask-face { width: 34px; height: 34px; background-position: -47px -28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ask-hero.thinking { animation: none; }
+}

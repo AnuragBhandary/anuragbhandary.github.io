@@ -1,0 +1,21 @@
+name = "anurag-chat"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://anuragbhandary.github.io"
+GEMINI_BASE = "https://generativelanguage.googleapis.com"
+# Tried in order. Each has its own free daily quota, and gemini-2.5-flash allows only 20 requests a day.
+GEMINI_MODELS = "gemini-2.5-flash-lite,gemini-2.5-flash"
+
+# Last resort when Gemini is out. Runs on Cloudflare, needs no key, and the free plan stops at its daily limit, not a bill.
+WORKERS_AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+
+[ai]
+binding = "AI"
+
+# 10 questions per minute from one visitor. The key itself is a secret: `npx wrangler secret put GEMINI_API_KEY`.
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 10, period = 60 }
