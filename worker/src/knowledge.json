@@ -309,7 +309,7 @@
   "id": "showtime-doc-overview-8",
   "title": "Showtime overview: Layout",
   "url": "https://github.com/AnuragBhandary/Event-Ticketing-Platform/blob/main/README.md",
-  "text": "```\napi/src/main/java/.../ticketing/\n  events/     Event (JPA), SeatRepository (all seat-state SQL), EventService, controller\n  holds/      HoldService (SKIP LOCKED holds, expiry sweep), HoldRepository, controller\n  payments/   checkout, webhook (HMAC, dedupe), FakeGatewayController (FakePay)\n  bookings/   BookingService (payment -> booking, exactly once)\n  live/       SeatChangePublisher (NOTIFY), SeatChangeListener (LISTEN), SeatStreamHub (SSE)\n  auth/       users, JWT issuing, register/login\n  config/     security (JWT resource server), properties, clock\napi/src/main/resources/db/migration/   Flyway schema\nweb/src/      pages, components (SeatMap), live/ (useLiveSeats, version merge), api/\nweb/e2e/      Playwright\nload/         k6 booking rush, audit.sql, results/\ndeploy/       nginx.conf\n```"
+  "text": "```\napi/src/main/java/.../ticketing/\n  events/     Event (JPA), SeatRepository (all seat-state SQL), EventService, controller\n  holds/      HoldService (SKIP LOCKED holds, expiry sweep), HoldRepository, controller\n  payments/   checkout, webhook (HMAC, dedupe), FakeGatewayController (FakePay)\n  bookings/   BookingService (payment -> booking, exactly once)\n  live/       SeatChangePublisher (NOTIFY), SeatChangeListener (LISTEN), SeatStreamHub (SSE)\n  auth/       users, JWT issuing, register/login\n  config/     security (JWT resource server), properties, clock\napi/src/main/resources/db/migration/   Flyway schema\nweb/src/      pages, components (SeatMap), live/ (useLiveSeats, version merge), api/\nweb/e2e/      Playwright\nload/         k6 booking rush, audit.sql, results/\ndeploy/       nginx.conf\ndocs/         DESIGN.md, BENCHMARKS.md\n```"
  },
  {
   "id": "showtime-doc-design-1",
@@ -453,7 +453,7 @@
   "id": "cloud-platform-doc-overview-6",
   "title": "Cloud Platform overview: Layout",
   "url": "https://github.com/AnuragBhandary/Cloud-Native-Platform/blob/main/README.md",
-  "text": "```\ninfra/local/cluster/    kind cluster (5 nodes, two pools, tainted jobs pool), image load\ninfra/local/platform/   CloudNativePG, KEDA, kube-prometheus-stack, metrics-server, Gateway API CRDs,\n                        Traefik, UI routes, jobq; environment=local|aws\ninfra/aws/              VPC, EKS (system + tainted jobs node groups), EBS CSI, ECR\ncharts/jobq/            API, scheduler, workers, KEDA ScaledObject, HPA, PDB, PostgreSQL + PgBouncer,\n                        Redis, HTTPRoute, ServiceMonitor/PodMonitors, SLO rules, Grafana dashboard\ncharts/routes/          HTTPRoutes for Grafana and Prometheus\ndashboards/             generator for the dashboard JSON\nload/                   in-cluster load generator, experiment runner (chaos + audit), results/\n```"
+  "text": "```\ninfra/local/cluster/    kind cluster (5 nodes, two pools, tainted jobs pool), image load\ninfra/local/platform/   CloudNativePG, KEDA, kube-prometheus-stack, metrics-server, Gateway API CRDs,\n                        Traefik, UI routes, jobq; environment=local|aws\ninfra/aws/              VPC, EKS (system + tainted jobs node groups), EBS CSI, ECR\ncharts/jobq/            API, scheduler, workers, KEDA ScaledObject, HPA, PDB, PostgreSQL + PgBouncer,\n                        Redis, HTTPRoute, ServiceMonitor/PodMonitors, SLO rules, Grafana dashboard\ncharts/routes/          HTTPRoutes for Grafana and Prometheus\ndashboards/             generator for the dashboard JSON\nload/                   in-cluster load generator, experiment runner (chaos + audit), results/\ndocs/                   DESIGN.md, BENCHMARKS.md, AWS.md\n```"
  },
  {
   "id": "cloud-platform-doc-design-1",
@@ -669,7 +669,7 @@
   "id": "job-scheduler-doc-overview-11",
   "title": "Job Scheduler overview: Project layout",
   "url": "https://github.com/AnuragBhandary/Distributed-Job-Scheduler/blob/main/README.md",
-  "text": "```\nsrc/jobq/\n  api/            FastAPI app, routes, auth + rate-limit dependencies, schemas\n  migrations/     SQL schema (applied by `jobq migrate`)\n  repository.py   every SQL statement: claims, fencing, reaping, promotion\n  dispatch.py     Redis Streams dispatch and lost-message detection\n  worker.py       leases, heartbeats, timeouts, fenced completion, graceful shutdown\n  scheduler.py    promote / reap / sweep / purge / gauge loops\n  client.py       Celery-style SDK\n  backoff.py      full-jitter backoff and the retry-or-dead decision\nweb/src/\n  api/            fetch wrapper, API key session, TanStack Query hooks (polling, mutations)\n  pages/          overview, jobs, job, dead letters, new job, sign in\n  components/     throughput chart (SVG), attempt timeline, job table, badges\n  test/fakeApi.ts in-memory fake of the REST API served through MSW\nweb/e2e/          Playwright: worker SIGKILL takeover, form enqueue, DLQ requeue\nbench/            open-loop load generator + chaos monkey + database audit\n```"
+  "text": "```\nsrc/jobq/\n  api/            FastAPI app, routes, auth + rate-limit dependencies, schemas\n  migrations/     SQL schema (applied by `jobq migrate`)\n  repository.py   every SQL statement: claims, fencing, reaping, promotion\n  dispatch.py     Redis Streams dispatch and lost-message detection\n  worker.py       leases, heartbeats, timeouts, fenced completion, graceful shutdown\n  scheduler.py    promote / reap / sweep / purge / gauge loops\n  client.py       Celery-style SDK\n  backoff.py      full-jitter backoff and the retry-or-dead decision\nweb/src/\n  api/            fetch wrapper, API key session, TanStack Query hooks (polling, mutations)\n  pages/          overview, jobs, job, dead letters, new job, sign in\n  components/     throughput chart (SVG), attempt timeline, job table, badges\n  test/fakeApi.ts in-memory fake of the REST API served through MSW\nweb/e2e/          Playwright: worker SIGKILL takeover, form enqueue, DLQ requeue\nbench/            open-loop load generator + chaos monkey + database audit\ndocs/             DESIGN.md, BENCHMARKS.md\n```"
  },
  {
   "id": "job-scheduler-doc-design-1",
@@ -885,7 +885,7 @@
   "id": "cdc-pipeline-doc-overview-6",
   "title": "CDC Pipeline overview: Layout",
   "url": "https://github.com/AnuragBhandary/CDC-Pipeline/blob/main/README.md",
-  "text": "```\nsrc/cdcpipe/   decode (Debezium → typed rows), sink (consumer + Applier), connector (REST),\n               workload (generator), verify (barrier + checksums), cli\nbench/         run_benchmark.py\n```"
+  "text": "```\nsrc/cdcpipe/   decode (Debezium → typed rows), sink (consumer + Applier), connector (REST),\n               workload (generator), verify (barrier + checksums), cli\nbench/         run_benchmark.py\ndocs/          DESIGN, RESULTS (+ results-1m.json)\n```"
  },
  {
   "id": "cdc-pipeline-doc-design-1",
@@ -1059,7 +1059,7 @@
   "id": "event-streaming-doc-overview-11",
   "title": "Event Streaming overview: Layout",
   "url": "https://github.com/AnuragBhandary/Real-Time-Event-Streaming/blob/main/README.md",
-  "text": "```\nsrc/livefeed/\n  repository.py   append (row lock, idempotency, reducer), replay, heads\n  hub.py          Channel (dedupe, gap fill, resync), Session (queue, writer, 4008/4009), join\n  bus.py          Redis pub/sub publish + resilient subscriber\n  protocol.py     wire formats, close codes\n  api/            FastAPI routes, auth, rate limiting, load shedding\n  client.py       Subscription (cursor resume) and Producer (idempotent retries)\n  reducers.py     snapshot state machines (generic, cricket match)\n  simulator.py    live match generator\nweb/src/\n  feed/client.ts  browser subscription: cursor, dedupe, gap resync, backoff, heartbeat watchdog\n  feed/reducers.ts TypeScript port of the reducers (contract-tested against Python)\n  pages/          match list, live match page\n  components/     scoreboard, ball by ball feed, connection panel\nweb/e2e/          Playwright chaos test against the running stack\nbench/loadtest.py 1,000-client load + chaos harness with protocol-level auditing\n```"
+  "text": "```\nsrc/livefeed/\n  repository.py   append (row lock, idempotency, reducer), replay, heads\n  hub.py          Channel (dedupe, gap fill, resync), Session (queue, writer, 4008/4009), join\n  bus.py          Redis pub/sub publish + resilient subscriber\n  protocol.py     wire formats, close codes\n  api/            FastAPI routes, auth, rate limiting, load shedding\n  client.py       Subscription (cursor resume) and Producer (idempotent retries)\n  reducers.py     snapshot state machines (generic, cricket match)\n  simulator.py    live match generator\nweb/src/\n  feed/client.ts  browser subscription: cursor, dedupe, gap resync, backoff, heartbeat watchdog\n  feed/reducers.ts TypeScript port of the reducers (contract-tested against Python)\n  pages/          match list, live match page\n  components/     scoreboard, ball by ball feed, connection panel\nweb/e2e/          Playwright chaos test against the running stack\nbench/loadtest.py 1,000-client load + chaos harness with protocol-level auditing\ndocs/             DESIGN.md · BENCHMARKS.md\n```"
  },
  {
   "id": "event-streaming-doc-design-1",
@@ -1197,13 +1197,13 @@
   "id": "consumer-benchmark-doc-overview-3",
   "title": "asyncio vs Virtual Threads overview: Findings (details in docs/RESULTS.md)",
   "url": "https://github.com/AnuragBhandary/Streaming-Consumer-Benchmark/blob/main/README.md",
-  "text": "What the measurements uncovered along the way:\n- **Java ran out of memory at 10k connections** in its first version: 64 KiB write buffers plus\n  an 8 KiB reader per connection. Right-sizing them cut memory at 5k connections from 880 to\n  337 MiB.\n- **One dispatch thread concentrated virtual-thread wake-ups on one carrier.** At 20k\n  connections, one carrier ran at 81% while the other sat idle. GC and carrier count were ruled out\n  with GC logs and what-if runs. Two dispatch threads took p50 from 87 ms to 2.3 ms.\n- **Linux silently absorbed stalled clients** in up to 4 MiB of kernel send buffer per socket.\n  Capping `SO_SNDBUF` made backpressure reach the application's bounded queue.\n\n**Read next:** docs/RESULTS.md (charts and findings) ·\ndocs/DESIGN.md (how both servers work, fairness controls) ·"
+  "text": "What the measurements uncovered along the way:\n- **Java ran out of memory at 10k connections** in its first version: 64 KiB write buffers plus\n  an 8 KiB reader per connection. Right-sizing them cut memory at 5k connections from 880 to\n  337 MiB.\n- **One dispatch thread concentrated virtual-thread wake-ups on one carrier.** At 20k\n  connections, one carrier ran at 81% while the other sat idle. GC and carrier count were ruled out\n  with GC logs and what-if runs. Two dispatch threads took p50 from 87 ms to 2.3 ms.\n- **Linux silently absorbed stalled clients** in up to 4 MiB of kernel send buffer per socket.\n  Capping `SO_SNDBUF` made backpressure reach the application's bounded queue.\n\n**Read next:** docs/RESULTS.md (charts and findings) ·\ndocs/DESIGN.md (how both servers work, fairness controls)."
  },
  {
   "id": "consumer-benchmark-doc-overview-4",
   "title": "asyncio vs Virtual Threads overview: Layout",
   "url": "https://github.com/AnuragBhandary/Streaming-Consumer-Benchmark/blob/main/README.md",
-  "text": "```\njava-server/      Java 21 server (Maven): server/ (virtual threads, JUnit tests), jmh/ (JMH hot-path benchmarks)\npython-server/    Python asyncio server (uv): src/fanout_py, tests, benchmarks/microbench.py\nharness/          one harness for both: producer, client swarm, runner, report, conformance tests\nresults/          raw JSON of every run\n```"
+  "text": "```\njava-server/      Java 21 server (Maven): server/ (virtual threads, JUnit tests), jmh/ (JMH hot-path benchmarks)\npython-server/    Python asyncio server (uv): src/fanout_py, tests, benchmarks/microbench.py\nharness/          one harness for both: producer, client swarm, runner, report, conformance tests\nresults/          raw JSON of every run\ndocs/             RESULTS.md, DESIGN.md, charts/, tables.md (generated)\n```"
  },
  {
   "id": "consumer-benchmark-doc-overview-5",
@@ -2031,7 +2031,7 @@
   "id": "analytics-warehouse-doc-overview-9",
   "title": "Analytics Warehouse overview: Project layout",
   "url": "https://github.com/AnuragBhandary/Ecommerce-Analytics-Warehouse/blob/main/README.md",
-  "text": "```\nsrc/olistwh/        timeline (business-time model), simulator, extract_load, reconcile, cli\nwarehouse/          dbt project: staging, snapshots, marts, tests, macros\nairflow/dags/       olist_elt DAG\nmetabase/           dashboards-as-code\npowerbi/  excel/    build guides, DAX measures\nscripts/prove.py    full-data proof run -> docs/results.json\n```\n\nData: Olist, CC BY-NC-SA 4.0. Code: MIT."
+  "text": "```\nsrc/olistwh/        timeline (business-time model), simulator, extract_load, reconcile, cli\nwarehouse/          dbt project: staging, snapshots, marts, tests, macros\nairflow/dags/       olist_elt DAG\nmetabase/           dashboards-as-code\npowerbi/  excel/    build guides, DAX measures\nscripts/prove.py    full-data proof run -> docs/results.json\ndocs/               DESIGN, RESULTS\n```\n\nData: Olist, CC BY-NC-SA 4.0. Code: MIT."
  },
  {
   "id": "analytics-warehouse-doc-design-1",
@@ -2139,7 +2139,7 @@
   "id": "taxi-postgres-tuning-doc-overview-5",
   "title": "Postgres Tuning overview: Layout",
   "url": "https://github.com/AnuragBhandary/NYC-Taxi-Postgres-Tuning/blob/main/README.md",
-  "text": "```\nsrc/taxibench/  source (Parquet normalization), pg (designs + loader), mysql (equivalent design),\n                queries (the 12 questions x 3 dialects), bench (timing, plans, fingerprints), cli\ntests/          test_suite.py, fixtures/sample (Parquet)\n```\n\nData: NYC Taxi & Limousine Commission trip records (public). Code: MIT."
+  "text": "```\nsrc/taxibench/  source (Parquet normalization), pg (designs + loader), mysql (equivalent design),\n                queries (the 12 questions x 3 dialects), bench (timing, plans, fingerprints), cli\ndocs/           RESULTS, DESIGN, plans//.txt, results.json\ntests/          test_suite.py, fixtures/sample (Parquet)\n```\n\nData: NYC Taxi & Limousine Commission trip records (public). Code: MIT."
  },
  {
   "id": "taxi-postgres-tuning-doc-design-1",

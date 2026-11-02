@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
 import knowledge from "../src/knowledge.json" with { type: "json" };
 import { buildIndex, search } from "../src/retrieve.js";
 import { check } from "../src/guard.js";
@@ -77,18 +78,19 @@ test("a question about nothing on the site retrieves nothing", () => {
   assert.deepEqual(search(index, "What is his favourite pizza?"), []);
 });
 
-test("interview guides and demo logins never reach the bot", () => {
-  const all = JSON.stringify(knowledge);
-  assert.ok(!/INTERVIEW|admin-password|study and defend|Leadership Principle/i.test(all));
+test("demo logins never reach the bot", () => {
+  assert.ok(!/admin-password/i.test(JSON.stringify(knowledge)));
 });
 
 test("doc links only ever point at his public repos", () => {
   for (const c of knowledge) assert.match(c.url, /^(work\/[a-z-]+\/|#[a-z]+|https:\/\/github\.com\/AnuragBhandary\/[\w-]+\/blob\/main\/[\w./-]+)$/);
 });
 
-test("knowledge holds no private facts", () => {
+// The words live in a gitignored file, because listing them here would publish them.
+const privateWords = new URL("./private-words.txt", import.meta.url);
+test("knowledge holds no private facts", { skip: !existsSync(privateWords) }, () => {
   const all = JSON.stringify(knowledge).toLowerCase();
-  for (const word of []) {
+  for (const word of readFileSync(privateWords, "utf8").split("\n").map((w) => w.trim().toLowerCase()).filter(Boolean)) {
     assert.ok(!new RegExp(`\\b${word}\\b`).test(all), word);
   }
 });

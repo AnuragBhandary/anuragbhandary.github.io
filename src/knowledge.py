@@ -13,7 +13,7 @@ from content import CATEGORIES, EDUCATION, PERSON, PROJECTS, ROLES, SKILLS, TEST
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "worker" / "src" / "knowledge.json"
 
-# Which repo docs the bot may read, by project. Only these files: each repo's INTERVIEW.md stays out on purpose.
+# Which repo docs the bot may read, by project. Only these files.
 GITHUB = "https://github.com/AnuragBhandary"
 DOCS = {
     "showtime": ("Event-Ticketing-Platform", ["README.md", "docs/DESIGN.md", "docs/BENCHMARKS.md"]),
@@ -29,8 +29,8 @@ DOCS = {
     "taxi-postgres-tuning": ("NYC-Taxi-Postgres-Tuning", ["README.md", "docs/DESIGN.md", "docs/RESULTS.md"]),
 }
 MAX_WORDS = 220
-# Lines that shouldn't reach a visitor through the bot: study-guide pointers and local demo logins.
-SKIP_LINE = re.compile(r"INTERVIEW|admin-password|study and defend", re.I)
+# Local demo logins shouldn't reach a visitor through the bot.
+SKIP_LINE = re.compile(r"admin-password", re.I)
 
 
 def pairs(rows):
