@@ -47,7 +47,10 @@ export function check(reply, context) {
   if (numbers(rest).length > 0) return { ok: false, reason: "unsupported_number" };
 
   // Replies show as plain text, so markdown markers would appear literally.
-  const answer = text.replace(/\s*\[\s*\d+(?:\s*,\s*\d+)*\s*\]/g, "").replace(/\*\*|`/g, "")
-    .replace(/ +([.,;:!?])/g, "$1").replace(/ {2,}/g, " ").trim();
+  // List items keep their own lines (the chat shows line breaks); their dashes become bullets.
+  const answer = text.replace(/[ \t]*\[\s*\d+(?:\s*,\s*\d+)*\s*\]/g, "").replace(/\*\*|`/g, "")
+    .replace(/^[ \t]*[-*•][ \t]+/gm, "• ").replace(/^#+[ \t]*/gm, "")
+    .replace(/ +([.,;:!?])/g, "$1").replace(/ {2,}/g, " ").replace(/[ \t]+$/gm, "")
+    .replace(/\n+(?!• )([^\n]+:)\n(?=• )/g, "\n\n$1\n").replace(/\n{3,}/g, "\n\n").trim();
   return { ok: true, answer, cited: [...cited] };
 }

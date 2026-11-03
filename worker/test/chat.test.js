@@ -139,6 +139,12 @@ test("guard removes markdown that would show literally", () => {
   assert.equal(v.answer, "It was 7.1 ms using SKIP LOCKED.");
 });
 
+test("guard keeps a list on its own lines and turns dashes into bullets", () => {
+  const passages = [{ title: "A", text: "Showtime and CDC Pipeline." }];
+  const reply = "He built two projects [1].\nSoftware:\n- Showtime: ticketing [1]\nData:\n* CDC Pipeline: replication [1]";
+  assert.equal(check(reply, passages).answer, "He built two projects.\n\nSoftware:\n• Showtime: ticketing\n\nData:\n• CDC Pipeline: replication");
+});
+
 test("guard handles several claims and repeated markers", () => {
   const passages = [{ title: "A", text: "p95 was 7.1 ms." }, { title: "B", text: "It held 20,000 connections." }];
   const v = check("It was 7.1 ms [1]. It held 20,000 connections [2][1].", passages);

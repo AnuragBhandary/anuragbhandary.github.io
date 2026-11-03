@@ -851,6 +851,7 @@
   /* ---------------------------------------------------------- terminal */
   var tOut = $("#termOut"), tIn = $("#termInput");
   var history = [], hIdx = -1;
+  var CHAT_EXAMPLE = "chat which projects use Kafka?";
   function print(text, cls) {
     var d = document.createElement("div");
     d.className = "tl " + (cls || "tl-out");
@@ -866,7 +867,11 @@
     lines.forEach(function (l) { l.textContent = ""; });
     var li = 0, ci = 0;
     (function step() {
-      if (li >= lines.length) { print(window.AnuRAG ? "type `help`, or `ask` me anything" : "type `help` to look around", "tl-warn"); return; }
+      if (li >= lines.length) {
+        print("type `help` to look around", "tl-warn");
+        if (window.AnuRAG) { print("type `chat` and a question to talk to AnuRAG", "tl-warn"); print("  e.g. " + CHAT_EXAMPLE, "tl-out"); }
+        return;
+      }
       var full = texts[li];
       if (lines[li].classList.contains("tl-out")) { lines[li].textContent = full; li++; ci = 0; setTimeout(step, 260); return; }
       ci++;
@@ -884,12 +889,12 @@
       case "help":
         ["help        this list", "whoami      who is this", "ls          list projects", "open <n>    open project n",
          "play        open the game", "resume      print my resume", "contact     ways to reach me", "theme       light / dark",
-         "glitch      you'll see", "clear       wipe the screen"].concat(window.AnuRAG ? ["ask <q>     ask AnuRAG about my work"] : []).forEach(function (l, i) { print("  " + l, i === 0 ? "tl-hi" : "tl-out"); });
+         "glitch      you'll see", "clear       wipe the screen"].concat(window.AnuRAG ? ["chat <q>    chat with AnuRAG about my work", "            e.g. " + CHAT_EXAMPLE] : []).forEach(function (l, i) { print("  " + l, i === 0 ? "tl-hi" : "tl-out"); });
         break;
-      case "ask":
+      case "chat": case "ask":
         var question = cmd.slice(c.length).trim();
-        if (!window.AnuRAG) { print("command not found: ask", "tl-err"); break; }
-        if (!question) { print("usage: ask <question>", "tl-warn"); break; }
+        if (!window.AnuRAG) { print("command not found: " + c, "tl-err"); break; }
+        if (!question) { print("usage: chat <question>", "tl-warn"); print("  e.g. " + CHAT_EXAMPLE, "tl-out"); break; }
         var pending = document.createElement("div");
         pending.className = "tl tl-out";
         pending.textContent = window.AnuRAG.waiting();

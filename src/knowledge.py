@@ -151,12 +151,7 @@ def chunks():
         "text": f"Contact, reach, email, hire. Email: {PERSON['email']}. GitHub: {PERSON['github']}. "
                 f"LinkedIn: {PERSON['linkedin']}. LeetCode: {PERSON['leetcode']}.",
     }
-    yield {
-        "id": "projects", "title": "All projects", "url": "#work",
-        "text": "List of all projects Anurag built. " + " ".join(
-            f"{c['label']} projects: " + ", ".join(PROJECTS[s]["title"] for s in c["projects"] + c.get("more", [])) + "."
-            for c in CATEGORIES.values()),
-    }
+    yield {"id": "projects", "title": "All projects", "url": "#work", "text": project_list()}
     yield {"id": "skills-used", "title": "Where each skill was used", "url": "#skills", "text": used_in()}
     yield from skill_chunks()
     for slug, p in PROJECTS.items():
@@ -172,6 +167,22 @@ def chunks():
                 "content with BM25, sends the best passages to Google Gemini, and checks the reply: every answer must "
                 "cite a passage and every number must appear in those passages, otherwise the answer is withheld.",
     }
+
+
+def project_list():
+    # Name and stack only, so a "list his projects" reply stays short; the project passages hold the detail.
+    # A project in two tabs is listed under the first, so the reply doesn't repeat it.
+    seen, groups, shared = set(), [], []
+    for c in CATEGORIES.values():
+        items = []
+        for s in c["projects"] + c.get("more", []):
+            if s in seen:
+                shared.append(f"{PROJECTS[s]['title']} also counts as {c['label']}")
+                continue
+            seen.add(s)
+            items.append(f"{PROJECTS[s]['title']} ({PROJECTS[s]['kicker'].replace(' · ', ', ')})")
+        groups.append(f"{c['label']} projects: " + "; ".join(items) + ".")
+    return "List of all projects Anurag built. " + " ".join(groups) + " " + "; ".join(shared) + "."
 
 
 def build():

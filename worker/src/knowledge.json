@@ -45,7 +45,7 @@
   "id": "projects",
   "title": "All projects",
   "url": "#work",
-  "text": "List of all projects Anurag built. Software projects: Showtime: Event Ticketing, Cloud-Native Platform, Distributed Job Scheduler, CDC Pipeline, Real-Time Event Streaming, Streaming Consumer Benchmark. Data projects: E-Commerce Analytics Warehouse, CDC Pipeline, Product Analytics & A/B Testing, Postgres Tuning on 38M Taxi Trips. AI / ML projects: Card Fraud Detection, Financial RAG QA, Product Analytics & A/B Testing."
+  "text": "List of all projects Anurag built. Software projects: Showtime: Event Ticketing (Java, Spring Boot, React); Cloud-Native Platform (Kubernetes, Terraform, Helm); Distributed Job Scheduler (Python, Distributed systems); CDC Pipeline (Kafka, Debezium, PostgreSQL); Real-Time Event Streaming (Python, WebSockets); Streaming Consumer Benchmark (Java 21, Python, Kafka). Data projects: E-Commerce Analytics Warehouse (dbt, Airflow, Power BI); Product Analytics & A/B Testing (BigQuery, dbt, Statistics); Postgres Tuning on 38M Taxi Trips (PostgreSQL, SQL, MySQL). AI / ML projects: Card Fraud Detection (LightGBM, MLflow, FastAPI); Financial RAG QA (RAG, pgvector, LangGraph). CDC Pipeline also counts as Data; Product Analytics & A/B Testing also counts as AI / ML."
  },
  {
   "id": "skills-used",

@@ -1128,7 +1128,8 @@ html:not(.js) .wtabs-bar { display: none; }
 .ask[hidden] { display: none; }
 /* The hero's idle frames are 64 px cells; these crop to his face at whole-number scales so pixels stay square. */
 .ask-face, .ask-hero { display: block; flex: none; background: url(../img/anurag-idle.png) no-repeat; image-rendering: pixelated; }
-.ask-face { width: 40px; height: 40px; background-size: 768px 128px; background-position: -44px -26px; }
+/* A 32 px square of the 384x64 sheet around his face (x 19.5-51.5, y 11-43), in % so it frames the same at any size. */
+.ask-face { width: 40px; height: 40px; border-radius: 50%; background-size: 1200% 200%; background-position: 5.54% 34.375%; }
 .ask-hero { width: 128px; height: 128px; background-size: 768px 128px; background-position: 0 0; }
 .ask-hero.thinking { animation: askIdle .75s steps(6) infinite; }
 @keyframes askIdle { to { background-position-x: -768px; } }
@@ -1155,10 +1156,9 @@ html:not(.js) .wtabs-bar { display: none; }
 .ask-form button { width: 44px; flex: none; border-radius: 10px; font-size: 18px; color: var(--on-cyan); background: var(--cyan); }
 .ask-form button:disabled { opacity: .5; }
 .ask-note { margin: 0; padding: 0 14px 12px; font-size: 11px; line-height: 1.4; color: var(--muted); }
-.dk-ask .ask-face { width: 40px; height: 40px; }
+.dk-ask .ask-face { width: 84%; height: 84%; background-color: var(--cyan-soft); }
 @media (max-width: 900px) {
   .ask { width: 100vw; height: 100dvh; bottom: auto; }
-  .dk-ask .ask-face { width: 34px; height: 34px; background-position: -47px -28px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ask-hero.thinking { animation: none; }
