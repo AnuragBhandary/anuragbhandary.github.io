@@ -363,7 +363,7 @@ test("tour questions get the fixed short tour with Fayble first and follow-up bu
   const fn = model("unused");
   const data = await (await handle(post({ question: "Give me the quick tour" }), ENV, fn)).json();
   assert.equal(fn.calls.length, 0);
-  assert.match(data.answer, /\n• Work: at Fayble Inc\./);
+  assert.match(data.answer, /\n• Work: a one-year founding-team internship at Fayble Inc\./);
   assert.ok(data.next.includes("Tell me about his work at Fayble"));
 });
 

@@ -151,16 +151,17 @@ def tour():
     """The "tour" passage, and the fixed short reply to "give me the quick tour" that the worker sends without a model."""
     stack = lambda s: ", ".join(PROJECTS[s]["kicker"].split(" · ")[:2])
     edu = EDUCATION[0]
-    lines = [f"• {name(s)} ({stack(s)}): {PROJECTS[s]['headline'][0]} {PROJECTS[s]['headline'][1]}" for s in featured()]
+    lines = [f"• {name(s)} ({stack(s)}): {PROJECTS[s].get('tour', PROJECTS[s]['oneliner'])}" for s in featured()]
     text = (f"Quick tour, overview, summary and introduction. {PERSON['full']} is a "
             f"{TRACKS['software']['role'].lower()} with an {edu['degree']} from {edu['school']}. At Fayble Inc. he "
             "built the audio side of an AI sports commentary system, automated archery match video production and "
             "replayed game data through Kafka. Featured projects: "
             + " ".join(f"{PROJECTS[s]['title']}: {PROJECTS[s]['oneliner']}" for s in featured()))
-    answer = (f"Anurag is a {TRACKS['software']['role'].lower()} with an {edu['degree']} from UT Arlington, working "
-              "across backend, data and AI / ML. The short version:\n\n"
-              "• Work: at Fayble Inc. he built the audio side of an AI sports commentary system, plus archery match "
-              "videos and a Kafka game-data replay\n" + "\n".join(lines) +
+    answer = (f"Anurag Bhandary has an {edu['degree']} from UT Arlington and builds backend, data and AI / ML "
+              "systems. The short version:\n\n"
+              "• Work: a one-year founding-team internship at Fayble Inc., an AI sports simulation startup. He built "
+              "the audio side of its AI sports commentary, where simulated games were turned into spoken "
+              "broadcast-style commentary.\n" + "\n".join(lines) +
               "\n\nPick one below to go deeper, or ask about anything else.")
     follow = ["Tell me about his work at Fayble", f"How does {name(featured()[0])} work?",
               "Which projects best show his skills?", "List all of Anurag's projects"]

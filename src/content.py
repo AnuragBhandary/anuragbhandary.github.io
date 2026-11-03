@@ -17,7 +17,7 @@ PERSON = {
 ASSISTANT = {
     "name": "AnuRAG",
     "endpoint": "https://anurag-chat.anuragbhandary.workers.dev/chat",
-    "greeting": "Hey, I'm AnuRAG, the pixel version of Anurag. I've read everything on this site, so go ahead and grill me.",
+    "greeting": "Hi there! I'm AnuRAG, Anurag's pixel stand-in. Short on time? Ask for the quick tour, or dig into any project.",
     "tagline": "no receipts, no answer",
     "suggestions": [
         "List all of Anurag's projects",
@@ -297,6 +297,7 @@ PROJECTS = {
         "oneliner": "100,000 real orders replayed as a live source into a dbt star schema that is tested "
                     "and reconciled to the cent on every run.",
         "headline": ("85 / 85", "dbt tests, every load"),
+        "tour": "a sales warehouse for an online store, built from 100,000 real orders. All 85 automated checks pass on every load and the totals match to the cent.",
         "repo": "https://github.com/AnuragBhandary/Ecommerce-Analytics-Warehouse",
         "stack": ["MySQL 8.4", "Python", "PostgreSQL 16", "dbt", "Airflow", "Power BI", "Excel", "Metabase", "Docker"],
         "metrics": [
@@ -412,6 +413,7 @@ PROJECTS = {
         "oneliner": "A BookMyShow-style ticketing app with live seat maps, where a seat is never sold twice "
                     "however many people go for it at once.",
         "headline": ("50 → 1", "buyers raced for one seat, exactly 1 got it"),
+        "tour": "a ticket-booking site with live seat maps. When 50 people grab the same seat at the same moment, exactly one gets it.",
         "repo": "https://github.com/AnuragBhandary/Event-Ticketing-Platform",
         "stack": ["Java 25", "Spring Boot 4", "PostgreSQL", "React", "TypeScript", "Server-Sent Events", "k6", "Playwright"],
         "metrics": [
@@ -465,6 +467,7 @@ PROJECTS = {
         "oneliner": "My job queue run the way production runs it: Kubernetes built by Terraform, autoscaled "
                     "on queue depth, with a node killed mid-run and nothing lost.",
         "headline": ("20,000 / 20,000", "jobs exactly once, node killed"),
+        "tour": "his job queue deployed on Kubernetes, with the infrastructure built by Terraform. A server was killed mid-run and all 20,000 jobs still ran exactly once.",
         "repo": "https://github.com/AnuragBhandary/Cloud-Native-Platform",
         "stack": ["Kubernetes", "Terraform", "Helm", "KEDA", "CloudNativePG", "PgBouncer", "Prometheus", "Grafana"],
         "metrics": [
@@ -518,6 +521,7 @@ PROJECTS = {
         "oneliner": "A fraud model on 590,000 real card transactions, built the way production needs it: "
                     "tested on the future, priced in dollars, explained per decision.",
         "headline": ("68%", "of fraud cost saved, test month"),
+        "tour": "a model that flags fraudulent card payments, trained on 590,000 real transactions. On a month it had never seen, it saved 68% of what fraud would have cost.",
         "repo": "https://github.com/AnuragBhandary/Fraud-Detection-MLOps",
         "stack": ["Python", "LightGBM", "scikit-learn", "Optuna", "MLflow", "FastAPI", "Polars", "SHAP"],
         "metrics": [
