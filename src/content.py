@@ -8,7 +8,7 @@ PERSON = {
     "email": "bhandaryanurag@gmail.com",
     "github": "https://github.com/AnuragBhandary",
     "linkedin": "https://www.linkedin.com/in/bhandary-anurag",
-    "leetcode": "https://leetcode.com/anuragb2901",
+    "leetcode": "https://leetcode.com/u/anuragb2901/",
     "location": "Mumbai, India",
     "site": "https://anuragbhandary.github.io",
 }

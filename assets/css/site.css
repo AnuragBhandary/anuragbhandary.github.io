@@ -1191,6 +1191,8 @@ html:not(.js) .wtabs-bar { display: none; }
 .ask-form button:disabled { opacity: .5; }
 .ask-note { margin: 0; padding: 0 14px 12px; font-size: 11px; line-height: 1.4; color: var(--muted); }
 .dk-ask .ask-face { width: 84%; height: 84%; background-color: var(--cyan-soft); }
+/* On a phone the dock is wider than the screen, and the corner hero already opens the chat. */
+@media (max-width: 480px) { .dk-ask, .dk-ask + .dk-sep { display: none; } .dock { gap: 3px; } }
 @media (max-width: 900px) {
   .ask { width: 100vw; height: 100dvh; bottom: auto; }
 }
@@ -1225,7 +1227,8 @@ html:not(.js) .wtabs-bar { display: none; }
 .ask-open .buddy, body:has(.appwin:not([hidden])) .buddy, body:has(.lb.open) .buddy { display: none; }
 /* Where the centred dock would reach his corner, he stands just above it. */
 @media (max-width: 1040px) { .buddy { bottom: 80px; } }
-@media (max-width: 760px) { .buddy { --s: 1.5; right: 4px; } }
+/* Smaller on a phone so he covers less of the text he stands over; whole pixels keep him sharp. */
+@media (max-width: 760px) { .buddy { --s: 1; right: 6px; } }
 @media (prefers-reduced-motion: reduce) {
   .buddy-sprite, .buddy.flip .buddy-sprite, .buddy.flip { animation: none; }
   .buddy.flip .buddy-sprite { background-position-y: 0; }

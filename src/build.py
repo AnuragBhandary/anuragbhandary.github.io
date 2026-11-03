@@ -117,6 +117,11 @@ def head(title, description, root, noindex, canonical):
 </head>"""
 
 
+def role_words(role):
+    """"AI/ML Engineer" reads "AI/ML engineer" mid-sentence: only ordinary words go lower case."""
+    return " ".join(w if any(c.isupper() for c in w[1:]) else w.lower() for w in role.split())
+
+
 def dock(home, on_home):
     pre = "" if on_home else home
     # data-home: on project pages site.js points these at the track page the visitor came from.
@@ -411,7 +416,7 @@ def home(track_key):
   <div class="win win-note" data-win="note">
     <div class="win-bar"><span class="win-dots"><button class="wd wd-close" aria-label="Close note"></button><i></i><i></i></span><span class="win-title">now.txt</span></div>
     <div class="win-body note">
-      <p><b>Now:</b> looking for {e(tr['role'].lower())} roles.</p>
+      <p><b>Now:</b> looking for {e(role_words(tr['role']))} roles.</p>
       <p>Based in Mumbai (IST). Open to relocating anywhere in the world.</p>
       <p class="note-game">Bored? Hit the <button type="button" data-open="game">controller</button> in the dock.</p>
       <a href="#work">see the work ↓</a>
@@ -422,7 +427,7 @@ def home(track_key):
     <div class="win-bar"><span class="win-dots"><button class="wd wd-close" aria-label="Close photo"></button><i></i><i></i></span><span class="win-title">me.jpg</span></div>
     <div class="win-body photo" id="photoCard">
       <div class="photo-tilt">
-        <img src="{root}assets/img/me.jpg" alt="Photo of {e(PERSON['full'])} at the Golden Gate Bridge" width="1000" height="1000">
+        <img src="{root}assets/img/me.jpg" alt="Photo of {e(PERSON['full'])} at the Golden Gate Bridge" width="700" height="700">
         <img class="ph-g ph-a" src="{root}assets/img/me.jpg" alt="" aria-hidden="true">
         <img class="ph-g ph-b" src="{root}assets/img/me.jpg" alt="" aria-hidden="true">
         <span class="photo-shine" aria-hidden="true"></span>

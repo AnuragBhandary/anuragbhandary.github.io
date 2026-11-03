@@ -49,7 +49,9 @@
         { duration: 700, easing: "cubic-bezier(.2,.7,.1,1)", pseudoElement: "::view-transition-new(root)" }
       );
     }).catch(function () {});
-    vt.finished.finally(function () { doc.classList.remove("theming"); });
+    // A skipped transition rejects "finished"; the theme has still changed, so only the class needs clearing.
+    var settle = function () { doc.classList.remove("theming"); };
+    vt.finished.then(settle, settle);
   });
 
   /* ---------------------------------------------------------------- clock */
