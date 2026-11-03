@@ -26,7 +26,7 @@
     return fetch(CFG.chat, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: question, previous: previous })
+      body: JSON.stringify({ question: question, previous: previous, page: CFG.project || "" })
     }).then(function (r) {
       return r.json();
     }).then(function (data) {

@@ -25,6 +25,13 @@ ASSISTANT = {
         "What did he do at Fayble?",
         "Are you actually AI?",
     ],
+    # On a project page the chat knows which project is open, so these can stay vague.
+    "page_suggestions": [
+        "What does this project do?",
+        "What were the results?",
+        "Why did he build it?",
+        "List all of Anurag's projects",
+    ],
     # Fixed lines, never generated: these show when something has already gone wrong.
     "lines": {
         "waiting": ["Flipping through his work…", "Digging through the projects…", "One sec, checking my notes…", "Looking that up…"],

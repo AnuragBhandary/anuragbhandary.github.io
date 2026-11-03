@@ -4,11 +4,11 @@ import { existsSync, readFileSync } from "node:fs";
 import knowledge from "../src/knowledge.json" with { type: "json" };
 import { buildIndex, search } from "../src/retrieve.js";
 import { check } from "../src/guard.js";
-import { handle } from "../src/index.js";
+import { handle, asksForProjectList } from "../src/index.js";
 
 const index = buildIndex(knowledge);
 const ORIGIN = "https://anuragbhandary.github.io";
-const ENV = { ALLOWED_ORIGINS: ORIGIN, GEMINI_BASE: "https://gemini.test", GEMINI_MODELS: "lite,flash", GEMINI_API_KEY: "test-key" };
+const ENV = { ALLOWED_ORIGINS: ORIGIN, GEMINI_BASE: "https://gemini.test", MODELS: "lite,flash", GEMINI_API_KEY: "test-key" };
 
 function post(body, origin = ORIGIN) {
   return new Request("https://w.test/chat", {
@@ -137,6 +137,15 @@ test("guard accepts one marker holding several passages", () => {
 test("guard removes markdown that would show literally", () => {
   const v = check("It was **7.1 ms** using `SKIP LOCKED` [1].", [{ title: "A", text: "p95 was 7.1 ms." }]);
   assert.equal(v.answer, "It was 7.1 ms using SKIP LOCKED.");
+});
+
+test("one invented number drops only its sentence; mostly invented withholds the answer", () => {
+  const passages = [{ title: "A", text: "p95 was 7.1 ms." }, { title: "B", text: "It held 20,000 connections." }];
+  const v = check("It was 7.1 ms [1]. It saved $370k [2]. It held 20,000 connections [2].", passages);
+  assert.equal(v.answer, "It was 7.1 ms. It held 20,000 connections.");
+  assert.deepEqual(v.cited.sort(), [1, 2]);
+  assert.equal(check("It was 7.1 ms [1]. It saved $370k [2]. It ran 9 jobs [1].", passages).reason, "unsupported_number");
+  assert.equal(check("It saved $370k [2]. It was 7.1 ms [1]. It held 20,000 connections [2].", passages).answer, "It was 7.1 ms. It held 20,000 connections.");
 });
 
 test("guard keeps a list on its own lines and turns dashes into bullets", () => {
@@ -279,4 +288,67 @@ test("a follow-up question retrieves using the question before it", async () => 
   const fn = model("NOT_IN_CONTEXT");
   await handle(post({ question: "and the tests?", previous: "Tell me about Showtime" }), ENV, fn);
   assert.match(fn.calls[0].body.contents[0].parts[0].text, /Showtime/);
+});
+
+test("a plain 'list his projects' gets the fixed grouped list; a specific question goes to the model", async () => {
+  for (const q of ["List all of Anurag's projects", "what projects has he built?", "Show me his projects", "projects", "Tell me about his projects"]) {
+    assert.ok(asksForProjectList(q), q);
+  }
+  for (const q of ["Tell me about the card fraud project", "Which projects use Kafka?", "Which projects best show his skills?", "What data projects does he have?"]) {
+    assert.ok(!asksForProjectList(q), q);
+  }
+  const fn = model("unused");
+  const data = await (await handle(post({ question: "List all of Anurag's projects" }), ENV, fn)).json();
+  assert.equal(fn.calls.length, 0);
+  assert.equal(data.kind, "answer");
+  assert.match(data.answer, /Software:\n• Showtime: Event Ticketing — Java/);
+  assert.match(data.answer, /AI \/ ML:\n/);
+});
+
+test("the open project page reaches the model and leads retrieval; unknown pages are ignored", async () => {
+  const fn = model("It saved 68% of fraud cost [1].");
+  await handle(post({ question: "What were the results?", page: "fraud-detection" }), ENV, fn);
+  const sent = fn.calls[0].body.contents[0].parts[0].text;
+  assert.match(sent, /<open_page>Card Fraud Detection<\/open_page>/);
+  assert.match(sent, /^Passages:\n\[1\] Card Fraud Detection/);
+  const other = model("It saved 68% of fraud cost [1].");
+  await handle(post({ question: "What were the results?", page: "<script>" }), ENV, other);
+  assert.doesNotMatch(other.calls[0].body.contents[0].parts[0].text, /open_page/);
+});
+
+test("gemini 3 models get a thinking level, 2.5 models a zero budget, and thought parts are dropped", async () => {
+  const calls = [];
+  const fn = async (url, init) => {
+    calls.push({ url, body: JSON.parse(init.body) });
+    const parts = [{ text: "Working it out", thought: true }, { text: "It used LightGBM [1]." }];
+    return new Response(JSON.stringify({ candidates: [{ content: { parts } }] }), { status: url.includes("3.5") ? 429 : 200 });
+  };
+  const env = { ...ENV, MODELS: "gemini-3.5-flash-lite,gemini-2.5-flash" };
+  const data = await (await handle(post({ question: "What model did the fraud project use?" }), env, fn)).json();
+  assert.deepEqual(calls[0].body.generationConfig.thinkingConfig, { thinkingLevel: "minimal" });
+  assert.deepEqual(calls[1].body.generationConfig.thinkingConfig, { thinkingBudget: 0 });
+  assert.equal(data.answer, "It used LightGBM.");
+});
+
+test("a groq/ model goes to Groq in the OpenAI chat format, after a Gemini model that's out of quota", async () => {
+  const calls = [];
+  const fn = async (url, init) => {
+    calls.push({ url, body: JSON.parse(init.body), headers: init.headers });
+    if (url.startsWith("https://gemini.test")) return new Response("{}", { status: 429 });
+    return new Response(JSON.stringify({ choices: [{ message: { content: "It used LightGBM [1]." } }] }), { status: 200 });
+  };
+  const env = { ...ENV, GROQ_BASE: "https://groq.test", GROQ_API_KEY: "gsk_test", MODELS: "lite,groq/openai/gpt-oss-120b" };
+  const data = await (await handle(post({ question: "What model did the fraud project use?" }), env, fn)).json();
+  assert.equal(calls[1].url, "https://groq.test/openai/v1/chat/completions");
+  assert.equal(calls[1].headers.Authorization, "Bearer gsk_test");
+  assert.equal(calls[1].body.model, "openai/gpt-oss-120b");
+  assert.equal(calls[1].body.reasoning_effort, "low");
+  assert.equal(calls[1].body.messages[0].role, "system");
+  assert.equal(data.answer, "It used LightGBM.");
+});
+
+test("guard evens out gpt-oss spacing and fixes a misspelled name", () => {
+  const passages = [{ title: "Fraud", text: "It had 3.5% fraud and used e-commerce data." }];
+  const v = check("Anuraj used e\u2011commerce data with 3.5\u202f% fraud\u202f[1]. Anurak built it [1].", passages);
+  assert.equal(v.answer, "Anurag used e-commerce data with 3.5 % fraud. Anurag built it.");
 });

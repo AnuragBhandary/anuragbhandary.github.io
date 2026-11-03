@@ -156,9 +156,12 @@ def footer():
 </footer>"""
 
 
-def ask_panel():
+def ask_panel(slug=None):
     name = e(ASSISTANT["name"])
-    chips = "".join(f'<button type="button" class="ask-chip">{e(q)}</button>' for q in ASSISTANT["suggestions"])
+    asks = ASSISTANT["page_suggestions"] if slug else ASSISTANT["suggestions"]
+    chips = "".join(f'<button type="button" class="ask-chip">{e(q)}</button>' for q in asks)
+    # Like an editor's open file: questions here are about this project unless they name another.
+    context = f'<p class="ask-ctx">Reading <b>{e(PROJECTS[slug]["title"])}</b> with you</p>' if slug else ""
     return f"""<section class="ask" id="askPanel" role="dialog" aria-label="Chat with {name}" hidden>
   <header class="ask-bar"><span class="ask-face" aria-hidden="true"></span><b>{name}</b><span>{e(ASSISTANT["tagline"])}</span>
     <button type="button" class="ask-close" id="askClose" aria-label="Close chat">×</button></header>
@@ -167,7 +170,7 @@ def ask_panel():
       <p class="ask-msg bot">{e(ASSISTANT["greeting"])}</p></div>
     <div class="ask-chips" id="askChips">{chips}</div>
   </div>
-  <form class="ask-form" id="askForm">
+  {context}<form class="ask-form" id="askForm">
     <input id="askInput" type="text" maxlength="500" autocomplete="off" placeholder="Ask a question" aria-label="Your question">
     <button type="submit" aria-label="Send">↑</button>
   </form>
@@ -176,12 +179,12 @@ def ask_panel():
 <script src="{{root}}assets/js/anurag.js?v={ASSET_VERSION}" defer></script>"""
 
 
-def scripts(root, page, track_key):
-    cfg = {"page": page, "track": track_key, "email": PERSON["email"], "root": root,
+def scripts(root, page, track_key, slug=None):
+    cfg = {"page": page, "project": slug, "track": track_key, "email": PERSON["email"], "root": root,
            "projects": len(PROJECTS), "role": TRACKS[track_key]["role"].lower() if track_key else "", "chat": CHAT_URL,
            "chatLines": ASSISTANT["lines"] if CHAT_URL else {}}
     return f"""<div class="scan" aria-hidden="true"></div>
-{ask_panel().replace("{root}", root) if CHAT_URL else ""}
+{ask_panel(slug).replace("{root}", root) if CHAT_URL else ""}
 {GLASS_FILTER}
 <script>window.ANB={json.dumps(cfg)};</script>
 {f'<script src="{root}assets/js/game.js?v={ASSET_VERSION}" defer></script>' if page == "home" else ""}
@@ -634,7 +637,7 @@ def project(slug):
 </main>
 {footer()}
 {dock(home_url, False)}
-""" + scripts(root, "project", track_key)
+""" + scripts(root, "project", track_key, slug)
     out = ROOT / "work" / slug / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page)

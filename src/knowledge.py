@@ -151,7 +151,8 @@ def chunks():
         "text": f"Contact, reach, email, hire. Email: {PERSON['email']}. GitHub: {PERSON['github']}. "
                 f"LinkedIn: {PERSON['linkedin']}. LeetCode: {PERSON['leetcode']}.",
     }
-    yield {"id": "projects", "title": "All projects", "url": "#work", "text": project_list()}
+    text, answer = project_list()
+    yield {"id": "projects", "title": "All projects", "url": "#work", "text": text, "answer": answer}
     yield {"id": "skills-used", "title": "Where each skill was used", "url": "#skills", "text": used_in()}
     yield from skill_chunks()
     for slug, p in PROJECTS.items():
@@ -165,24 +166,35 @@ def chunks():
                 "It is a retrieval-augmented generation (RAG) assistant named after Anurag. "
                 "The site is static on GitHub Pages, so a small Cloudflare Worker holds the API key. It ranks the site's "
                 "content with BM25, sends the best passages to Google Gemini, and checks the reply: every answer must "
-                "cite a passage and every number must appear in those passages, otherwise the answer is withheld.",
+                "cite a passage and every number must appear in the passage it cites. A sentence that fails is dropped, and an answer that mostly fails is withheld.",
     }
 
 
 def project_list():
-    # Name and stack only, so a "list his projects" reply stays short; the project passages hold the detail.
-    # A project in two tabs is listed under the first, so the reply doesn't repeat it.
-    seen, groups, shared = set(), [], []
+    """The "projects" passage, and the fixed reply to "list his projects" that the worker sends without a model."""
+    # A project in two tabs sits under the first; the later tab only points back to it.
+    stack = lambda s: PROJECTS[s]["kicker"].replace(" · ", ", ")
+    seen, passage, reply = set(), [], []
     for c in CATEGORIES.values():
-        items = []
+        lines, items = [], []
         for s in c["projects"] + c.get("more", []):
+            p = PROJECTS[s]
             if s in seen:
-                shared.append(f"{PROJECTS[s]['title']} also counts as {c['label']}")
+                lines.append(f"• {p['title']} (also under {next(o['label'] for o in CATEGORIES.values() if s in o['projects'] + o.get('more', []))})")
+                items.append(f"{p['title']} also counts as {c['label']}")
                 continue
             seen.add(s)
-            items.append(f"{PROJECTS[s]['title']} ({PROJECTS[s]['kicker'].replace(' · ', ', ')})")
-        groups.append(f"{c['label']} projects: " + "; ".join(items) + ".")
-    return "List of all projects Anurag built. " + " ".join(groups) + " " + "; ".join(shared) + "."
+            lines.append(f"• {p['title']} — {stack(s)}")
+            more = " (a smaller project, not featured)" if s in c.get("more", []) else ""
+            items.append(f"{p['title']}{more} ({stack(s)}; headline result: {p['headline'][0]} {p['headline'][1]})")
+        reply.append(f"{c['label']}:\n" + "\n".join(lines))
+        passage.append(f"{c['label']} projects: " + "; ".join(items) + ".")
+    text = ("List of all projects Anurag built, with each one's stack and headline result. The site leads with the "
+            "featured projects to show his skills; the ones marked smaller are listed below them. " + " ".join(passage))
+    answer = (f"Anurag has built {len(seen)} projects across software, data and AI / ML. Here they are by area, "
+              "with the main skills each one uses:\n\n" + "\n\n".join(reply) +
+              "\n\nAsk about any of them for the details, or which ones best show his skills.")
+    return text, answer
 
 
 def build():
