@@ -50,12 +50,36 @@
   var send = form.querySelector("button");
   var chips = document.getElementById("askChips");
   var hero = panel.querySelector(".ask-hero");
+  var buddy = document.getElementById("askBuddy");
+  var opener = toggle;
   var busy = false;
 
-  function setOpen(open) {
+  function setOpen(open, from) {
+    if (open) opener = from || toggle;
     panel.hidden = !open;
+    document.documentElement.classList.toggle("ask-open", open);
     toggle.setAttribute("aria-expanded", String(open));
-    if (open) input.focus(); else toggle.focus();
+    if (buddy) buddy.setAttribute("aria-expanded", String(open));
+    if (open) input.focus(); else opener.focus();
+  }
+
+  // The corner hero: a flip on hover and now and then, and one hello per visit.
+  if (buddy) {
+    var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var flip = function () {
+      if (still || buddy.classList.contains("flip")) return;
+      buddy.classList.add("flip");
+      setTimeout(function () { buddy.classList.remove("flip"); }, 650);
+    };
+    buddy.addEventListener("click", function () { setOpen(true, buddy); });
+    buddy.addEventListener("mouseenter", flip);
+    setInterval(function () { if (!document.hidden && panel.hidden && Math.random() < 0.5) flip(); }, 12000);
+    var greeted = false;
+    try { greeted = sessionStorage.getItem("anb-buddy") === "1"; sessionStorage.setItem("anb-buddy", "1"); } catch (_) {}
+    if (!greeted) {
+      setTimeout(function () { flip(); buddy.classList.add("say"); }, 4000);
+      setTimeout(function () { buddy.classList.remove("say"); }, 10000);
+    }
   }
 
   function add(text, cls) {
@@ -148,7 +172,7 @@
     });
   }
 
-  toggle.addEventListener("click", function () { setOpen(panel.hidden); });
+  toggle.addEventListener("click", function () { setOpen(panel.hidden, toggle); });
   document.getElementById("askClose").addEventListener("click", function () { setOpen(false); });
   panel.addEventListener("keydown", function (e) { if (e.key === "Escape") setOpen(false); });
   form.addEventListener("submit", function (e) {

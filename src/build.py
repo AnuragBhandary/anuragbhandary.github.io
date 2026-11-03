@@ -162,7 +162,12 @@ def ask_panel(slug=None):
     chips = "".join(f'<button type="button" class="ask-chip">{e(q)}</button>' for q in asks)
     # Like an editor's open file: questions here are about this project unless they name another.
     context = f'<p class="ask-ctx">Reading <b>{e(PROJECTS[slug]["title"])}</b> with you</p>' if slug else ""
-    return f"""<section class="ask" id="askPanel" role="dialog" aria-label="Chat with {name}" hidden>
+    # The Dev Run hero standing in the corner: a second way into the chat, hidden while it is open.
+    buddy = (f'<button type="button" class="buddy" id="askBuddy" aria-label="Chat with {name}" aria-expanded="false" '
+             f'aria-controls="askPanel"><span class="buddy-tip">{e(ASSISTANT["buddy"])}</span>'
+             '<span class="buddy-sprite" aria-hidden="true"></span></button>')
+    return f"""{buddy}
+<section class="ask" id="askPanel" role="dialog" aria-label="Chat with {name}" hidden>
   <header class="ask-bar"><span class="ask-face" aria-hidden="true"></span><b>{name}</b><span>{e(ASSISTANT["tagline"])}</span>
     <button type="button" class="ask-close" id="askClose" aria-label="Close chat">×</button></header>
   <div class="ask-log" id="askLog" aria-live="polite">

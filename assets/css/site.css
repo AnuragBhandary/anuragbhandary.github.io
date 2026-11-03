@@ -1172,6 +1172,42 @@ html:not(.js) .wtabs-bar { display: none; }
 @media (max-width: 900px) {
   .ask { width: 100vw; height: 100dvh; bottom: auto; }
 }
+
+/* The Dev Run hero in the corner. Cells of the 512x1024 player sheet are 64 px, drawn at --s for square pixels. */
+.buddy {
+  --s: 2; position: fixed; right: 12px; bottom: 6px; z-index: 600;
+  width: calc(64px * var(--s)); height: calc(64px * var(--s)); padding: 0;
+  border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.buddy-sprite {
+  display: block; width: 100%; height: 100%; transform: scaleX(-1);
+  background: url(../sprites/player/player-sheet.png) no-repeat;
+  background-size: calc(512px * var(--s)) calc(1024px * var(--s));
+  image-rendering: pixelated; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .35));
+  animation: buddyIdle .9s steps(6) infinite;
+}
+.buddy.flip .buddy-sprite { background-position-y: calc(-256px * var(--s)); animation: buddyFlip .6s steps(6) both; }
+.buddy.flip { animation: buddyHop .6s var(--ease) both; }
+@keyframes buddyIdle { from { background-position-x: 0; } to { background-position-x: calc(-384px * var(--s)); } }
+@keyframes buddyFlip { from { background-position-x: 0; } to { background-position-x: calc(-384px * var(--s)); } }
+@keyframes buddyHop { 40% { transform: translateY(-22px); } }
+.buddy-tip {
+  position: absolute; right: calc(36px * var(--s)); bottom: calc(46px * var(--s)); padding: 7px 11px;
+  white-space: nowrap; font: 500 12px var(--f-mono); color: var(--text);
+  background: var(--panel); border: 1px solid color-mix(in srgb, var(--cyan) 50%, var(--line2)); border-radius: 12px 12px 2px 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .3); opacity: 0; transform: translateY(6px); transition: opacity .2s, transform .2s; pointer-events: none;
+}
+.buddy:hover .buddy-tip, .buddy:focus-visible .buddy-tip, .buddy.say .buddy-tip { opacity: 1; transform: none; }
+.buddy:focus-visible { outline: 2px solid var(--cyan-ink); outline-offset: -8px; border-radius: 16px; }
+.ask-open .buddy, body:has(.appwin:not([hidden])) .buddy, body:has(.lb.open) .buddy { display: none; }
+/* Where the centred dock would reach his corner, he stands just above it. */
+@media (max-width: 1040px) { .buddy { bottom: 80px; } }
+@media (max-width: 760px) { .buddy { --s: 1.5; right: 4px; } }
+@media (prefers-reduced-motion: reduce) {
+  .buddy-sprite, .buddy.flip .buddy-sprite, .buddy.flip { animation: none; }
+  .buddy.flip .buddy-sprite { background-position-y: 0; }
+  .buddy-tip { transition: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .ask-hero.thinking { animation: none; }
 }

@@ -19,6 +19,7 @@ ASSISTANT = {
     "endpoint": "https://anurag-chat.anuragbhandary.workers.dev/chat",
     "greeting": "Hi there! I'm AnuRAG, Anurag's pixel stand-in. Short on time? Ask for the quick tour, or dig into any project.",
     "tagline": "no receipts, no answer",
+    "buddy": "Ask me about Anurag",
     "suggestions": [
         "List all of Anurag's projects",
         "Give me the quick tour",
