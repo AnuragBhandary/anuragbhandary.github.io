@@ -13,9 +13,11 @@ const index = buildIndex(knowledge);
 
 const GREETING = /^(hi|hii+|hello|hey|yo|namaste|good (morning|afternoon|evening))[\s!.]*$/i;
 
-// "List his projects" gets the same grouped list every time, without spending quota. Anything left after these
-// words ("which projects use Kafka", "the card fraud project") is a real question and goes to the model.
+// "List his projects" and "give me the tour" get the same short answer every time, without spending quota.
+// Anything left after these words ("which projects use Kafka", "the card fraud project") is a real question
+// and goes to the model.
 const PROJECT_LIST = knowledge.find((c) => c.id === "projects");
+const TOUR = knowledge.find((c) => c.id === "tour");
 // Project slug -> its overview passage, for the page the visitor has open.
 const PAGES = new Map(knowledge.filter((c) => c.id.endsWith("-overview") && c.url.startsWith("work/"))
   .map((c) => [c.id.slice(0, -"-overview".length), c]));
@@ -23,26 +25,63 @@ const LIST_WORDS = new Set(("list all of anurag anurag's anurags his he has have
   + "which show me tell about give a an the please can could you your built build made make done work works on "
   + "every each complete full projects project portfolio so far there").split(" "));
 
+const TOUR_WORDS = new Set(("tour overview summary summarise summarize intro introduction introduce quick short brief "
+  + "give me a an the of his anurag anurag's anurags him himself he is who what about tell please can could you "
+  + "your work and so").split(" "));
+const TOUR_KEYS = /^(tour|overview|summary|summari[sz]e|intro|introduction|introduce|who)$/;
+
+function words(question) {
+  return question.toLowerCase().replace(/[^a-z' ]/g, " ").split(/\s+/).filter(Boolean);
+}
+
 export function asksForProjectList(question) {
-  const words = question.toLowerCase().replace(/[^a-z' ]/g, " ").split(/\s+/).filter(Boolean);
-  return words.some((w) => w.startsWith("project")) && words.every((w) => LIST_WORDS.has(w));
+  const w = words(question);
+  return w.some((x) => x.startsWith("project")) && w.every((x) => LIST_WORDS.has(x));
+}
+
+// "Quick tour", "give me an overview", "who is Anurag?", "tell me about him".
+export function asksForTour(question) {
+  const w = words(question);
+  if (!w.length || !w.every((x) => TOUR_WORDS.has(x))) return false;
+  return w.some((x) => TOUR_KEYS.test(x)) || (w.includes("about") && w.some((x) => /^(anurag|him|himself)$/.test(x)));
+}
+
+// Up to three buttons under an answer, from the first passage that offers some, minus the question just asked.
+export function followUps(chunks, question) {
+  const asked = question.trim().toLowerCase().replace(/[?.!]+$/, "");
+  const offer = chunks.find((c) => c.follow)?.follow || [];
+  // "What were the results?" already asked makes "What were the results of X?" a repeat.
+  return offer.filter((q) => {
+    const f = q.toLowerCase().replace(/[?.!]+$/, "");
+    return !f.startsWith(asked) && !asked.startsWith(f);
+  }).slice(0, 3);
 }
 
 const SYSTEM = `You are AnuRAG, the assistant on Anurag Bhandary's portfolio website.
 Answer questions about Anurag using ONLY the numbered passages you are given.
-- Refer to him as "Anurag", in the third person. Use plain prose: under 60 words for a simple fact, up to 180 words
-  when the question asks how or why something works, explaining the mechanism and the reasoning from the passages.
-- End every sentence with the passage number it came from, like [2].
-- Write plain text with no markdown. Put each citation as its own marker, like [1][2].
+- Refer to him as "Anurag", in the third person.
+- Match the depth to the question. A broad question (an overview, a few projects, his experience or skills in
+  general, what he does) gets a short map: one opening sentence and at most five bullets of one line each, with at
+  most one number per bullet, so the visitor can pick what to ask about next. A specific question gets a full
+  answer: under 60 words for a simple fact, up to 180 words when it asks how or why something works, explaining the
+  mechanism and the reasoning from the passages.
+- Whenever an answer holds three or more separate facts, write one short opening sentence, then each fact on its
+  own line starting with "- ". For a how or why question, open with two or three sentences, then bullets for the
+  steps or results. Never pack three or more facts into one paragraph.
+- When a broad question is about his work, experience or skills and a passage covers Fayble, include his Fayble work.
+- End every sentence and every bullet with the passage number it came from, like [2].
+- Write plain text with no other markdown. Put each citation as its own marker, like [1][2].
 - When the answer is a list (projects, skills, tools), write one short opening sentence, then each item on its own
   line starting with "- ", as the item's name and a few words from the passage, ending with its marker.
   If the passages group the items (like Software, Data, AI / ML), put each group's name on its own line, followed by
   a colon. Name each item once.
 - When asked which projects stand out or best show his skills, don't list them all: pick three or four featured
-  projects from different areas. Give each a bullet with its name, the skill it shows and its headline result,
+  projects from different areas, and his Fayble work first if a passage covers it. Give each a bullet with its
+  name, the skill it shows and its headline result,
   then one plain closing sentence naming the skills they cover together, with no praise words like robust,
   advanced or complex.
-- Copy numbers exactly from the passages. Never estimate, convert or add up numbers.
+- Copy numbers exactly from the passages, with their symbols (%, →, /, ×) as written. Never estimate, convert or
+  add up numbers.
 - Say what he built and measured. Never call him an expert or say he has expertise, mastery or proficiency.
 - Never infer skills, years of experience, employers, pay, personal details or opinions the passages don't state.
 - If the passages don't answer the question, reply with exactly ${NOT_FOUND} and nothing else.
@@ -223,8 +262,10 @@ export async function handle(request, env, fetchFn = fetch) {
   const { question, previous, page } = input;
 
   if (GREETING.test(question)) return json({ kind: "hello", sources: [] }, 200, origin);
-  if (asksForProjectList(question)) {
-    return json({ kind: "answer", answer: PROJECT_LIST.answer, sources: sources([PROJECT_LIST]) }, 200, origin);
+  for (const [asks, chunk] of [[asksForProjectList, PROJECT_LIST], [asksForTour, TOUR]]) {
+    if (asks(question)) {
+      return json({ kind: "answer", answer: chunk.answer, sources: sources([chunk]), next: followUps([chunk], question) }, 200, origin);
+    }
   }
 
   // Nothing retrieved means nothing to say, so don't spend quota on the model.
@@ -241,7 +282,8 @@ export async function handle(request, env, fetchFn = fetch) {
       console.log(JSON.stringify({ event: "withheld", reason: verdict.reason, draft: (reply.text || "").slice(0, 1500) }));
       return json({ kind: "not_found", sources: [] }, 200, origin);
     }
-    return json({ kind: "answer", answer: verdict.answer, sources: sources(verdict.cited.map((n) => passages[n - 1])) }, 200, origin);
+    const used = verdict.cited.map((n) => passages[n - 1]);
+    return json({ kind: "answer", answer: verdict.answer, sources: sources(used), next: followUps(used, question) }, 200, origin);
   } catch (err) {
     console.log(JSON.stringify({ event: "error", message: String(err) }));
     return json({ kind: "error", sources: [] }, 200, origin);

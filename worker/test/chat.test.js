@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import knowledge from "../src/knowledge.json" with { type: "json" };
 import { buildIndex, search } from "../src/retrieve.js";
 import { check } from "../src/guard.js";
-import { handle, asksForProjectList } from "../src/index.js";
+import { handle, asksForProjectList, asksForTour, followUps } from "../src/index.js";
 
 const index = buildIndex(knowledge);
 const ORIGIN = "https://anuragbhandary.github.io";
@@ -351,4 +351,32 @@ test("guard evens out gpt-oss spacing and fixes a misspelled name", () => {
   const passages = [{ title: "Fraud", text: "It had 3.5% fraud and used e-commerce data." }];
   const v = check("Anuraj used e\u2011commerce data with 3.5\u202f% fraud\u202f[1]. Anurak built it [1].", passages);
   assert.equal(v.answer, "Anurag used e-commerce data with 3.5 % fraud. Anurag built it.");
+});
+
+test("tour questions get the fixed short tour with Fayble first and follow-up buttons", async () => {
+  for (const q of ["Give me the quick tour", "Who is Anurag?", "Tell me about him", "give me an overview of his work"]) {
+    assert.ok(asksForTour(q), q);
+  }
+  for (const q of ["Tell me about the card fraud project", "What did he do at Fayble?", "Who did he work for?"]) {
+    assert.ok(!asksForTour(q), q);
+  }
+  const fn = model("unused");
+  const data = await (await handle(post({ question: "Give me the quick tour" }), ENV, fn)).json();
+  assert.equal(fn.calls.length, 0);
+  assert.match(data.answer, /\n• Work: at Fayble Inc\./);
+  assert.ok(data.next.includes("Tell me about his work at Fayble"));
+});
+
+test("follow-ups come from the first cited passage that has some, minus the question just asked", () => {
+  const chunks = [{ id: "a" }, { id: "b", follow: ["How does Showtime work?", "Why did he build Showtime?"] }];
+  assert.deepEqual(followUps(chunks, "how does showtime work"), ["Why did he build Showtime?"]);
+  assert.deepEqual(followUps([{ id: "a" }], "anything"), []);
+  assert.deepEqual(followUps([{ follow: ["What were the results of X?", "How does X work?"] }], "What were the results?"),
+    ["How does X work?"]);
+});
+
+test("every Fayble passage stays clear of claims he can't back", () => {
+  const fayble = knowledge.filter((c) => c.id.startsWith("fayble-")).map((c) => c.text).join(" ");
+  assert.ok(fayble.length > 2000);
+  assert.doesNotMatch(fayble, /\b(10x|3x|threefold|benchmark\w*|real-time|wager\w*|equity|unpaid)\b/i);
 });

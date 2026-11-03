@@ -1,6 +1,7 @@
 """Builds what AnuRAG may know: worker/src/knowledge.json, generated only from content.py.
 
-Everything here is already public on the site. If a fact isn't in content.py, the bot can't say it.
+Everything here is public on the site, except FAYBLE_DETAIL, which content.py keeps for the chat only.
+If a fact isn't in content.py, the bot can't say it.
 Run through build.py, or on its own with `python3 src/knowledge.py`.
 """
 
@@ -8,7 +9,7 @@ import json
 import re
 from pathlib import Path
 
-from content import CATEGORIES, EDUCATION, PERSON, PROJECTS, ROLES, SKILLS, TESTIMONIAL, TRACKS, USED_EXTRA
+from content import CATEGORIES, EDUCATION, FAYBLE_DETAIL, PERSON, PROJECTS, ROLES, SKILLS, TESTIMONIAL, TRACKS, USED_EXTRA
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "worker" / "src" / "knowledge.json"
@@ -37,17 +38,41 @@ def pairs(rows):
     return " ".join(f"{a}: {b}." for a, b in rows)
 
 
+def name(slug):
+    # "Showtime: Event Ticketing" reads as just "Showtime" inside a question.
+    return PROJECTS[slug]["title"].split(":")[0]
+
+
+# Questions offered as buttons under an answer, so a visitor can go one level deeper without typing.
+FAYBLE_ASKS = {
+    "fayble-commentary": "How did the Fayble commentary pipeline work?",
+    "fayble-voices": "How did he design the commentator voices?",
+    "fayble-archery": "What did he build for archery videos?",
+    "fayble-kafka": "How did he use Kafka at Fayble?",
+    "fayble-teamwork": "How did he work with the Fayble team?",
+}
+
+
+def project_asks(slug):
+    n = name(slug)
+    return [f"How does {n} work?", f"What were the results of {n}?", f"Why did he build {n}?"]
+
+
+def fayble_asks(skip=""):
+    return [q for k, q in FAYBLE_ASKS.items() if k != skip][:3]
+
+
 def project_chunks(slug, p):
     url = f"work/{slug}/"
     yield {
-        "id": f"{slug}-overview", "title": p["title"], "url": url,
+        "id": f"{slug}-overview", "title": p["title"], "url": url, "follow": project_asks(slug),
         "text": " ".join([p["kicker"] + ".", p["oneliner"], *p["why"], *p["problem"], p["flow_note"],
                           "Stack: " + ", ".join(p["stack"]) + ".", "Code: " + p["repo"]]),
     }
     if p["guarantees"]:
         yield {"id": f"{slug}-design", "title": f"{p['title']}: design and guarantees", "url": url,
-               "text": pairs(p["guarantees"])}
-    yield {"id": f"{slug}-results", "title": f"{p['title']}: measured results", "url": url,
+               "follow": project_asks(slug), "text": pairs(p["guarantees"])}
+    yield {"id": f"{slug}-results", "title": f"{p['title']}: measured results", "url": url, "follow": project_asks(slug),
            "text": " ".join(f"{b}: {a}." for a, b in p["metrics"]) + " " + pairs(p["results"])}
 
 
@@ -60,6 +85,8 @@ def skill_chunks():
             if card.get("note"):
                 lines.append(card["note"])
         yield {"id": f"skills-{key}", "title": f"Skills ({CATEGORIES[key]['label']})", "url": "#skills",
+               "follow": ["Which projects best show his skills?", "Tell me about his work at Fayble",
+                          "List all of Anurag's projects"],
                "text": " ".join(lines)}
 
 
@@ -110,19 +137,41 @@ def doc_chunks(slug, repo, path):
             for body in sized(piece.strip()):
                 n += 1
                 yield {"id": f"{slug}-doc-{name}-{n}", "title": f"{project} {name}: {heading}".rstrip(": "),
-                       "url": f"{GITHUB}/{repo}/blob/main/{path}", "text": body}
+                       "url": f"{GITHUB}/{repo}/blob/main/{path}", "follow": project_asks(slug), "text": body}
+
+
+def featured():
+    """One lead project per area, plus a second software one: the site's own front page picks."""
+    picks = [CATEGORIES["software"]["projects"][0], CATEGORIES["software"]["projects"][1],
+             CATEGORIES["data"]["projects"][0], CATEGORIES["ai"]["projects"][0]]
+    return list(dict.fromkeys(picks))
 
 
 def tour():
-    featured = [s for c in CATEGORIES.values() for s in c["projects"][:2]]
-    lines = [f"{PROJECTS[s]['title']}: {PROJECTS[s]['oneliner']}" for s in dict.fromkeys(featured)]
-    return (f"Quick tour, overview, summary and introduction. {PERSON['full']} is a {TRACKS['software']['role'].lower()} "
-            f"with an {EDUCATION[0]['degree']} from {EDUCATION[0]['school']}. {' '.join(lines)}")
+    """The "tour" passage, and the fixed short reply to "give me the quick tour" that the worker sends without a model."""
+    stack = lambda s: ", ".join(PROJECTS[s]["kicker"].split(" · ")[:2])
+    edu = EDUCATION[0]
+    lines = [f"• {name(s)} ({stack(s)}): {PROJECTS[s]['headline'][0]} {PROJECTS[s]['headline'][1]}" for s in featured()]
+    text = (f"Quick tour, overview, summary and introduction. {PERSON['full']} is a "
+            f"{TRACKS['software']['role'].lower()} with an {edu['degree']} from {edu['school']}. At Fayble Inc. he "
+            "built the audio side of an AI sports commentary system, automated archery match video production and "
+            "replayed game data through Kafka. Featured projects: "
+            + " ".join(f"{PROJECTS[s]['title']}: {PROJECTS[s]['oneliner']}" for s in featured()))
+    answer = (f"Anurag is a {TRACKS['software']['role'].lower()} with an {edu['degree']} from UT Arlington, working "
+              "across backend, data and AI / ML. The short version:\n\n"
+              "• Work: at Fayble Inc. he built the audio side of an AI sports commentary system, plus archery match "
+              "videos and a Kafka game-data replay\n" + "\n".join(lines) +
+              "\n\nPick one below to go deeper, or ask about anything else.")
+    follow = ["Tell me about his work at Fayble", f"How does {name(featured()[0])} work?",
+              "Which projects best show his skills?", "List all of Anurag's projects"]
+    return text, answer, follow
 
 
 def chunks():
     software = TRACKS["software"]
-    yield {"id": "tour", "title": "Quick tour of Anurag's work", "url": "#work", "text": tour()}
+    text, answer, follow = tour()
+    yield {"id": "tour", "title": "Quick tour of Anurag's work", "url": "#work", "text": text, "answer": answer,
+           "follow": follow}
     yield {
         "id": "profile", "title": "About Anurag", "url": "#about",
         "text": f"{PERSON['full']}. Based in {PERSON['location']}. " + " ".join(software["about"])
@@ -139,11 +188,13 @@ def chunks():
     }
     yield {
         "id": "experience", "title": "Experience at Fayble Inc.", "url": "#experience",
+        "follow": fayble_asks(),
         "text": "Where he worked, work experience, work history, career, jobs, employers and employment at Fayble Inc. "
                 + " ".join(f"{role}, {when}." for role, when in ROLES) + " " + " ".join(software["experience"]),
     }
     yield {
         "id": "testimonial", "title": f"Reference from {TESTIMONIAL['name']}", "url": "#experience",
+        "follow": fayble_asks(),
         "text": f"Testimonial, reference and what his manager, boss or founder said about him. {TESTIMONIAL['name']}, {TESTIMONIAL['role']}: \"{TESTIMONIAL['quote']}\"",
     }
     yield {
@@ -151,8 +202,10 @@ def chunks():
         "text": f"Contact, reach, email, hire. Email: {PERSON['email']}. GitHub: {PERSON['github']}. "
                 f"LinkedIn: {PERSON['linkedin']}. LeetCode: {PERSON['leetcode']}.",
     }
-    text, answer = project_list()
-    yield {"id": "projects", "title": "All projects", "url": "#work", "text": text, "answer": answer}
+    text, answer, follow = project_list()
+    yield {"id": "projects", "title": "All projects", "url": "#work", "text": text, "answer": answer, "follow": follow}
+    for f in FAYBLE_DETAIL:
+        yield {**f, "url": "#experience", "follow": fayble_asks(f["id"])}
     yield {"id": "skills-used", "title": "Where each skill was used", "url": "#skills", "text": used_in()}
     yield from skill_chunks()
     for slug, p in PROJECTS.items():
@@ -190,11 +243,15 @@ def project_list():
         reply.append(f"{c['label']}:\n" + "\n".join(lines))
         passage.append(f"{c['label']} projects: " + "; ".join(items) + ".")
     text = ("List of all projects Anurag built, with each one's stack and headline result. The site leads with the "
-            "featured projects to show his skills; the ones marked smaller are listed below them. " + " ".join(passage))
+            "featured projects to show his skills; the ones marked smaller are listed below them. " + " ".join(passage)
+            + " Work experience, alongside the projects: at Fayble Inc. he built the audio pipeline for an AI sports "
+            "commentary system (Python, LLMs on Gemini and Groq, ElevenLabs), automated archery match videos with "
+            "ffmpeg and 7.1 broadcast audio, and replayed game data through Kafka into SQLite and FastAPI.")
     answer = (f"Anurag has built {len(seen)} projects across software, data and AI / ML. Here they are by area, "
               "with the main skills each one uses:\n\n" + "\n\n".join(reply) +
               "\n\nAsk about any of them for the details, or which ones best show his skills.")
-    return text, answer
+    return text, answer, ["Which projects best show his skills?", "Tell me about his work at Fayble",
+                          f"How does {name(featured()[0])} work?"]
 
 
 def build():

@@ -727,6 +727,74 @@ EXPERIENCE_BASE = [
     "sequence number, with idempotent ingestion into SQLite and in-order reads through a FastAPI API.",
 ]
 
+# Detail on his Fayble work for the AnuRAG chat only (not shown on the page). Facts are checked against his recovered
+# Cursor history; never add speed multiples ("10x", "threefold"), "benchmarked", "real-time" commentary, a full
+# generated game, the wagering work, teammates' names or how the role was paid.
+FAYBLE_DETAIL = [
+    {
+        "id": "fayble-overview", "title": "Fayble Inc.: what the company did and his role",
+        "text": "Fayble Inc. was an AI sports simulation startup based in Oakland, California. Simulated games produced "
+                "timestamped event feeds (game status, play by play, stats) that were turned into broadcast-style "
+                "commentary and video. Anurag worked there remotely from Texas, first as Software Development Intern "
+                "(Jul 2025 – Dec 2025), then as Software Developer on the founding team (Jan 2026 – Jun 2026). His main "
+                "work was the audio side of an AI sports commentary system. He also automated archery match video "
+                "production and integrated Kafka to replay game data into the animation flow.",
+    },
+    {
+        "id": "fayble-commentary", "title": "Fayble: how the AI commentary pipeline worked",
+        "text": "The commentary system had three stages: a ticker, a brain and the voices. The ticker read American "
+                "football game events play by play. The brain was an LLM, first Gemini 2.5 Flash and later Llama 3.3 70B "
+                "on Groq, that returned JSON for each play: a line for Bob, the play-by-play commentator, a line for Ted, "
+                "the colour analyst, and an emotion for each. A later version gave the LLM game context: the score "
+                "difference, the quarter, the time left, whether the play was in the red zone, and the last five plays, "
+                "with an intensity calculator that raised the emotion as the game got tighter. The voices stage turned "
+                "each line into speech with ElevenLabs and stitched the plays into continuous broadcast audio, with a "
+                "0.3 second gap from Bob to Ted and 0.5 seconds between plays. Crowd noise fades in, loops and fades out "
+                "underneath, which was his idea. The commentary was generated in batches, not live.",
+    },
+    {
+        "id": "fayble-voices", "title": "Fayble: voice and emotion design for the commentators",
+        "text": "Earlier ElevenLabs models took emotion as numbers, so each emotion mapped to stability and similarity "
+                "settings for the voice. Anurag asked for emotion tags instead and moved to ElevenLabs v3 tags such as "
+                "[excited], [shouts] and [warm]. A bug he tracked down: the tags were being read out loud, because v3 "
+                "only accepts a stability of 0.0, 0.5 or 1.0 and one voice was set to 0.7. He chose one emotion per play "
+                "over splitting a line into segments with different emotions and stitching them together, which kept "
+                "generating a whole game fast and within free-tier limits. Pauses came from punctuation and ellipses, "
+                "with a word limit per clip and a speech-rate setting.",
+    },
+    {
+        "id": "fayble-archery", "title": "Fayble: archery match video production with ffmpeg",
+        "text": "Anurag automated turning recorded archery footage into finished match videos with Python, ffmpeg and "
+                "ElevenLabs. Shot clips of 15 to 18 seconds were crossfaded into a match, with commentary from two "
+                "commentators. The audio was 7.1 (8-channel) surround laid out for broadcast: crowd on the front left "
+                "and right, commentary in the centre, gameplay audio on the LFE channel, and 1 kHz trigger tones on the "
+                "back and side channels to mark game start, commercial breaks and studio segments. Every play was also "
+                "written out as VIDEO_PLAY metadata (game, play, player, score, video file, duration and order) so the "
+                "videos could join Fayble's game feeds. A shuffle test checked that the clips worked in any order.",
+    },
+    {
+        "id": "fayble-kafka", "title": "Fayble: Kafka replay of game data into the animation flow",
+        "text": "Anurag integrated Kafka into the animation flow. A Python producer replayed 19 American football games, "
+                "about 1,274 messages across six feed types (game status, play by play, event status, player game stats, "
+                "player lifetime stats and team game stats), into a Kafka topic with 3 partitions, either as fast as "
+                "possible or with the original gaps between events. Every message got a global sequence number from a "
+                "deterministic sort and was keyed by it. A consumer stored events in SQLite with the sequence number as "
+                "the primary key, so replaying a game never duplicated anything, and a FastAPI endpoint returned the "
+                "next event after a given sequence number, so readers got events in order. Kafka does not keep order "
+                "across partitions, so the order came from the sequence number, not from the topic.",
+    },
+    {
+        "id": "fayble-teamwork", "title": "Fayble: how he worked with the team",
+        "text": "Anurag worked remotely from Texas. The team met three times a week: where things stood, what needed "
+                "doing, and his manager turned that into tickets in Zoho Sprints. Between meetings he sent progress "
+                "updates and flagged when he was blocked by someone else's work. He coordinated across the frontend, "
+                "backend and video-generation teams and brought a combined result to the meeting so nobody was blocked "
+                "on him, took on work outside his own role when it unblocked others, and put forward his own ideas. "
+                "Audio generation and broadcast were a new domain for him, and he learned it from the CEO in those "
+                "discussions.",
+    },
+]
+
 TRACKS = {
     "software": {
         "prefix": "",

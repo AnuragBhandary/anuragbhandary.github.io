@@ -31,9 +31,10 @@
       return r.json();
     }).then(function (data) {
       previous = question;
-      return { text: data.kind === "answer" ? data.answer : line(data.kind || "error"), sources: data.sources || [] };
+      return { text: data.kind === "answer" ? data.answer : line(data.kind || "error"), sources: data.sources || [],
+               next: data.next || [] };
     }).catch(function () {
-      return { text: line("error"), sources: [] };
+      return { text: line("error"), sources: [], next: [] };
     });
   }
 
@@ -66,6 +67,44 @@
     return p;
   }
 
+  // Lines starting "• " become a real list; other lines are paragraphs. Still textContent only, never HTML.
+  function addReply(text) {
+    var div = document.createElement("div"), list = null;
+    div.className = "ask-msg bot";
+    text.split("\n").forEach(function (raw) {
+      var l = raw.trim();
+      if (!l) { list = null; return; }
+      if (l.indexOf("• ") === 0) {
+        if (!list) { list = document.createElement("ul"); div.appendChild(list); }
+        var li = document.createElement("li");
+        li.textContent = l.slice(2);
+        list.appendChild(li);
+        return;
+      }
+      list = null;
+      var p = document.createElement("p");
+      p.textContent = l;
+      div.appendChild(p);
+    });
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function addNext(questions) {
+    if (!questions.length) return;
+    var div = document.createElement("div");
+    div.className = "ask-chips ask-next";
+    questions.forEach(function (q) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "ask-chip";
+      b.textContent = q;
+      div.appendChild(b);
+    });
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
   function addSources(sources) {
     // Links come only from the site's own paths or his public repos.
     var safe = sources.filter(function (s) {
@@ -91,13 +130,16 @@
     busy = true;
     send.disabled = true;
     if (chips) { chips.remove(); chips = null; }
+    // Old suggestions would answer an earlier question, so only the latest set stays.
+    Array.prototype.forEach.call(log.querySelectorAll(".ask-next"), function (n) { n.remove(); });
     add(question, "me");
     var wait = add(line("waiting"), "bot wait");
     if (hero) hero.classList.add("thinking");
     ask(question).then(function (r) {
       wait.remove();
-      add(r.text, "bot");
+      addReply(r.text);
       addSources(r.sources);
+      addNext(r.next);
     }).finally(function () {
       busy = false;
       send.disabled = false;
@@ -115,7 +157,7 @@
     input.value = "";
     submit(q);
   });
-  if (chips) chips.addEventListener("click", function (e) {
+  log.addEventListener("click", function (e) {
     if (e.target.classList.contains("ask-chip")) submit(e.target.textContent);
   });
 })();
