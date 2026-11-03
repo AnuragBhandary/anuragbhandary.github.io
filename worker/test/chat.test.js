@@ -112,7 +112,7 @@ test("guard withholds invented numbers", () => {
 // Found by running it: "12 years" got through because "12" was in a different retrieved passage.
 test("a number must be in the passage that claim cites, not just any passage", () => {
   const passages = [
-    { title: "Experience", text: "Software Developer at Fayble Inc." },
+    { title: "Experience", text: "Software Development Intern at Fayble Inc." },
     { title: "Taxi", text: "Twelve questions, 12 queries." },
   ];
   assert.equal(check("Anurag has 12 years of experience [1].", passages).reason, "unsupported_number");

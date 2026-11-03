@@ -735,8 +735,8 @@ FAYBLE_DETAIL = [
         "id": "fayble-overview", "title": "Fayble Inc.: what the company did and his role",
         "text": "Fayble Inc. was an AI sports simulation startup based in Oakland, California. Simulated games produced "
                 "timestamped event feeds (game status, play by play, stats) that were turned into broadcast-style "
-                "commentary and video. Anurag worked there remotely from Texas, first as Software Development Intern "
-                "(Jul 2025 – Dec 2025), then as Software Developer on the founding team (Jan 2026 – Jun 2026). His main "
+                "commentary and video. Anurag worked there remotely from Texas, as a Software Development Intern "
+                "on the founding team for a year (Jul 2025 – Jun 2026). His main "
                 "work was the audio side of an AI sports commentary system. He also automated archery match video "
                 "production and integrated Kafka to replay game data into the animation flow.",
     },
@@ -910,8 +910,7 @@ TRACKS = {
 }
 
 ROLES = [
-    ("Software Developer (Founding Team)", "Jan 2026 – Jun 2026"),
-    ("Software Development Intern", "Jul 2025 – Dec 2025"),
+    ("Software Development Intern (Founding Team)", "Jul 2025 – Jun 2026"),
 ]
 
 # ---------------------------------------------------------------------------
