@@ -20,3 +20,9 @@ binding = "AI"
 name = "RATE_LIMITER"
 namespace_id = "1001"
 simple = { limit = 10, period = 60 }
+
+# Questions AnuRAG couldn't answer, kept 90 days so the gaps can be filled: `npm run misses` lists them.
+# Only the question, the page and the reason are stored, nothing about the visitor.
+[[kv_namespaces]]
+binding = "MISSES"
+id = "68ffe988be6b4948aea4f9254fedde90"

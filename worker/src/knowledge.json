@@ -140,7 +140,237 @@
   "id": "skills-used",
   "title": "Where each skill was used",
   "url": "#skills",
-  "text": "Python 3.12 used in Job Scheduler, Event Streaming. FastAPI used in Job Scheduler, Event Streaming, Fraud Detection, RAG QA, Fayble. React used in Job Scheduler, Event Streaming, Showtime. PostgreSQL used in Job Scheduler, Event Streaming, Showtime, RAG QA. Redis Streams used in Job Scheduler. asyncio used in Job Scheduler, Event Streaming. TypeScript used in Job Scheduler, Event Streaming, Showtime. Docker used in Job Scheduler, asyncio vs Virtual Threads, CDC Pipeline, Analytics Warehouse, Postgres Tuning. WebSockets used in Event Streaming, Fayble. Redis pub/sub used in Event Streaming. Java 21 used in asyncio vs Virtual Threads. Virtual threads used in asyncio vs Virtual Threads. Python asyncio used in asyncio vs Virtual Threads. uvloop used in asyncio vs Virtual Threads. Kafka used in asyncio vs Virtual Threads, Fayble. JMH used in asyncio vs Virtual Threads. MySQL 8.4 used in CDC Pipeline, Analytics Warehouse, Postgres Tuning. Debezium 3.0 used in CDC Pipeline. Kafka 3.9 used in CDC Pipeline. Python used in CDC Pipeline, Analytics Warehouse, Postgres Tuning, Fraud Detection, RAG QA, A/B Testing, Fayble. PostgreSQL 16 used in CDC Pipeline, Analytics Warehouse, Postgres Tuning. dbt used in Analytics Warehouse, A/B Testing. Airflow used in Analytics Warehouse. Power BI used in Analytics Warehouse, A/B Testing. Excel used in Analytics Warehouse. Metabase used in Analytics Warehouse. SQL used in Postgres Tuning, A/B Testing, every project. Java 25 used in Showtime. Spring Boot 4 used in Showtime. Server-Sent Events used in Showtime. k6 used in Showtime. Playwright used in Showtime, Job Scheduler, Event Streaming. Kubernetes used in Cloud Platform. Terraform used in Cloud Platform. Helm used in Cloud Platform. KEDA used in Cloud Platform. CloudNativePG used in Cloud Platform. PgBouncer used in Cloud Platform. Prometheus used in Cloud Platform. Grafana used in Cloud Platform. LightGBM used in Fraud Detection. scikit-learn used in Fraud Detection, A/B Testing. Optuna used in Fraud Detection. MLflow used in Fraud Detection. Polars used in Fraud Detection. SHAP used in Fraud Detection. pgvector used in RAG QA. PyTorch used in RAG QA. sentence-transformers used in RAG QA. LangGraph used in RAG QA. Ollama used in RAG QA. BigQuery used in A/B Testing. SciPy used in A/B Testing. Evidence used in A/B Testing. Gemini used in Fayble. Groq used in Fayble. ElevenLabs used in Fayble. ffmpeg used in Fayble. Java used in Showtime, Consumer Benchmark. GitHub Actions used in CI on every project. Hugging Face used in RAG QA. Tailwind CSS used in Showtime, Job Scheduler, Event Streaming. Spring Boot used in Showtime."
+  "text": "Python 3.12 used in Job Scheduler, Event Streaming. FastAPI used in Job Scheduler, Event Streaming, Fraud Detection, RAG QA, Fayble. React used in Job Scheduler, Event Streaming, Showtime. PostgreSQL used in Job Scheduler, Event Streaming, Showtime, RAG QA. Redis Streams used in Job Scheduler. asyncio used in Job Scheduler, Event Streaming. TypeScript used in Job Scheduler, Event Streaming, Showtime. Docker used in Job Scheduler, asyncio vs Virtual Threads, CDC Pipeline, Analytics Warehouse, Postgres Tuning. WebSockets used in Event Streaming, Fayble. Redis pub/sub used in Event Streaming. Java 21 used in asyncio vs Virtual Threads. Virtual threads used in asyncio vs Virtual Threads. Python asyncio used in asyncio vs Virtual Threads. uvloop used in asyncio vs Virtual Threads. Kafka used in asyncio vs Virtual Threads, Fayble. JMH used in asyncio vs Virtual Threads. MySQL 8.4 used in CDC Pipeline, Analytics Warehouse, Postgres Tuning. Debezium 3.0 used in CDC Pipeline. Kafka 3.9 used in CDC Pipeline. Python used in CDC Pipeline, Analytics Warehouse, Postgres Tuning, Fraud Detection, RAG QA, A/B Testing, Fayble. PostgreSQL 16 used in CDC Pipeline, Analytics Warehouse, Postgres Tuning. dbt used in Analytics Warehouse, A/B Testing. Airflow used in Analytics Warehouse. Power BI used in Analytics Warehouse, A/B Testing. Excel used in Analytics Warehouse. Metabase used in Analytics Warehouse. SQL used in Postgres Tuning, A/B Testing, every project. Java 25 used in Showtime. Spring Boot 4 used in Showtime. Server-Sent Events used in Showtime. k6 used in Showtime. Playwright used in Showtime, Job Scheduler, Event Streaming. Kubernetes used in Cloud Platform. Terraform used in Cloud Platform. Helm used in Cloud Platform. KEDA used in Cloud Platform. CloudNativePG used in Cloud Platform. PgBouncer used in Cloud Platform. Prometheus used in Cloud Platform. Grafana used in Cloud Platform. LightGBM used in Fraud Detection. scikit-learn used in Fraud Detection, A/B Testing. Optuna used in Fraud Detection. MLflow used in Fraud Detection. Polars used in Fraud Detection. SHAP used in Fraud Detection. pgvector used in RAG QA. PyTorch used in RAG QA. sentence-transformers used in RAG QA. LangGraph used in RAG QA. Ollama used in RAG QA. BigQuery used in A/B Testing. SciPy used in A/B Testing. Evidence used in A/B Testing. Gemini used in Fayble. Groq used in Fayble. ElevenLabs used in Fayble. ffmpeg used in Fayble. Java used in Showtime, Consumer Benchmark. GitHub Actions used in CI on every project. Hugging Face used in RAG QA. Tailwind CSS used in Showtime, Job Scheduler, Event Streaming. Spring Boot used in Showtime.",
+  "skills": {
+   "Python 3.12": [
+    "Job Scheduler",
+    "Event Streaming"
+   ],
+   "FastAPI": [
+    "Job Scheduler",
+    "Event Streaming",
+    "Fraud Detection",
+    "RAG QA",
+    "Fayble"
+   ],
+   "React": [
+    "Job Scheduler",
+    "Event Streaming",
+    "Showtime"
+   ],
+   "PostgreSQL": [
+    "Job Scheduler",
+    "Event Streaming",
+    "Showtime",
+    "RAG QA"
+   ],
+   "Redis Streams": [
+    "Job Scheduler"
+   ],
+   "asyncio": [
+    "Job Scheduler",
+    "Event Streaming"
+   ],
+   "TypeScript": [
+    "Job Scheduler",
+    "Event Streaming",
+    "Showtime"
+   ],
+   "Docker": [
+    "Job Scheduler",
+    "asyncio vs Virtual Threads",
+    "CDC Pipeline",
+    "Analytics Warehouse",
+    "Postgres Tuning"
+   ],
+   "WebSockets": [
+    "Event Streaming",
+    "Fayble"
+   ],
+   "Redis pub/sub": [
+    "Event Streaming"
+   ],
+   "Java 21": [
+    "asyncio vs Virtual Threads"
+   ],
+   "Virtual threads": [
+    "asyncio vs Virtual Threads"
+   ],
+   "Python asyncio": [
+    "asyncio vs Virtual Threads"
+   ],
+   "uvloop": [
+    "asyncio vs Virtual Threads"
+   ],
+   "Kafka": [
+    "asyncio vs Virtual Threads",
+    "Fayble"
+   ],
+   "JMH": [
+    "asyncio vs Virtual Threads"
+   ],
+   "MySQL 8.4": [
+    "CDC Pipeline",
+    "Analytics Warehouse",
+    "Postgres Tuning"
+   ],
+   "Debezium 3.0": [
+    "CDC Pipeline"
+   ],
+   "Kafka 3.9": [
+    "CDC Pipeline"
+   ],
+   "Python": [
+    "CDC Pipeline",
+    "Analytics Warehouse",
+    "Postgres Tuning",
+    "Fraud Detection",
+    "RAG QA",
+    "A/B Testing",
+    "Fayble"
+   ],
+   "PostgreSQL 16": [
+    "CDC Pipeline",
+    "Analytics Warehouse",
+    "Postgres Tuning"
+   ],
+   "dbt": [
+    "Analytics Warehouse",
+    "A/B Testing"
+   ],
+   "Airflow": [
+    "Analytics Warehouse"
+   ],
+   "Power BI": [
+    "Analytics Warehouse",
+    "A/B Testing"
+   ],
+   "Excel": [
+    "Analytics Warehouse"
+   ],
+   "Metabase": [
+    "Analytics Warehouse"
+   ],
+   "SQL": [
+    "Postgres Tuning",
+    "A/B Testing",
+    "every project"
+   ],
+   "Java 25": [
+    "Showtime"
+   ],
+   "Spring Boot 4": [
+    "Showtime"
+   ],
+   "Server-Sent Events": [
+    "Showtime"
+   ],
+   "k6": [
+    "Showtime"
+   ],
+   "Playwright": [
+    "Showtime",
+    "Job Scheduler",
+    "Event Streaming"
+   ],
+   "Kubernetes": [
+    "Cloud Platform"
+   ],
+   "Terraform": [
+    "Cloud Platform"
+   ],
+   "Helm": [
+    "Cloud Platform"
+   ],
+   "KEDA": [
+    "Cloud Platform"
+   ],
+   "CloudNativePG": [
+    "Cloud Platform"
+   ],
+   "PgBouncer": [
+    "Cloud Platform"
+   ],
+   "Prometheus": [
+    "Cloud Platform"
+   ],
+   "Grafana": [
+    "Cloud Platform"
+   ],
+   "LightGBM": [
+    "Fraud Detection"
+   ],
+   "scikit-learn": [
+    "Fraud Detection",
+    "A/B Testing"
+   ],
+   "Optuna": [
+    "Fraud Detection"
+   ],
+   "MLflow": [
+    "Fraud Detection"
+   ],
+   "Polars": [
+    "Fraud Detection"
+   ],
+   "SHAP": [
+    "Fraud Detection"
+   ],
+   "pgvector": [
+    "RAG QA"
+   ],
+   "PyTorch": [
+    "RAG QA"
+   ],
+   "sentence-transformers": [
+    "RAG QA"
+   ],
+   "LangGraph": [
+    "RAG QA"
+   ],
+   "Ollama": [
+    "RAG QA"
+   ],
+   "BigQuery": [
+    "A/B Testing"
+   ],
+   "SciPy": [
+    "A/B Testing"
+   ],
+   "Evidence": [
+    "A/B Testing"
+   ],
+   "Gemini": [
+    "Fayble"
+   ],
+   "Groq": [
+    "Fayble"
+   ],
+   "ElevenLabs": [
+    "Fayble"
+   ],
+   "ffmpeg": [
+    "Fayble"
+   ],
+   "Java": [
+    "Showtime",
+    "Consumer Benchmark"
+   ],
+   "GitHub Actions": [
+    "CI on every project"
+   ],
+   "Hugging Face": [
+    "RAG QA"
+   ],
+   "Tailwind CSS": [
+    "Showtime",
+    "Job Scheduler",
+    "Event Streaming"
+   ],
+   "Spring Boot": [
+    "Showtime"
+   ]
+  }
  },
  {
   "id": "skills-software",

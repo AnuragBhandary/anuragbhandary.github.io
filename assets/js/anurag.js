@@ -24,21 +24,24 @@
     return next;
   }
 
-  function ask(question) {
+  // A job description goes as its own kind of request; it's remembered as one short line, not the whole posting.
+  function ask(question, job) {
+    var body = job ? { mode: "fit", job: job, page: CFG.project || "" }
+                   : { question: question, previous: previous, history: history, page: CFG.project || "" };
     return fetch(CFG.chat, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: question, previous: previous, history: history, page: CFG.project || "" })
+      body: JSON.stringify(body)
     }).then(function (r) {
       return r.json();
     }).then(function (data) {
-      var text = data.kind === "answer" ? data.answer : line(data.kind || "error");
+      var text = data.kind === "answer" ? data.answer : line(data.kind === "not_found" && job ? "no_fit" : data.kind || "error");
       previous = question;
       // A "busy" or "error" line says nothing about the question, so only real replies are remembered.
       if (data.kind === "answer" || data.kind === "not_found") history = history.concat({ q: question, a: text.slice(0, 700) }).slice(-3);
-      return { text: text, sources: data.sources || [], next: data.next || [] };
+      return { kind: data.kind, text: text, sources: data.sources || [], next: data.next || [], actions: data.actions || [] };
     }).catch(function () {
-      return { text: line("error"), sources: [], next: [] };
+      return { kind: "error", text: line("error"), sources: [], next: [], actions: [] };
     });
   }
 
@@ -60,6 +63,29 @@
   var opener = toggle;
   var busy = false;
   var finishGreeting = null;
+  var mini = document.getElementById("askMini");
+  var fitBtn = document.getElementById("askFit");
+
+  // The header hero: "run" while waiting, then one "cheer" (a flip) or "hurt" (a flinch) before he idles again.
+  function react(mood) {
+    if (!mini) return;
+    mini.classList.remove("run", "cheer", "hurt");
+    if (!mood) return;
+    void mini.offsetWidth;
+    mini.classList.add(mood);
+    if (mood !== "run") setTimeout(function () { mini.classList.remove(mood); }, 900);
+  }
+  var job = document.getElementById("askJob");
+  var fitting = false;
+
+  function setFit(on) {
+    fitting = on;
+    fitBtn.setAttribute("aria-pressed", String(on));
+    fitBtn.textContent = on ? "Back to questions" : "Check his fit for a job: paste the description";
+    input.hidden = on;
+    job.hidden = !on;
+    (on ? job : input).focus();
+  }
 
   // Game-dialogue style: letters appear one at a time with a beat after punctuation. The untyped rest
   // stays in place but invisible, so the bubble keeps its final size instead of growing as it types.
@@ -163,6 +189,48 @@
     });
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;
+    return div;
+  }
+
+  // Answers type out like the greeting, but faster: however long, one takes about 2.5 s. Every paragraph and
+  // bullet keeps its final size from the start (the untyped rest is invisible), so nothing jumps. A click skips.
+  var finishAnswer = null;
+  function typeAnswer(div, done) {
+    var leaves = Array.prototype.slice.call(div.querySelectorAll("p, li"));
+    var parts = leaves.map(function (el) {
+      var full = el.textContent, shown = document.createElement("span"), rest = document.createElement("span");
+      rest.className = "type-rest";
+      rest.textContent = full;
+      el.textContent = "";
+      el.append(shown, rest);
+      return { el: el, full: full, shown: shown, rest: rest };
+    });
+    var total = parts.reduce(function (n, p) { return n + p.full.length; }, 0);
+    var per = Math.max(1, Math.ceil(total / 150)), at = 0, timer = null;
+    function finish() {
+      clearTimeout(timer);
+      parts.forEach(function (p) { p.el.textContent = p.full; });
+      div.removeEventListener("click", finish);
+      log.removeAttribute("aria-busy");
+      finishAnswer = null;
+      if (done) { var d = done; done = null; d(); }
+    }
+    finishAnswer = finish;
+    if (still) return finish();
+    log.setAttribute("aria-busy", "true");
+    div.addEventListener("click", finish);
+    (function step() {
+      at += per;
+      var left = at;
+      parts.forEach(function (p) {
+        var n = Math.max(0, Math.min(p.full.length, left));
+        p.shown.textContent = p.full.slice(0, n);
+        p.rest.textContent = p.full.slice(n);
+        left -= p.full.length;
+      });
+      if (at >= total) return finish();
+      timer = setTimeout(step, 16);
+    })();
   }
 
   function addNext(questions) {
@@ -200,9 +268,34 @@
     log.scrollTop = log.scrollHeight;
   }
 
-  function submit(question) {
+  // Only these two, with links the page builds itself: the worker names an action, never a URL.
+  var ACTIONS = {
+    resume: function () { return { label: "Open his resume (PDF)", href: CFG.root + CFG.resume, out: true }; },
+    contact: function () { return { label: "Go to contact", href: CFG.root + "#contact" }; }
+  };
+  function addActions(names) {
+    var known = names.filter(function (n) { return ACTIONS[n]; });
+    if (!known.length) return;
+    var div = document.createElement("div");
+    div.className = "ask-act";
+    known.forEach(function (n) {
+      var act = ACTIONS[n](), a = document.createElement("a");
+      a.className = "ask-btn";
+      a.href = act.href;
+      a.textContent = act.label;
+      if (act.out) { a.target = "_blank"; a.rel = "noopener"; }
+      // The contact link on this page should close the chat so the section is visible.
+      else a.addEventListener("click", function () { setOpen(false); });
+      div.appendChild(a);
+    });
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function submit(question, posting) {
     if (busy || !question) return;
     if (finishGreeting) finishGreeting();
+    if (finishAnswer) finishAnswer();
     busy = true;
     send.disabled = true;
     if (chips) { chips.remove(); chips = null; }
@@ -211,11 +304,15 @@
     add(question, "me");
     var wait = add(line("waiting"), "bot wait");
     if (hero) hero.classList.add("thinking");
-    ask(question).then(function (r) {
+    react("run");
+    ask(question, posting).then(function (r) {
       wait.remove();
-      addReply(r.text);
-      addSources(r.sources);
-      addNext(r.next);
+      react(r.kind === "answer" ? "cheer" : "hurt");
+      typeAnswer(addReply(r.text), function () {
+        addSources(r.sources);
+        addActions(r.actions);
+        addNext(r.next);
+      });
     }).finally(function () {
       busy = false;
       send.disabled = false;
@@ -229,10 +326,19 @@
   panel.addEventListener("keydown", function (e) { if (e.key === "Escape") setOpen(false); });
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+    if (fitting) {
+      var posting = job.value.trim();
+      if (posting.length < 80) { add(line("short_job"), "bot"); return; }
+      job.value = "";
+      setFit(false);
+      submit("Check this job description (" + posting.split(/\s+/).length + " words)", posting);
+      return;
+    }
     var q = input.value.trim();
     input.value = "";
     submit(q);
   });
+  if (fitBtn) fitBtn.addEventListener("click", function () { setFit(!fitting); });
   log.addEventListener("click", function (e) {
     if (e.target.classList.contains("ask-chip")) submit(e.target.textContent);
   });

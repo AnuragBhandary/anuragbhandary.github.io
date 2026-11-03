@@ -42,6 +42,11 @@ ASSISTANT = {
             "That one's not in my notes, and I don't make things up. Ask me about his projects, experience or skills instead, or ask Anurag directly through the contact section.",
             "You've got me there! It's not on this site. I'm good on his projects, his Fayble work and his skills, and the contact section reaches the real Anurag.",
         ],
+        "no_fit": [
+            "I couldn't match that posting to anything on this site, and I won't stretch it. Try asking about a specific skill instead.",
+            "Nothing on this site lines up with that one clearly enough to say. Ask me about a skill or project to dig in.",
+        ],
+        "short_job": ["That looks a bit short for a job description. Paste the full posting, or at least the requirements."],
         "busy": ["Phew, too many questions at once. Give me a minute.", "Hang on, I need a breather. Try again in a minute?", "You're faster than I am! Give me a minute to catch up."],
         "error": ["I tripped over something. Try again in a bit.", "Oops, that one's on me. Mind trying again shortly?", "Something glitched on my end. Give it another go in a bit."],
     },

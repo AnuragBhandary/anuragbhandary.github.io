@@ -163,23 +163,27 @@ def ask_panel(slug=None):
     # Like an editor's open file: questions here are about this project unless they name another.
     context = f'<p class="ask-ctx">Reading <b>{e(PROJECTS[slug]["title"])}</b> with you</p>' if slug else ""
     # The Dev Run hero standing in the corner: a second way into the chat, hidden while it is open.
+    # On a project page he offers that project.
+    tip = f"Questions about {PROJECTS[slug]['short']}?" if slug else ASSISTANT["buddy"]
     buddy = (f'<button type="button" class="buddy" id="askBuddy" aria-label="Chat with {name}" aria-expanded="false" '
-             f'aria-controls="askPanel"><span class="buddy-tip">{e(ASSISTANT["buddy"])}</span>'
+             f'aria-controls="askPanel"><span class="buddy-tip">{e(tip)}</span>'
              '<span class="buddy-sprite" aria-hidden="true"></span></button>')
     return f"""{buddy}
 <section class="ask" id="askPanel" role="dialog" aria-label="Chat with {name}" hidden>
-  <header class="ask-bar"><span class="ask-face" aria-hidden="true"></span><b>{name}</b><span>{e(ASSISTANT["tagline"])}</span>
+  <header class="ask-bar"><span class="ask-mini" id="askMini" aria-hidden="true"></span><b>{name}</b><span>{e(ASSISTANT["tagline"])}</span>
     <button type="button" class="ask-close" id="askClose" aria-label="Close chat">×</button></header>
   <div class="ask-log" id="askLog" aria-live="polite">
     <div class="ask-intro"><span class="ask-hero" aria-hidden="true"></span>
       <p class="ask-msg bot">{e(ASSISTANT["greeting"])}</p></div>
     <div class="ask-chips" id="askChips">{chips}</div>
   </div>
-  {context}<form class="ask-form" id="askForm">
+  {context}<button type="button" class="ask-fit" id="askFit" aria-pressed="false">Check his fit for a job: paste the description</button>
+  <form class="ask-form" id="askForm">
     <input id="askInput" type="text" maxlength="500" autocomplete="off" placeholder="Ask a question" aria-label="Your question">
+    <textarea id="askJob" rows="6" maxlength="5000" placeholder="Paste the job description here" aria-label="Job description" hidden></textarea>
     <button type="submit" aria-label="Send">↑</button>
   </form>
-  <p class="ask-note">{name} is an AI, not Anurag. Questions go to Google Gemini to generate answers, so please don't share private details. Answers can be wrong; check the linked pages.</p>
+  <p class="ask-note">{name} is an AI, not Anurag. Questions go to Google Gemini to generate answers, so please don't share private details. Answers can be wrong; check the linked pages. Questions it can't answer are kept for 90 days, with nothing about you, so Anurag can fill the gaps.</p>
 </section>
 <script src="{{root}}assets/js/anurag.js?v={ASSET_VERSION}" defer></script>"""
 
@@ -187,7 +191,8 @@ def ask_panel(slug=None):
 def scripts(root, page, track_key, slug=None):
     cfg = {"page": page, "project": slug, "track": track_key, "email": PERSON["email"], "root": root,
            "projects": len(PROJECTS), "role": TRACKS[track_key]["role"].lower() if track_key else "", "chat": CHAT_URL,
-           "chatLines": ASSISTANT["lines"] if CHAT_URL else {}}
+           "chatLines": ASSISTANT["lines"] if CHAT_URL else {},
+           "resume": TRACKS[track_key or "software"]["resume"]}
     return f"""<div class="scan" aria-hidden="true"></div>
 {ask_panel(slug).replace("{root}", root) if CHAT_URL else ""}
 {GLASS_FILTER}

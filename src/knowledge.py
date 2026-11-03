@@ -90,7 +90,7 @@ def skill_chunks():
                "text": " ".join(lines)}
 
 
-def used_in():
+def skill_use():
     """Which project proves which skill, worked out the same way as the site's tooltips."""
     used = {}
     for p in PROJECTS.values():
@@ -98,7 +98,11 @@ def used_in():
             used.setdefault(name, []).append(p["short"])
     for name, where in USED_EXTRA.items():
         used.setdefault(name, []).extend(w for w in where if w not in used.get(name, []))
-    return " ".join(f"{name} used in {', '.join(where)}." for name, where in used.items())
+    return used
+
+
+def used_in():
+    return " ".join(f"{name} used in {', '.join(where)}." for name, where in skill_use().items())
 
 
 def clean(markdown):
@@ -207,7 +211,9 @@ def chunks():
     yield {"id": "projects", "title": "All projects", "url": "#work", "text": text, "answer": answer, "follow": follow}
     for f in FAYBLE_DETAIL:
         yield {**f, "url": "#experience", "follow": fayble_asks(f["id"])}
-    yield {"id": "skills-used", "title": "Where each skill was used", "url": "#skills", "text": used_in()}
+    # "skills" lets the worker answer "his Kafka work" from the skills a question names, not from word overlap.
+    yield {"id": "skills-used", "title": "Where each skill was used", "url": "#skills", "text": used_in(),
+           "skills": skill_use()}
     yield from skill_chunks()
     for slug, p in PROJECTS.items():
         yield from project_chunks(slug, p)

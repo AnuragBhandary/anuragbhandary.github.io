@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import knowledge from "../src/knowledge.json" with { type: "json" };
 import { buildIndex, search } from "../src/retrieve.js";
 import { check } from "../src/guard.js";
-import { handle, asksForProjectList, asksForTour, followUps, asksAboutBot, isFollowUp } from "../src/index.js";
+import { handle, asksForProjectList, asksForTour, followUps, asksAboutBot, isFollowUp, retrieve, skillsNamed, actionsFor, asksForResume } from "../src/index.js";
 
 const index = buildIndex(knowledge);
 const ORIGIN = "https://anuragbhandary.github.io";
@@ -420,4 +420,56 @@ test("a question it can't answer still offers somewhere to go", async () => {
   const data = await (await handle(post({ question: "What is his favourite colour?" }), ENV, fn)).json();
   assert.equal(data.kind, "not_found");
   assert.ok(data.next.length >= 2, JSON.stringify(data.next));
+});
+
+// Found by running it: "his Kafka work" missed the CDC pipeline, and "can you tell me..." was routed to the bot.
+test("a question naming a skill reaches every project that used it", () => {
+  const ids = retrieve("Can you tell me about his Kafka work?", "", null).map((c) => c.id);
+  assert.equal(ids[0], "skills-used");
+  for (const want of ["fayble", "cdc-pipeline", "consumer-benchmark"]) assert.ok(ids.some((id) => id.startsWith(want)), want);
+  assert.deepEqual(skillsNamed("Does he know k8s?").map((s) => s.name), ["Kubernetes"]);
+  assert.deepEqual(skillsNamed("Does he know JavaScript? What evidence is there?"), []);
+  assert.ok(!asksAboutBot("Can you tell me about his Kafka work?"));
+  assert.ok(asksAboutBot("What can you do?"));
+});
+
+test("resume and contact questions get buttons; a plain resume request needs no model", async () => {
+  assert.ok(asksForResume("Can I see his resume?") && !asksForResume("What's on his resume about Kafka?"));
+  assert.deepEqual(actionsFor("How can I contact him?"), ["contact"]);
+  const fn = model("unused");
+  const data = await (await handle(post({ question: "Send me his CV" }), ENV, fn)).json();
+  assert.equal(fn.calls.length, 0);
+  assert.deepEqual(data.actions, ["resume", "contact"]);
+});
+
+const JOB = "Backend engineer: Java, Spring Boot, Kafka, PostgreSQL, Docker and Kubernetes. 3+ years. Golang a plus. Remote.";
+
+test("a job description goes to the fit prompt with the skills it names", async () => {
+  const fn = model("Here's how Anurag's work lines up with this role.\n- Kafka: used at Fayble [1].\n- Golang: not shown on this site");
+  const data = await (await handle(post({ mode: "fit", job: JOB }), ENV, fn)).json();
+  const sent = fn.calls[0].body;
+  assert.match(sent.systemInstruction.parts[0].text, /recruiter pasted a job\sdescription/);
+  assert.match(sent.contents[0].parts[0].text, /<job_description>Backend engineer/);
+  assert.match(sent.contents[0].parts[0].text, /Kafka used in/);
+  assert.equal(data.kind, "answer");
+  assert.match(data.answer, /Golang: not shown on this site/);
+});
+
+test("a job description that is too short or too long is refused before the model", async () => {
+  const fn = model("unused");
+  for (const job of ["Java dev", "x".repeat(5001)]) {
+    assert.equal((await handle(post({ mode: "fit", job }), ENV, fn)).status, 400);
+  }
+  assert.equal(fn.calls.length, 0);
+});
+
+test("a missed question is saved with its reason, and a job description never is", async () => {
+  const saved = [];
+  const env = { ...ENV, MISSES: { put: async (key, value, opts) => saved.push(opts.metadata) } };
+  await handle(post({ question: "What is his favourite colour?" }), env, model("NOT_IN_CONTEXT"));
+  await handle(post({ mode: "fit", job: JOB }), env, model("NOT_IN_CONTEXT"));
+  assert.equal(saved[0].q, "What is his favourite colour?");
+  assert.equal(saved[0].reason, "not_found");
+  assert.equal(saved[1].q, "[job description check]");
+  assert.ok(!JSON.stringify(saved).includes("Spring Boot"));
 });
