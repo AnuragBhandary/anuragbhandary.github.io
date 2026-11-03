@@ -213,7 +213,7 @@ def chunks():
         yield {**f, "url": "#experience", "follow": fayble_asks(f["id"])}
     # "skills" lets the worker answer "his Kafka work" from the skills a question names, not from word overlap.
     yield {"id": "skills-used", "title": "Where each skill was used", "url": "#skills", "text": used_in(),
-           "skills": skill_use()}
+           "skills": skill_use(), "titles": {p["short"]: p["title"] for p in PROJECTS.values()}}
     yield from skill_chunks()
     for slug, p in PROJECTS.items():
         yield from project_chunks(slug, p)

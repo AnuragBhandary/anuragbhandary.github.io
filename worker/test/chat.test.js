@@ -481,4 +481,8 @@ test("a fit line crediting a project that never used the skill is corrected from
   for (const p of ["Fayble", "CDC Pipeline"]) assert.ok(kafka.includes(p), kafka);
   assert.match(out, /• Kubernetes: used Kubernetes in Cloud Platform/);
   assert.match(out, /• Golang: not shown on this site/);
+  // Found live: the full title slipped past a check that only knew the short name.
+  const docker = fixCredits("• Docker: Cloud-Native Platform (Kubernetes, Terraform, Helm)");
+  assert.ok(!docker.includes("Cloud"), docker);
+  assert.ok(docker.includes("CDC Pipeline"), docker);
 });

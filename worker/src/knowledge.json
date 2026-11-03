@@ -370,6 +370,19 @@
    "Spring Boot": [
     "Showtime"
    ]
+  },
+  "titles": {
+   "Job Scheduler": "Distributed Job Scheduler",
+   "Event Streaming": "Real-Time Event Streaming",
+   "asyncio vs Virtual Threads": "Streaming Consumer Benchmark",
+   "CDC Pipeline": "CDC Pipeline",
+   "Analytics Warehouse": "E-Commerce Analytics Warehouse",
+   "Postgres Tuning": "Postgres Tuning on 38M Taxi Trips",
+   "Showtime": "Showtime: Event Ticketing",
+   "Cloud Platform": "Cloud-Native Platform",
+   "Fraud Detection": "Card Fraud Detection",
+   "RAG QA": "Financial RAG QA",
+   "A/B Testing": "Product Analytics & A/B Testing"
   }
  },
  {

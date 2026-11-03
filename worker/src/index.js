@@ -374,7 +374,12 @@ export function fitPassages(job) {
 // Found by running it: the fit answer said Event Streaming used Kafka, from a design note explaining why it
 // didn't. The guard checks numbers, not names, so each "skill: evidence" line is checked against the skill map
 // here, and a line that credits a project which never used that skill gets its evidence from the map instead.
-const PROJECT_NAMES = [...new Set(Object.values(USED.skills).flat())];
+// Each project as the skill map names it ("Cloud Platform"), with the other names a model writes for it: the full
+// title ("Cloud-Native Platform") and, for the benchmark, what it measures.
+const PROJECT_NAMES = [...new Set(Object.values(USED.skills).flat())].map((short) => ({
+  short, names: [short, USED.titles[short], short === "asyncio vs Virtual Threads" ? "Consumer Benchmark" : null]
+    .filter(Boolean).map((n) => n.toLowerCase()),
+}));
 
 export function fixCredits(answer) {
   return answer.split("\n").map((line) => {
@@ -383,7 +388,8 @@ export function fixCredits(answer) {
     const named = skillsNamed(m[2]);
     if (!named.length) return line;
     const allowed = new Set(named.flatMap((s) => s.where));
-    const credited = PROJECT_NAMES.filter((p) => m[3].includes(p) || (p === "asyncio vs Virtual Threads" && /consumer benchmark/i.test(m[3])));
+    const said = m[3].toLowerCase();
+    const credited = PROJECT_NAMES.filter((p) => p.names.some((n) => said.includes(n))).map((p) => p.short);
     if (credited.every((p) => allowed.has(p))) return line;
     return `${m[1]}${m[2]}: used in ${[...allowed].join(", ")}`;
   }).join("\n");
