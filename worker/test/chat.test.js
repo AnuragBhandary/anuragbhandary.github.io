@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import knowledge from "../src/knowledge.json" with { type: "json" };
 import { buildIndex, search } from "../src/retrieve.js";
 import { check } from "../src/guard.js";
-import { handle, asksForProjectList, asksForTour, followUps } from "../src/index.js";
+import { handle, asksForProjectList, asksForTour, followUps, asksAboutBot, isFollowUp } from "../src/index.js";
 
 const index = buildIndex(knowledge);
 const ORIGIN = "https://anuragbhandary.github.io";
@@ -379,4 +379,45 @@ test("every Fayble passage stays clear of claims he can't back", () => {
   const fayble = knowledge.filter((c) => c.id.startsWith("fayble-")).map((c) => c.text).join(" ");
   assert.ok(fayble.length > 2000);
   assert.doesNotMatch(fayble, /\b(10x|3x|threefold|benchmark\w*|real-time|wager\w*|equity|unpaid)\b/i);
+});
+
+// Found by running it: "what can you answer?" matched the RAG QA project, and "is this all?" was refused.
+const promptOf = (fn) => fn.calls[0].body.contents[0].parts[0].text;
+
+test("questions to the bot itself reach the bot's own passages", async () => {
+  for (const q of ["What can you answer?", "How many questions can i ask?", "Are you actually AI?", "Who made you?", "What are your limits?"]) {
+    assert.ok(asksAboutBot(q), q);
+    const fn = model("NOT_IN_CONTEXT");
+    await handle(post({ question: q }), ENV, fn);
+    assert.match(promptOf(fn), /What AnuRAG can answer/, q);
+  }
+  assert.ok(!asksAboutBot("What is his GPA?"));
+});
+
+test("'is this all?' after a question to the bot stays on the bot, and sees the earlier answer", async () => {
+  for (const q of ["Is this all?", "tell me more", "anything else?"]) assert.ok(isFollowUp(q), q);
+  assert.ok(!isFollowUp("What about Showtime?"));
+  const fn = model("NOT_IN_CONTEXT");
+  const history = [{ q: "What can you answer?", a: "I can answer questions about his projects." }];
+  await handle(post({ question: "Is this all?", history }), ENV, fn);
+  const prompt = promptOf(fn);
+  assert.match(prompt, /What AnuRAG can answer/);
+  assert.match(prompt, /<conversation>\nVisitor: What can you answer\?\nAnuRAG: I can answer questions about his projects\.\n<\/conversation>/);
+});
+
+test("history is capped and malformed turns are dropped", async () => {
+  const fn = model("NOT_IN_CONTEXT");
+  const history = [1, { q: "a" }, ...["one", "two", "three", "four"].map((w) => ({ q: `Tell me about ${w}`, a: "x".repeat(900) }))];
+  await handle(post({ question: "What is his GPA?", history }), ENV, fn);
+  const prompt = promptOf(fn);
+  assert.ok(!prompt.includes("Tell me about one"));
+  assert.ok(prompt.includes("Tell me about four"));
+  assert.ok(!prompt.includes("x".repeat(701)));
+});
+
+test("a question it can't answer still offers somewhere to go", async () => {
+  const fn = model("NOT_IN_CONTEXT");
+  const data = await (await handle(post({ question: "What is his favourite colour?" }), ENV, fn)).json();
+  assert.equal(data.kind, "not_found");
+  assert.ok(data.next.length >= 2, JSON.stringify(data.next));
 });

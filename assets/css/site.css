@@ -1140,6 +1140,7 @@ html:not(.js) .wtabs-bar { display: none; }
 .ask-close { width: 36px; height: 36px; border-radius: 8px; font-size: 22px; line-height: 1; color: var(--muted); }
 .ask-close:hover, .ask-close:focus-visible { color: var(--text); background: var(--cyan-soft); }
 .ask-log { flex: 1; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+.type-rest { visibility: hidden; }
 .ask-intro { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .ask-msg { max-width: 90%; margin: 0; padding: 10px 13px; border-radius: 12px; font-size: 14.5px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-wrap; }
 .ask-msg.bot { align-self: flex-start; background: var(--panel2); border: 1px solid var(--line); color: var(--text); }
@@ -1173,9 +1174,10 @@ html:not(.js) .wtabs-bar { display: none; }
   .ask { width: 100vw; height: 100dvh; bottom: auto; }
 }
 
-/* The Dev Run hero in the corner. Cells of the 512x1024 player sheet are 64 px, drawn at --s for square pixels. */
+/* The Dev Run hero in the corner. Cells of the 512x1024 player sheet are 64 px, drawn at --s for square pixels.
+   z 750 keeps him above the scanline vignette (700), which would darken his corner, and below app windows (800). */
 .buddy {
-  --s: 2; position: fixed; right: 12px; bottom: 6px; z-index: 600;
+  --s: 2; position: fixed; right: 12px; bottom: 6px; z-index: 750;
   width: calc(64px * var(--s)); height: calc(64px * var(--s)); padding: 0;
   border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
@@ -1183,7 +1185,7 @@ html:not(.js) .wtabs-bar { display: none; }
   display: block; width: 100%; height: 100%; transform: scaleX(-1);
   background: url(../sprites/player/player-sheet.png) no-repeat;
   background-size: calc(512px * var(--s)) calc(1024px * var(--s));
-  image-rendering: pixelated; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .35));
+  image-rendering: pixelated; filter: brightness(1.12) saturate(1.1) drop-shadow(0 4px 6px rgba(0, 0, 0, .35));
   animation: buddyIdle .9s steps(6) infinite;
 }
 .buddy.flip .buddy-sprite { background-position-y: calc(-256px * var(--s)); animation: buddyFlip .6s steps(6) both; }

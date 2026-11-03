@@ -216,11 +216,25 @@ def chunks():
             yield from doc_chunks(slug, repo, path)
     yield {
         "id": "anurag-bot", "title": "Are you AI? How AnuRAG works", "url": "#top",
-        "text": "Yes, AnuRAG is actually an AI chatbot, not Anurag himself. Its avatar is the hero of Anurag's game Dev Run. "
-                "It is a retrieval-augmented generation (RAG) assistant named after Anurag. "
-                "The site is static on GitHub Pages, so a small Cloudflare Worker holds the API key. It ranks the site's "
-                "content with BM25, sends the best passages to Google Gemini, and checks the reply: every answer must "
-                "cite a passage and every number must appear in the passage it cites. A sentence that fails is dropped, and an answer that mostly fails is withheld.",
+        "text": "Yes, I'm AnuRAG, an AI chatbot, not Anurag himself. My avatar is the hero of Anurag's game Dev Run, "
+                "and I'm a retrieval-augmented generation (RAG) assistant named after him. The site is static on GitHub "
+                "Pages, so a small Cloudflare Worker holds the API key. I rank the site's content with BM25, send the "
+                "best passages to Google Gemini, and check the reply: every answer must cite a passage and every number "
+                "must appear in the passage it cites. A sentence that fails is dropped, and an answer that mostly fails "
+                "is withheld.",
+        "follow": ["What can you answer?", "Give me the quick tour", "List all of Anurag's projects"],
+    }
+    # Questions to the bot itself ("what can you answer?", "how many questions can I ask?") land here.
+    yield {
+        "id": "anurag-bot-help", "title": "What AnuRAG can answer, and how many questions you can ask", "url": "#top",
+        "text": "I answer questions about Anurag's work using only what is on this site: his projects and how they "
+                "work, his internship at Fayble Inc., his skills and where he used them, his education, whether he is "
+                "open to work or relocation, and how to contact him. I can't answer what the site doesn't cover, like "
+                "what he expects to be paid, his personal life or his opinions, and I won't guess. There is no fixed "
+                "number of questions: each visitor can ask up to 10 a minute. Answers run on free AI model quotas "
+                "shared by every visitor, so on a busy day I may ask you to wait a minute. For anything I can't "
+                "answer, the contact section reaches Anurag directly.",
+        "follow": ["Give me the quick tour", "What did he do at Fayble?", "Which projects best show his skills?"],
     }
 
 

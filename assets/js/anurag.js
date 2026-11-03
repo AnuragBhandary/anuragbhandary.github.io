@@ -8,6 +8,8 @@
   var LINES = CFG.chatLines || {};
   var bags = {};
   var previous = "";
+  // The last few questions with what was said back, so "is this all?" or "tell me more" has something to lean on.
+  var history = [];
 
   // Goes through every line for a moment before any repeats.
   function line(kind) {
@@ -26,13 +28,15 @@
     return fetch(CFG.chat, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: question, previous: previous, page: CFG.project || "" })
+      body: JSON.stringify({ question: question, previous: previous, history: history, page: CFG.project || "" })
     }).then(function (r) {
       return r.json();
     }).then(function (data) {
+      var text = data.kind === "answer" ? data.answer : line(data.kind || "error");
       previous = question;
-      return { text: data.kind === "answer" ? data.answer : line(data.kind || "error"), sources: data.sources || [],
-               next: data.next || [] };
+      // A "busy" or "error" line says nothing about the question, so only real replies are remembered.
+      if (data.kind === "answer" || data.kind === "not_found") history = history.concat({ q: question, a: text.slice(0, 700) }).slice(-3);
+      return { text: text, sources: data.sources || [], next: data.next || [] };
     }).catch(function () {
       return { text: line("error"), sources: [], next: [] };
     });
@@ -51,8 +55,36 @@
   var chips = document.getElementById("askChips");
   var hero = panel.querySelector(".ask-hero");
   var buddy = document.getElementById("askBuddy");
+  var greeting = panel.querySelector(".ask-intro .ask-msg");
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var opener = toggle;
   var busy = false;
+  var finishGreeting = null;
+
+  // Game-dialogue style: letters appear one at a time with a beat after punctuation. The untyped rest
+  // stays in place but invisible, so the bubble keeps its final size instead of growing as it types.
+  function typeOut(el, done) {
+    var full = el.textContent, i = 0, timer = null;
+    var shown = document.createElement("span"), rest = document.createElement("span");
+    rest.className = "type-rest";
+    function finish() {
+      clearTimeout(timer);
+      el.textContent = full;
+      if (done) { done(); done = null; }
+    }
+    if (still) { finish(); return finish; }
+    el.textContent = "";
+    el.append(shown, rest);
+    (function step() {
+      i++;
+      shown.textContent = full.slice(0, i);
+      rest.textContent = full.slice(i);
+      if (i >= full.length) return finish();
+      var c = full[i - 1];
+      timer = setTimeout(step, ".!?".indexOf(c) >= 0 ? 260 : c === "," ? 140 : 26);
+    })();
+    return finish;
+  }
 
   function setOpen(open, from) {
     if (open) opener = from || toggle;
@@ -61,23 +93,42 @@
     toggle.setAttribute("aria-expanded", String(open));
     if (buddy) buddy.setAttribute("aria-expanded", String(open));
     if (open) input.focus(); else opener.focus();
+    // The greeting is spoken the first time the chat opens; aria-busy keeps screen readers from reading each letter.
+    if (open && greeting) {
+      var g = greeting;
+      greeting = null;
+      log.setAttribute("aria-busy", "true");
+      if (hero) hero.classList.add("thinking");
+      finishGreeting = typeOut(g, function () {
+        log.removeAttribute("aria-busy");
+        if (hero && !busy) hero.classList.remove("thinking");
+        finishGreeting = null;
+      });
+    }
   }
 
   // The corner hero: a flip on hover and now and then, and one hello per visit.
   if (buddy) {
-    var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var tip = buddy.querySelector(".buddy-tip");
+    var talking = false;
+    var say = function () {
+      if (talking) return;
+      talking = true;
+      typeOut(tip, function () { talking = false; });
+    };
     var flip = function () {
       if (still || buddy.classList.contains("flip")) return;
       buddy.classList.add("flip");
       setTimeout(function () { buddy.classList.remove("flip"); }, 650);
     };
     buddy.addEventListener("click", function () { setOpen(true, buddy); });
-    buddy.addEventListener("mouseenter", flip);
+    buddy.addEventListener("mouseenter", function () { flip(); say(); });
+    buddy.addEventListener("focus", say);
     setInterval(function () { if (!document.hidden && panel.hidden && Math.random() < 0.5) flip(); }, 12000);
     var greeted = false;
     try { greeted = sessionStorage.getItem("anb-buddy") === "1"; sessionStorage.setItem("anb-buddy", "1"); } catch (_) {}
     if (!greeted) {
-      setTimeout(function () { flip(); buddy.classList.add("say"); }, 4000);
+      setTimeout(function () { flip(); buddy.classList.add("say"); say(); }, 4000);
       setTimeout(function () { buddy.classList.remove("say"); }, 10000);
     }
   }
@@ -151,6 +202,7 @@
 
   function submit(question) {
     if (busy || !question) return;
+    if (finishGreeting) finishGreeting();
     busy = true;
     send.disabled = true;
     if (chips) { chips.remove(); chips = null; }

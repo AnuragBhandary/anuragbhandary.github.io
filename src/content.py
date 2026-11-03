@@ -38,9 +38,9 @@ ASSISTANT = {
         "waiting": ["Flipping through his work…", "Digging through the projects…", "One sec, checking my notes…", "Looking that up…"],
         "hello": ["Hey! Ask me anything about Anurag's work.", "Hi there! What do you want to know about Anurag?", "Hello! Pick a project, or ask me anything about his work."],
         "not_found": [
-            "I can't find that on this site, and I don't make things up. Anurag can tell you himself: use the contact section.",
-            "No idea, and I won't guess! The contact section will get you the real Anurag.",
-            "You've got me there. That's one for the real Anurag, and his details are in the contact section.",
+            "I can't find that on this site, and I won't guess. Try his projects, his Fayble work or his skills, or reach Anurag through the contact section.",
+            "That one's not in my notes, and I don't make things up. Ask me about his projects, experience or skills instead, or ask Anurag directly through the contact section.",
+            "You've got me there! It's not on this site. I'm good on his projects, his Fayble work and his skills, and the contact section reaches the real Anurag.",
         ],
         "busy": ["Phew, too many questions at once. Give me a minute.", "Hang on, I need a breather. Try again in a minute?", "You're faster than I am! Give me a minute to catch up."],
         "error": ["I tripped over something. Try again in a bit.", "Oops, that one's on me. Mind trying again shortly?", "Something glitched on my end. Give it another go in a bit."],
