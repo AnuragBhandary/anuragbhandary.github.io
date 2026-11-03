@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import knowledge from "../src/knowledge.json" with { type: "json" };
 import { buildIndex, search } from "../src/retrieve.js";
 import { check } from "../src/guard.js";
-import { handle, asksForProjectList, asksForTour, followUps, asksAboutBot, isFollowUp, retrieve, skillsNamed, actionsFor, asksForResume } from "../src/index.js";
+import { handle, asksForProjectList, asksForTour, followUps, asksAboutBot, isFollowUp, retrieve, skillsNamed, actionsFor, asksForResume, fixCredits } from "../src/index.js";
 
 const index = buildIndex(knowledge);
 const ORIGIN = "https://anuragbhandary.github.io";
@@ -472,4 +472,13 @@ test("a missed question is saved with its reason, and a job description never is
   assert.equal(saved[0].reason, "not_found");
   assert.equal(saved[1].q, "[job description check]");
   assert.ok(!JSON.stringify(saved).includes("Spring Boot"));
+});
+
+test("a fit line crediting a project that never used the skill is corrected from the skill map", () => {
+  const out = fixCredits("Intro.\n• Kafka: used Kafka in Fayble, and Real-Time Event Streaming\n• Kubernetes: used Kubernetes in Cloud Platform\n• Golang: not shown on this site");
+  const kafka = out.split("\n")[1];
+  assert.ok(!kafka.includes("Event Streaming"), kafka);
+  for (const p of ["Fayble", "CDC Pipeline"]) assert.ok(kafka.includes(p), kafka);
+  assert.match(out, /• Kubernetes: used Kubernetes in Cloud Platform/);
+  assert.match(out, /• Golang: not shown on this site/);
 });

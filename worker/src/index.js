@@ -143,6 +143,8 @@ Answer questions about Anurag using ONLY the numbered passages you are given.
   name, the skill it shows and its headline result,
   then one plain closing sentence naming the skills they cover together, with no praise words like robust,
   advanced or complex.
+- A passage that compares, weighs or rejects a tool (like "why not Kafka?") does not mean he used it. When a
+  "Where each skill was used" passage is given, it decides which project used which tool.
 - Copy numbers exactly from the passages, with their symbols (%, →, /, ×) as written. Never estimate, convert or
   add up numbers.
 - Say what he built and measured. Never call him an expert or say he has expertise, mastery or proficiency.
@@ -167,6 +169,8 @@ description. Show how Anurag's work lines up with it, using ONLY the numbered pa
 - Write one line per requirement starting with "- ": the requirement in a few words, a colon, then the evidence
   from the passages (the project or role and what he did there) ending with its marker, like [2]. If no passage
   shows it, write exactly "not shown on this site" after the colon, with no marker.
+- A passage that compares, weighs or rejects a tool (like "why not Kafka?") does not mean he used it. When a
+  "Where each skill was used" passage is given, it decides which project used which tool.
 - Never copy numbers from the job description, such as years of experience; name the requirement without them.
   Numbers in the evidence must be copied exactly from the passage it cites.
 - Close with one plain sentence suggesting one project the recruiter could ask you about next. Never give a verdict
@@ -367,6 +371,24 @@ export function fitPassages(job) {
   return out;
 }
 
+// Found by running it: the fit answer said Event Streaming used Kafka, from a design note explaining why it
+// didn't. The guard checks numbers, not names, so each "skill: evidence" line is checked against the skill map
+// here, and a line that credits a project which never used that skill gets its evidence from the map instead.
+const PROJECT_NAMES = [...new Set(Object.values(USED.skills).flat())];
+
+export function fixCredits(answer) {
+  return answer.split("\n").map((line) => {
+    const m = line.match(/^(• )([^:]+):\s*(.*)$/);
+    if (!m || /not shown on this site/i.test(m[3])) return line;
+    const named = skillsNamed(m[2]);
+    if (!named.length) return line;
+    const allowed = new Set(named.flatMap((s) => s.where));
+    const credited = PROJECT_NAMES.filter((p) => m[3].includes(p) || (p === "asyncio vs Virtual Threads" && /consumer benchmark/i.test(m[3])));
+    if (credited.every((p) => allowed.has(p))) return line;
+    return `${m[1]}${m[2]}: used in ${[...allowed].join(", ")}`;
+  }).join("\n");
+}
+
 const FIT_NEXT = ["Which projects best show his skills?", "What did he do at Fayble?", "Give me the quick tour"];
 
 async function checkFit(env, ctx, { job, page }, origin, fetchFn) {
@@ -386,7 +408,7 @@ async function checkFit(env, ctx, { job, page }, origin, fetchFn) {
       return json({ kind: "not_found", sources: [], next: FIT_NEXT }, 200, origin);
     }
     const used = verdict.cited.map((n) => passages[n - 1]);
-    return json({ kind: "answer", answer: verdict.answer, sources: sources(used), next: FIT_NEXT, model: reply.model }, 200, origin);
+    return json({ kind: "answer", answer: fixCredits(verdict.answer), sources: sources(used), next: FIT_NEXT, model: reply.model }, 200, origin);
   } catch (err) {
     console.log(JSON.stringify({ event: "error", message: String(err) }));
     return json({ kind: "error", sources: [] }, 200, origin);
