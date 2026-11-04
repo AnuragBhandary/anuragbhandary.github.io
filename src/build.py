@@ -113,7 +113,9 @@ def head(title, description, root, noindex, canonical):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <link rel="stylesheet" href="{root}assets/css/site.css?v={ASSET_VERSION}">
-<script>document.documentElement.classList.add("js");try{{var t=localStorage.getItem("anb-theme");if(t)document.documentElement.dataset.theme=t}}catch(_){{}}</script>
+<script>var d=document.documentElement;d.classList.add("js");try{{var t=localStorage.getItem("anb-theme");if(t)d.dataset.theme=t}}catch(_){{}}
+// Show the boot screen from the first paint, not once site.js runs, so the page never flashes before it.
+try{{if(!sessionStorage.getItem("anb-booted")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){{d.classList.add("booting");setTimeout(function(){{d.classList.remove("booting")}},4000)}}}}catch(_){{}}</script>
 </head>"""
 
 
@@ -420,7 +422,7 @@ def home(track_key):
       <p><b>Now:</b> looking for {e(role_words(tr['role']))} roles.</p>
       <p>Based in Mumbai (IST). Open to relocating anywhere in the world.</p>
       <p class="note-game">Bored? Hit the <button type="button" data-open="game">controller</button> in the dock.</p>
-      <a href="#work">see the work ↓</a>
+      <p class="note-links"><a href="#work">see the work ↓</a><a href="#contact">get in touch ↓</a></p>
     </div>
   </div>
 

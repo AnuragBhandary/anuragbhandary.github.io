@@ -164,7 +164,7 @@ kbd {
   display: none; place-items: center; font: 400 13px/1.8 var(--f-mono);
   transition: opacity .5s ease, visibility .5s;
 }
-.js .boot.on { display: grid; }
+.js .boot.on, .booting .boot { display: grid; }
 .boot.done { opacity: 0; visibility: hidden; }
 .boot-log { position: absolute; left: var(--gutter); top: 28px; white-space: pre; }
 .boot-log .ok { color: #00e5ff; }
@@ -379,6 +379,7 @@ kbd {
 .note b { color: var(--text); }
 .note a { display: inline-block; margin-top: 10px; font: 500 12px var(--f-mono); color: var(--cyan-ink); }
 .note a:hover { text-decoration: underline; }
+.note-links { display: flex; flex-wrap: wrap; gap: 0 14px; margin: 0; }
 .note-game button { color: var(--cyan-ink); text-decoration: underline; text-underline-offset: 3px; }
 
 .win-photo { width: var(--photo-w); right: var(--gutter); top: calc(var(--mt) + 44px); }
@@ -987,6 +988,8 @@ kbd {
 @keyframes vtIn { from { opacity: 0; transform: translateY(24px); } }
 ::view-transition-group(*) { animation-duration: .6s; animation-timing-function: var(--ease); }
 .theming::view-transition-old(root), .theming::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+/* The new theme starts fully clipped, so it can't flash in whole for a frame before the circle reveal begins. */
+.theming::view-transition-new(root) { clip-path: circle(0px at var(--vt-x, 50%) var(--vt-y, 50%)); }
 
 /* ==========================================================================
    Responsive

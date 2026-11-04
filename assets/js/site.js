@@ -36,17 +36,21 @@
     themeListeners.forEach(function (f) { f(t); });
   }
   if (themeBtn) themeBtn.addEventListener("click", function () {
+    // A second click mid-reveal would skip the first transition and make the page jump.
+    if (doc.classList.contains("theming")) return;
     var next = doc.dataset.theme === "light" ? "dark" : "light";
     if (!document.startViewTransition || reduced) { setTheme(next); return; }
     var r = themeBtn.getBoundingClientRect();
     var x = r.left + r.width / 2, y = r.top + r.height / 2;
     var end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    doc.style.setProperty("--vt-x", x + "px");
+    doc.style.setProperty("--vt-y", y + "px");
     doc.classList.add("theming");
     var vt = document.startViewTransition(function () { setTheme(next); });
     vt.ready.then(function () {
       doc.animate(
         { clipPath: ["circle(0px at " + x + "px " + y + "px)", "circle(" + end + "px at " + x + "px " + y + "px)"] },
-        { duration: 700, easing: "cubic-bezier(.2,.7,.1,1)", pseudoElement: "::view-transition-new(root)" }
+        { duration: 700, easing: "cubic-bezier(.2,.7,.1,1)", fill: "forwards", pseudoElement: "::view-transition-new(root)" }
       );
     }).catch(function () {});
     // A skipped transition rejects "finished"; the theme has still changed, so only the class needs clearing.
@@ -648,7 +652,7 @@
     startTerminal();
   }
   function runBoot() {
-    if (!boot || reduced || store.sget("anb-booted")) { if (boot) boot.remove(); showWindows(); return; }
+    if (!boot || reduced || store.sget("anb-booted")) { doc.classList.remove("booting"); if (boot) boot.remove(); showWindows(); return; }
     store.sset("anb-booted", "1");
     boot.classList.add("on");
     var log = $("#bootLog");
@@ -665,7 +669,7 @@
       if (finished) return;
       finished = true;
       boot.classList.add("done");
-      setTimeout(function () { boot.remove(); }, 600);
+      setTimeout(function () { boot.remove(); doc.classList.remove("booting"); }, 600);
       showWindows();
     };
     lines.forEach(function (l, i) {
