@@ -789,7 +789,7 @@ kbd {
 .fax-grille i { width: 70px; height: 4px; border-radius: 2px; background: var(--line2); }
 
 /* --- Contact --- */
-.contact { position: relative; padding-bottom: clamp(90px, 10vw, 150px); overflow-x: clip; }
+.contact { position: relative; margin-top: clamp(40px, 5vw, 80px); padding-bottom: clamp(90px, 10vw, 150px); overflow-x: clip; }
 .ct-radar { position: absolute; right: var(--gutter); top: 40px; width: min(620px, 70vw); aspect-ratio: 1; pointer-events: none; z-index: 0; opacity: .7; }
 .ct-radar i { position: absolute; inset: 0; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--cyan) 40%, transparent); animation: ping 6s var(--ease) infinite; }
 .ct-radar i:nth-child(2) { animation-delay: 1.5s; }
