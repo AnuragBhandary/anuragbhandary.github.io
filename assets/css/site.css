@@ -1230,20 +1230,22 @@ html:not(.js) .wtabs-bar { display: none; }
 .buddy:focus-visible { outline: 2px solid var(--cyan-ink); outline-offset: -8px; border-radius: 16px; }
 /* Resting (after his first few seconds) or paused by the visitor, he holds his first idle frame. */
 .buddy.rest:not(.flip) .buddy-sprite, .buddy.paused .buddy-sprite { animation: none; }
-/* A small pause button on his top-left shoulder; a sibling, since a button can't sit inside his button. */
+/* A small pause button by his right shoe, shown while he's hovered; a sibling, since a button can't sit inside his button.
+   Touch screens have no hover, so there it stays faintly visible. */
 .buddy-pause {
-  --s: 2; position: fixed; z-index: 751; right: calc(12px + 64px * var(--s) - 26px); bottom: calc(6px + 64px * var(--s) - 26px);
-  width: 24px; height: 24px; padding: 0; border-radius: 50%; font-size: 10px; line-height: 1; color: var(--muted);
-  background: var(--panel); border: 1px solid var(--line2); opacity: .55; transition: opacity .2s;
+  --s: 2; --b: 6px; position: fixed; z-index: 751; right: calc(12px + 10px * var(--s)); bottom: calc(var(--b) + 4px * var(--s));
+  width: 24px; height: 24px; padding: 0; border-radius: 50%; font-size: 10px; line-height: 1; color: var(--text);
+  background: var(--panel); border: 1px solid var(--line2); opacity: 0; pointer-events: none; transition: opacity .2s;
 }
-.buddy-pause:hover, .buddy-pause:focus-visible, .buddy:hover + .buddy-pause { opacity: 1; color: var(--text); }
+.buddy-pause:hover, .buddy-pause:focus-visible, .buddy:hover + .buddy-pause { opacity: 1; pointer-events: auto; }
+@media (hover: none) { .buddy-pause { opacity: .6; pointer-events: auto; } }
 .buddy-pause:focus-visible { outline: 2px solid var(--cyan-ink); outline-offset: 1px; }
 .ask-open .buddy, body:has(.appwin:not([hidden])) .buddy, body:has(.lb.open) .buddy,
 .ask-open .buddy-pause, body:has(.appwin:not([hidden])) .buddy-pause, body:has(.lb.open) .buddy-pause { display: none; }
 /* Where the centred dock would reach his corner, he stands just above it. */
-@media (max-width: 1040px) { .buddy { bottom: 80px; } .buddy-pause { bottom: calc(80px + 64px * var(--s) - 26px); } }
+@media (max-width: 1040px) { .buddy { bottom: 80px; } .buddy-pause { --b: 80px; } }
 /* Smaller on a phone so he covers less of the text he stands over; whole pixels keep him sharp. */
-@media (max-width: 760px) { .buddy { --s: 1; right: 6px; } .buddy-pause { --s: 1; right: calc(6px + 64px - 22px); bottom: calc(80px + 64px - 14px); } }
+@media (max-width: 760px) { .buddy { --s: 1; right: 6px; } .buddy-pause { --s: 1; right: 8px; } }
 @media (prefers-reduced-motion: reduce) {
   .buddy-sprite, .buddy.flip .buddy-sprite, .buddy.flip { animation: none; }
   .buddy.flip .buddy-sprite { background-position-y: 0; }

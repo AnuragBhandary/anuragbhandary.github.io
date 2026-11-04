@@ -374,7 +374,7 @@ def home(track_key):
         for l in tr["terminal"])
     facts = "".join(f'<div><dt>{e(k)}</dt><dd>{e(v)}</dd></div>' for k, v in tr["facts"])
     edu = "".join(f"""<div class="edu card reveal">
-  <figure class="edu-img"><img src="{root}assets/img/{e(x['img'])}" alt="{e(x['alt'])}" width="800" height="450" loading="lazy" decoding="async"></figure>
+  <figure class="edu-img"><img src="{root}assets/img/{e(x['img'])}" alt="{e(x['alt'])}"{f' style="object-position: {x["pos"]}"' if x.get("pos") else ""} width="1400" height="613" loading="lazy" decoding="async"></figure>
   <span class="edu-when">{e(x['when'])}</span>
   <b>{e(x['degree'])}</b>
   <span>{e(x['school'])}</span>

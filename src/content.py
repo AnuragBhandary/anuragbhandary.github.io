@@ -61,6 +61,7 @@ EDUCATION = [
         "where": "Arlington, TX",
         "img": "uni-uta.webp",
         "alt": "University of Texas at Arlington campus",
+        "pos": "50% 22%",
     },
     {
         "degree": "B.E. Electronics Engineering",
