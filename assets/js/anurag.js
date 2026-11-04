@@ -143,14 +143,42 @@
       typeOut(tip, function () { talking = false; });
     };
     var flip = function () {
-      if (still || buddy.classList.contains("flip")) return;
+      if (still || buddy.classList.contains("paused") || buddy.classList.contains("flip")) return;
       buddy.classList.add("flip");
       setTimeout(function () { buddy.classList.remove("flip"); }, 650);
     };
     buddy.addEventListener("click", function () { setOpen(true, buddy); });
-    buddy.addEventListener("mouseenter", function () { flip(); say(); });
+    // He idles for a few seconds, then stands still; a hover wakes him briefly, and the pause button stills him for good.
+    var restTimer = null;
+    var rest = function (ms) {
+      buddy.classList.remove("rest");
+      clearTimeout(restTimer);
+      restTimer = setTimeout(function () { buddy.classList.add("rest"); }, ms);
+    };
+    buddy.addEventListener("mouseenter", function () { rest(4000); flip(); say(); });
     buddy.addEventListener("focus", say);
-    setInterval(function () { if (!document.hidden && panel.hidden && Math.random() < 0.5) flip(); }, 12000);
+    rest(12000);
+    if (!still) {
+      var pause = document.createElement("button");
+      pause.type = "button";
+      pause.className = "buddy-pause";
+      var setPaused = function (on) {
+        buddy.classList.toggle("paused", on);
+        pause.setAttribute("aria-pressed", String(on));
+        pause.setAttribute("aria-label", on ? "Animate the AnuRAG hero" : "Stop the AnuRAG hero moving");
+        pause.title = on ? "Let him move" : "Stop him moving";
+        pause.textContent = on ? "\u25B6" : "\u23F8\uFE0E";
+      };
+      var paused = false;
+      try { paused = localStorage.getItem("anb-buddy-still") === "1"; } catch (_) {}
+      setPaused(paused);
+      pause.addEventListener("click", function () {
+        paused = !paused;
+        setPaused(paused);
+        try { localStorage.setItem("anb-buddy-still", paused ? "1" : "0"); } catch (_) {}
+      });
+      buddy.after(pause);
+    }
     var greeted = false;
     try { greeted = sessionStorage.getItem("anb-buddy") === "1"; sessionStorage.setItem("anb-buddy", "1"); } catch (_) {}
     if (!greeted) {

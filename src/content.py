@@ -59,6 +59,8 @@ EDUCATION = [
         "when": "2023 – 2025",
         "score": "GPA 3.42 / 4",
         "where": "Arlington, TX",
+        "img": "uni-uta.webp",
+        "alt": "University of Texas at Arlington campus",
     },
     {
         "degree": "B.E. Electronics Engineering",
@@ -66,6 +68,8 @@ EDUCATION = [
         "when": "2019 – 2023",
         "score": "CGPA 8.36 / 10",
         "where": "Mumbai, India",
+        "img": "uni-mumbai.webp",
+        "alt": "University of Mumbai campus",
     },
 ]
 
