@@ -792,9 +792,11 @@ kbd {
 .contact { position: relative; margin-top: clamp(40px, 5vw, 80px); padding-bottom: clamp(90px, 10vw, 150px); overflow-x: clip; }
 .ct-radar { position: absolute; right: var(--gutter); top: 40px; width: min(620px, 70vw); aspect-ratio: 1; pointer-events: none; z-index: 0; opacity: .7; }
 .ct-radar i { position: absolute; inset: 0; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--cyan) 40%, transparent); animation: ping 6s var(--ease) infinite; }
-.ct-radar i:nth-child(2) { animation-delay: 1.5s; }
-.ct-radar i:nth-child(3) { animation-delay: 3s; }
-.ct-radar i:nth-child(4) { animation-delay: 4.5s; }
+/* Negative delays start each ring mid-pulse. With positive ones, a waiting ring sat at full size and full strength
+   until its turn came: a dark outer ring on load that then vanished. */
+.ct-radar i:nth-child(2) { animation-delay: -1.5s; }
+.ct-radar i:nth-child(3) { animation-delay: -3s; }
+.ct-radar i:nth-child(4) { animation-delay: -4.5s; }
 .ct-radar::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 300deg, color-mix(in srgb, var(--cyan) 6%, transparent) 340deg, color-mix(in srgb, var(--cyan) 16%, transparent) 360deg); animation: spin 5s linear infinite; -webkit-mask: radial-gradient(circle, #000 0 69%, transparent 70%); mask: radial-gradient(circle, #000 0 69%, transparent 70%); }
 @keyframes ping { 0% { transform: scale(.1); opacity: .9; } 100% { transform: scale(1); opacity: 0; } }
 .ct-title .gw { display: inline-block; }
