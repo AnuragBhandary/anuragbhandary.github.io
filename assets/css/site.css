@@ -373,7 +373,13 @@ kbd {
 .term-in input { flex: 1; background: none; border: 0; outline: 0; color: var(--text); font: inherit; caret-color: var(--cyan); }
 .term-in input::placeholder { color: var(--dim); }
 
-.win-note { width: 226px; left: calc(var(--gutter) + var(--name) * 3.7 + 40px); top: calc(var(--mt) + 52px + var(--name) * .5); }
+/* Three background dots (28 px apart) right of BHANDARY, the name's widest line at about 3.4 x --name, and centred
+   on NAVIN, midway between the first and last name. The name starts 45 px below --mt (the role line plus its margin). */
+.win-note {
+  --note-w: 226px; width: var(--note-w);
+  left: calc(var(--gutter) + var(--name) * 3.4 + 28px * 3);
+  top: calc(var(--mt) + 45px + var(--name) * .92 * 1.5); transform: translateY(-50%);
+}
 .note { padding: 14px 16px 16px; font-size: 14px; line-height: 1.55; background: color-mix(in srgb, var(--yellow) 7%, var(--panel)); }
 .note p + p { margin-top: 6px; color: var(--muted); }
 .note b { color: var(--text); }
@@ -999,7 +1005,7 @@ kbd {
 
 @media (max-width: 1100px) {
   .desktop { --term-w: 37vw; }
-  .win-note { width: 200px; }
+  .win-note { --note-w: 200px; }
   .photo-cap span:last-child { display: none; }
   .sk-lang, .sk-back, .sk-dist { grid-column: span 6; }
   .sk-dist { grid-column: span 12; }
@@ -1030,7 +1036,7 @@ kbd {
   .win-bar { cursor: default; }
   .win-title { margin-right: 0; text-align: left; }
   .win-photo { order: 2; }
-  .win-note { order: 2; align-self: stretch; }
+  .win-note { order: 2; align-self: stretch; transform: none; }
   .win-note .note { height: calc(100% - 34px); font-size: 13px; padding: 12px; }
   .win-term { grid-column: 1 / -1; order: 3; }
   .win.closed { display: none; }
