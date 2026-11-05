@@ -167,6 +167,18 @@ test("guard withholds answers with no citation or a citation that doesn't exist"
   assert.equal(check("It took 7.1 ms [9].", PASSAGES).reason, "bad_citation");
 });
 
+test("guard keeps an unmarked answer only when its numbers and wording come from the passages", () => {
+  const passages = [
+    { title: "Showtime overview", text: "Buyers hold seats in Redis for ten minutes, then Stripe takes the payment and a ticket is issued." },
+    { title: "Results", text: "p95 latency was 7.1 ms over 50,000 jobs." },
+  ];
+  const v = check("Buyers hold seats in Redis for ten minutes, then Stripe takes the payment and a ticket is issued.", passages);
+  assert.equal(v.ok, true);
+  assert.deepEqual(v.cited, [1]);
+  assert.equal(check("Buyers hold seats in Redis for 15 minutes.", passages).reason, "no_citation");
+  assert.equal(check("He is great at Kafka and Kubernetes clusters everywhere.", passages).reason, "no_citation");
+});
+
 test("guard treats the refusal word and an empty reply as not found", () => {
   assert.equal(check("NOT_IN_CONTEXT", PASSAGES).reason, "not_found");
   assert.equal(check("", PASSAGES).reason, "not_found");

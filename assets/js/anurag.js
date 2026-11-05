@@ -76,6 +76,9 @@
     if (mood !== "run") setTimeout(function () { mini.classList.remove(mood); }, 900);
   }
   var job = document.getElementById("askJob");
+  // On phones a focused field pops the keyboard up over the chat, so the visitor taps the box when ready.
+  var keyboard = window.matchMedia("(pointer: fine)").matches;
+  function focusField(el) { if (keyboard) el.focus(); }
   var fitting = false;
 
   function setFit(on) {
@@ -84,7 +87,7 @@
     fitBtn.textContent = on ? "Back to questions" : "Check his fit for a job: paste the description";
     input.hidden = on;
     job.hidden = !on;
-    (on ? job : input).focus();
+    focusField(on ? job : input);
   }
 
   // Game-dialogue style: letters appear one at a time with a beat after punctuation. The untyped rest
@@ -118,7 +121,7 @@
     document.documentElement.classList.toggle("ask-open", open);
     toggle.setAttribute("aria-expanded", String(open));
     if (buddy) buddy.setAttribute("aria-expanded", String(open));
-    if (open) input.focus(); else opener.focus();
+    if (open) focusField(input); else opener.focus();
     // The greeting is spoken the first time the chat opens; aria-busy keeps screen readers from reading each letter.
     if (open && greeting) {
       var g = greeting;
@@ -345,7 +348,7 @@
       busy = false;
       send.disabled = false;
       if (hero) hero.classList.remove("thinking");
-      input.focus();
+      focusField(input);
     });
   }
 

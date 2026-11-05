@@ -24,13 +24,39 @@ function claims(text) {
   return { out, rest: text.slice(start) };
 }
 
+function contentWords(text) {
+  return new Set((text.toLowerCase().match(/[a-z][a-z'-]{3,}/g) || []));
+}
+
+// Found by running it: "How does Showtime work?" got a correct answer with no markers at all, and the visitor saw
+// a refusal. With no markers to check per passage, every number must be in the retrieved passages and most of the
+// wording must come from them; the passages it draws on count as cited.
+function uncited(text, context) {
+  const all = context.map((c) => `${c.title} ${c.text}`).join(" ");
+  const known = new Set(numbers(all));
+  const said = durations(all);
+  if (numbers(text).some((n) => !known.has(n)) || durations(text).some((d) => !said.includes(d))) return null;
+  const words = [...contentWords(text)];
+  const source = contentWords(all);
+  if (!words.length || words.filter((w) => source.has(w)).length < 0.7 * words.length) return null;
+  const used = context.map((c, i) => {
+    const mine = contentWords(`${c.title} ${c.text}`);
+    return { n: i + 1, hits: words.filter((w) => mine.has(w)).length };
+  }).filter((p) => p.hits >= Math.max(3, 0.2 * words.length));
+  return used.length ? used.map((p) => p.n) : [1];
+}
+
 // Returns { ok, answer, cited } where cited holds 1-based passage numbers actually used.
 export function check(reply, context) {
   const text = (reply || "").trim();
   if (!text || text.includes(NOT_FOUND)) return { ok: false, reason: "not_found" };
 
   const { out, rest } = claims(text);
-  if (out.length === 0) return { ok: false, reason: "no_citation" };
+  if (out.length === 0) {
+    const used = uncited(text, context);
+    if (!used) return { ok: false, reason: "no_citation" };
+    return { ok: true, answer: tidy(text), cited: used };
+  }
 
   const cited = new Set();
   let kept = "";
@@ -57,15 +83,17 @@ export function check(reply, context) {
   else kept += rest;
   // Half or more unsupported means the model wasn't reading the passages, so none of it is trusted.
   if (dropped > 0 && dropped * 2 >= out.length + (restBad ? 1 : 0)) return { ok: false, reason: "unsupported_number" };
+  return { ok: true, answer: tidy(kept), cited: [...cited] };
+}
 
+function tidy(kept) {
   // Replies show as plain text, so markdown markers would appear literally.
   // List items keep their own lines (the chat shows line breaks); their dashes become bullets.
   // gpt-oss writes narrow no-break spaces and no-break hyphens, and now and then misspells his name (seen:
   // "Anuraj", "Anurak"). Plain characters keep the clean-up below working; "AnuRAG" doesn't match.
-  const answer = kept.replace(/[\u00a0\u202f\u2009]/g, " ").replace(/[\u2010\u2011]/g, "-").replace(/\bAnura[a-fh-z]\b/g, "Anurag")
+  return kept.replace(/[\u00a0\u202f\u2009]/g, " ").replace(/[\u2010\u2011]/g, "-").replace(/\bAnura[a-fh-z]\b/g, "Anurag")
     .replace(/[ \t]*\[\s*\d+(?:\s*,\s*\d+)*\s*\]/g, "").replace(/([.!?])(?:[ \t]*[.!?])+/g, "$1").replace(/\*\*|`/g, "")
     .replace(/^[ \t]*[-*•][ \t]+/gm, "• ").replace(/^#+[ \t]*/gm, "")
     .replace(/ +([.,;:!?])/g, "$1").replace(/ {2,}/g, " ").replace(/[ \t]+$/gm, "")
     .replace(/\n+(?!• )([^\n]+:)\n(?=• )/g, "\n\n$1\n").replace(/\n{3,}/g, "\n\n").replace(/^[\s.,;:!?]+/, "").trim();
-  return { ok: true, answer, cited: [...cited] };
 }
