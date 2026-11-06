@@ -107,6 +107,8 @@ function tidy(kept) {
   // gpt-oss writes narrow no-break spaces and no-break hyphens, and now and then misspells his name (seen:
   // "Anuraj", "Anurak"). Plain characters keep the clean-up below working; "AnuRAG" doesn't match.
   return kept.replace(/[\u00a0\u202f\u2009]/g, " ").replace(/[\u2010\u2011]/g, "-").replace(/\bAnura[a-fh-z]\b/g, "Anurag")
+    // The bot's own name in any other casing ("AnuRag", "Anu-RAG") is put back; "Anurag", the person, is left alone.
+    .replace(/\bAnu-?rag\b/gi, (m) => (m === "Anurag" || m === "anurag" ? m : "AnuRAG"))
     .replace(/[ \t]*\[\s*\d+(?:\s*,\s*\d+)*\s*\]/g, "").replace(/([.!?])(?:[ \t]*[.!?])+/g, "$1").replace(/\*\*|`/g, "")
     .replace(/^[ \t]*[-*•][ \t]+/gm, "• ").replace(/^#+[ \t]*/gm, "")
     .replace(/ +([.,;:!?])/g, "$1").replace(/ {2,}/g, " ").replace(/[ \t]+$/gm, "")

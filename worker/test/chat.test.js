@@ -551,3 +551,11 @@ test("a fit line crediting a project that never used the skill is corrected from
   assert.ok(!docker.includes("Cloud"), docker);
   assert.ok(docker.includes("CDC Pipeline"), docker);
 });
+
+// Found by running it: "What can you answer?" came back as "Anurag answers questions about Anurag's work".
+test("the bot keeps its own name: AnuRAG, never Anurag", () => {
+  const help = knowledge.find((c) => c.id === "anurag-bot-help");
+  assert.match(help.text, /^I'm AnuRAG/);
+  const fixed = check("I'm AnuRag, and Anu-RAG answers for Anurag [1].", [help]).answer;
+  assert.equal(fixed, "I'm AnuRAG, and AnuRAG answers for Anurag.");
+});

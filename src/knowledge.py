@@ -233,7 +233,10 @@ def chunks():
     # Questions to the bot itself ("what can you answer?", "how many questions can I ask?") land here.
     yield {
         "id": "anurag-bot-help", "title": "What AnuRAG can answer, and how many questions you can ask", "url": "#top",
-        "text": "I answer questions about Anurag's work using only what is on this site: his projects and how they "
+        # "I" is spelled out as AnuRAG up front: a model told to call Anurag "Anurag" had turned this into "Anurag
+        # answers questions about Anurag's work".
+        "text": "I'm AnuRAG, the site's chatbot, and I answer questions about Anurag's work using only what is on "
+                "this site: his projects and how they "
                 "work, his internship at Fayble Inc., his skills and where he used them, his education, whether he is "
                 "open to work or relocation, and how to contact him. I can't answer what the site doesn't cover, like "
                 "what he expects to be paid, his personal life or his opinions, and I won't guess. There is no fixed "
