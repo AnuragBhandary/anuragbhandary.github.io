@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import knowledge from "../src/knowledge.json" with { type: "json" };
 import { buildIndex, search } from "../src/retrieve.js";
 import { check } from "../src/guard.js";
-import { handle, asksForProjectList, asksForTour, followUps, asksAboutBot, isFollowUp, retrieve, skillsNamed, actionsFor, asksForResume, fixCredits } from "../src/index.js";
+import { handle, asksForProjectList, asksForTour, followUps, asksAboutBot, isFollowUp, retrieve, skillsNamed, actionsFor, asksForResume, fixCredits, isSmallTalk, chatClaims, asksAboutAnurag } from "../src/index.js";
 
 const index = buildIndex(knowledge);
 const ORIGIN = "https://anuragbhandary.github.io";
@@ -205,11 +205,64 @@ test("oversized and malformed bodies are rejected without calling the model", as
   assert.equal(fn.calls.length, 0);
 });
 
-test("greetings and off-topic questions don't spend quota", async () => {
+test("greetings don't spend quota", async () => {
   const fn = model("x [1]");
   assert.equal((await (await handle(post({ question: "hello!" }), ENV, fn)).json()).kind, "hello");
-  assert.equal((await (await handle(post({ question: "favourite pizza?" }), ENV, fn)).json()).kind, "not_found");
   assert.equal(fn.calls.length, 0);
+});
+
+// Found by running it: "what's up?" got "I can't find that on this site".
+test("chit-chat gets a reply in character, with no passages and no facts", async () => {
+  for (const q of ["What's up?", "sup", "how are you doing?", "thanks!", "lol", "tell me a joke", "hey whats up bro"]) {
+    assert.ok(isSmallTalk(q), q);
+  }
+  for (const q of ["What's up with his Kafka project?", "How are the results?", "thanks for the Showtime info, what next?"]) {
+    assert.ok(!isSmallTalk(q), q);
+  }
+  const fn = model("Not much, just dodging glitch bugs. Want the quick tour?");
+  const data = await (await handle(post({ question: "What's up?" }), ENV, fn)).json();
+  assert.equal(data.kind, "answer");
+  assert.match(data.answer, /glitch bugs/);
+  assert.deepEqual(data.sources, []);
+  assert.equal(fn.calls.length, 1);
+  assert.match(fn.calls[0].body.systemInstruction.parts[0].text, /Reply in character/);
+  assert.equal(fn.calls[0].body.generationConfig.temperature, 0.8);
+  assert.ok(!fn.calls[0].body.contents[0].parts[0].text.includes("<note>"));
+});
+
+test("a chat reply that slips in a fact about him falls back to a fixed line", async () => {
+  for (const reply of ["He has 5 projects!", "He's great at Kubernetes.", "Ask me about Showtime!", "His GPA is great."]) {
+    const data = await (await handle(post({ question: "What's up?" }), ENV, model(reply))).json();
+    assert.equal(data.kind, "smalltalk", reply);
+    assert.ok(!data.answer, reply);
+  }
+  // The bot's own notes name Gemini, so it may say what it runs on; Fayble is a topic it may offer.
+  assert.ok(!chatClaims("I run on Gemini and a lot of pixel coffee."));
+  assert.ok(!chatClaims("Ask me about his projects or his internship at Fayble."));
+  const twoLines = await (await handle(post({ question: "lol" }), ENV, model("Ha, glad that landed.\n\nWant the quick tour?"))).json();
+  assert.equal(twoLines.answer, "Ha, glad that landed. Want the quick tour?");
+  const poem = await (await handle(post({ question: "lol" }), ENV, model("Roses are red\nbugs are blue\nmy code compiles\nand so do you"))).json();
+  assert.equal(poem.kind, "smalltalk");
+});
+
+test("an off-topic question the site can't answer gets a reply in character that says so", async () => {
+  const chat = model("Pizza isn't in my notes, and I won't guess! The contact section reaches the real Anurag.");
+  const fn = async (url, init) => (JSON.parse(init.body).systemInstruction.parts[0].text.includes("Reply in character")
+    ? chat(url, init) : model("NOT_IN_CONTEXT")(url, init));
+  const data = await (await handle(post({ question: "what's his favourite pizza?" }), ENV, fn)).json();
+  assert.equal(data.kind, "answer");
+  assert.match(chat.calls[0].body.contents[0].parts[0].text, /<note>/);
+  assert.deepEqual(data.actions, ["contact"]);
+  const busy = await (await handle(post({ question: "what's his favourite pizza?" }), ENV, model("", 429))).json();
+  // Chit-chat the site can't answer gets no contact button.
+  for (const q of ["Nah I just wanna talk to you", "What do you mean zone out, you're an AI", "Can you tell me how to solve two sum in leetcode?"]) {
+    assert.ok(!asksAboutAnurag(q), q);
+  }
+  for (const q of ["what's his salary?", "Is Anurag married?", "does he like cricket?"]) assert.ok(asksAboutAnurag(q), q);
+  assert.equal(busy.kind, "busy");
+  // With nothing retrieved and every model out, it still says the site can't answer.
+  const out = await (await handle(post({ question: "favourite pizza?" }), ENV, model("", 429))).json();
+  assert.equal(out.kind, "not_found");
 });
 
 test("a good answer comes back with its source, and the key stays server-side", async () => {

@@ -903,7 +903,7 @@
         if (!question) { print("usage: chat <question>", "tl-warn"); print("  e.g. " + CHAT_EXAMPLE, "tl-out"); break; }
         var pending = document.createElement("div");
         pending.className = "tl tl-out";
-        pending.textContent = window.AnuRAG.waiting();
+        pending.textContent = window.AnuRAG.waiting(question);
         tOut.appendChild(pending);
         tOut.scrollTop = tOut.scrollHeight;
         window.AnuRAG.ask(question).then(function (r) {

@@ -5,6 +5,8 @@
   var CFG = window.ANB || {};
   if (!CFG.chat) return;
 
+  // The deployed worker only answers the live site, so a local copy of the site talks to `wrangler dev` instead.
+  var ENDPOINT = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "http://localhost:8787/chat" : CFG.chat;
   var LINES = CFG.chatLines || {};
   var bags = {};
   var previous = "";
@@ -28,7 +30,7 @@
   function ask(question, job) {
     var body = job ? { mode: "fit", job: job, page: CFG.project || "" }
                    : { question: question, previous: previous, history: history, page: CFG.project || "" };
-    return fetch(CFG.chat, {
+    return fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
@@ -38,14 +40,22 @@
       var text = data.kind === "answer" ? data.answer : line(data.kind === "not_found" && job ? "no_fit" : data.kind || "error");
       previous = question;
       // A "busy" or "error" line says nothing about the question, so only real replies are remembered.
-      if (data.kind === "answer" || data.kind === "not_found") history = history.concat({ q: question, a: text.slice(0, 700) }).slice(-3);
+      if (data.kind === "answer" || data.kind === "not_found" || data.kind === "smalltalk") history = history.concat({ q: question, a: text.slice(0, 700) }).slice(-3);
       return { kind: data.kind, text: text, sources: data.sources || [], next: data.next || [], actions: data.actions || [] };
     }).catch(function () {
       return { kind: "error", text: line("error"), sources: [], next: [], actions: [] };
     });
   }
 
-  window.AnuRAG = { ask: ask, waiting: function () { return line("waiting"); } };
+  // "Digging through the projects…" only fits a question about his work; anything else gets a plain "Thinking…".
+  // A project page counts as asking about his work, so "what were the results?" there still gets the work lines.
+  var WORK = /\b(anurag'?s?|he|him|his|himself|he'?s|projects?|work(s|ed)?|skills?|fayble|intern(ship)?|resume|cv|experience|built|build|stack|results?|education|degree|stud(y|ied)|universit(y|ies)|college|gpa|contact|hire|hiring|job|role|tour|tech|tools?|languages?|portfolio|showtime|kafka|python|java|sql|react|kubernetes|docker|data)\b/i;
+  function waiting(question, job) {
+    if (job) return line("waiting_fit");
+    return line(WORK.test(question) || (CFG.project && /\b(this|it|results?)\b/i.test(question)) ? "waiting" : "waiting_chat");
+  }
+
+  window.AnuRAG = { ask: ask, waiting: waiting };
 
   var panel = document.getElementById("askPanel");
   var toggle = document.getElementById("askToggle");
@@ -115,10 +125,41 @@
     return finish;
   }
 
+  // Shown first, then slid in on the next frame; slid out first, then hidden once the slide ends.
+  var isOpen = false;
+  var hideTimer = null;
+  function slide(open) {
+    clearTimeout(hideTimer);
+    if (open) {
+      panel.classList.remove("leaving");
+      document.documentElement.classList.add("ask-open");
+      panel.hidden = false;
+      void panel.offsetWidth;
+      panel.classList.add("in");
+      return;
+    }
+    panel.classList.add("leaving");
+    panel.classList.remove("in");
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // The timer only backs up transitionend, which doesn't fire if the slide is cut short.
+    hideTimer = setTimeout(hide, reduce ? 0 : 300);
+  }
+  // The corner hero comes back only once the panel is gone, not while it is still sliding over his corner.
+  function hide() {
+    clearTimeout(hideTimer);
+    panel.hidden = true;
+    panel.classList.remove("leaving");
+    document.documentElement.classList.remove("ask-open");
+  }
+  panel.addEventListener("transitionend", function (e) {
+    if (e.target === panel && e.propertyName === "transform" && !isOpen) hide();
+  });
+
   function setOpen(open, from) {
+    if (open === isOpen) return;
+    isOpen = open;
     if (open) opener = from || toggle;
-    panel.hidden = !open;
-    document.documentElement.classList.toggle("ask-open", open);
+    slide(open);
     toggle.setAttribute("aria-expanded", String(open));
     if (buddy) buddy.setAttribute("aria-expanded", String(open));
     if (open) focusField(input); else opener.focus();
@@ -333,12 +374,12 @@
     // Old suggestions would answer an earlier question, so only the latest set stays.
     Array.prototype.forEach.call(log.querySelectorAll(".ask-next"), function (n) { n.remove(); });
     add(question, "me");
-    var wait = add(line("waiting"), "bot wait");
+    var wait = add(waiting(question, posting), "bot wait");
     if (hero) hero.classList.add("thinking");
     react("run");
     ask(question, posting).then(function (r) {
       wait.remove();
-      react(r.kind === "answer" ? "cheer" : "hurt");
+      react(r.kind === "answer" || r.kind === "smalltalk" ? "cheer" : "hurt");
       typeAnswer(addReply(r.text), function () {
         addSources(r.sources);
         addActions(r.actions);
@@ -352,7 +393,7 @@
     });
   }
 
-  toggle.addEventListener("click", function () { setOpen(panel.hidden, toggle); });
+  toggle.addEventListener("click", function () { setOpen(!isOpen, toggle); });
   document.getElementById("askClose").addEventListener("click", function () { setOpen(false); });
   panel.addEventListener("keydown", function (e) { if (e.key === "Escape") setOpen(false); });
   form.addEventListener("submit", function (e) {

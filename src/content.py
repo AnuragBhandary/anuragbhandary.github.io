@@ -35,12 +35,21 @@ ASSISTANT = {
     ],
     # Fixed lines, never generated: these show when something has already gone wrong.
     "lines": {
+        # Picked by the question: his work, plain chat, or a pasted job description.
         "waiting": ["Flipping through his work…", "Digging through the projects…", "One sec, checking my notes…", "Looking that up…"],
+        "waiting_chat": ["Thinking…", "Hmm, one sec…", "Typing…", "Give me a moment…"],
+        "waiting_fit": ["Reading the posting…", "Lining his work up with the role…", "Checking each requirement…"],
         "hello": ["Hey! Ask me anything about Anurag's work.", "Hi there! What do you want to know about Anurag?", "Hello! Pick a project, or ask me anything about his work."],
         "not_found": [
             "I can't find that on this site, and I won't guess. Try his projects, his Fayble work or his skills, or reach Anurag through the contact section.",
             "That one's not in my notes, and I don't make things up. Ask me about his projects, experience or skills instead, or ask Anurag directly through the contact section.",
             "You've got me there! It's not on this site. I'm good on his projects, his Fayble work and his skills, and the contact section reaches the real Anurag.",
+        ],
+        # Chit-chat when every model is busy or a reply fails its checks.
+        "smalltalk": [
+            "Not much! Just patrolling Anurag's portfolio for glitch bugs. Want the quick tour?",
+            "All good here, running on pixel coffee. Ask me about his projects whenever you like.",
+            "Living my best pixel life. If you're curious about Anurag's work, I'm your guide.",
         ],
         "no_fit": [
             "I couldn't match that posting to anything on this site, and I won't stretch it. Try asking about a specific skill instead.",

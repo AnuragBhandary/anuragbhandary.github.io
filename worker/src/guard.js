@@ -86,6 +86,21 @@ export function check(reply, context) {
   return { ok: true, answer: tidy(kept), cited: [...cited] };
 }
 
+// Small talk has no passages to cite, so it may not carry facts at all: no numbers, short, and nothing the caller
+// flags (a project or skill named outside the bot's own notes). A failing reply falls back to a fixed line.
+const MAX_CHAT = 420;
+
+export function checkChat(reply, flagged = () => false) {
+  // Found by running it: a good two-line reply came as two paragraphs. Those join; a poem or a list doesn't fit.
+  const raw = tidy((reply || "").trim()).replace(/^AnuRAG:\s*/i, "");
+  const text = (raw.match(/\n+/g) || []).length <= 1 ? raw.replace(/\s*\n+\s*/g, " ") : raw;
+  if (!text || text.includes(NOT_FOUND)) return { ok: false, reason: "not_found" };
+  if (/\d/.test(text)) return { ok: false, reason: "chat_number" };
+  if (text.length > MAX_CHAT || text.includes("\n")) return { ok: false, reason: "chat_long" };
+  if (flagged(text)) return { ok: false, reason: "chat_claim" };
+  return { ok: true, answer: text };
+}
+
 function tidy(kept) {
   // Replies show as plain text, so markdown markers would appear literally.
   // List items keep their own lines (the chat shows line breaks); their dashes become bullets.
