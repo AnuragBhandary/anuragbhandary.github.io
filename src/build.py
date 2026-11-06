@@ -10,7 +10,7 @@ No dependencies beyond the Python standard library.
 from html import escape
 from pathlib import Path
 import json
-
+import re
 import shutil
 
 import knowledge
@@ -19,6 +19,40 @@ from content import (ASSISTANT, CATEGORIES, EDUCATION, PERSON, PROJECTS, ROLES, 
                      USED_EXTRA, home_category)
 
 ROOT = Path(__file__).resolve().parent.parent
+_FILE_HASHES = {}
+
+
+def _file_version(rel):
+    import hashlib
+    if rel not in _FILE_HASHES:
+        _FILE_HASHES[rel] = hashlib.md5((ROOT / rel).read_bytes()).hexdigest()[:8]
+    return _FILE_HASHES[rel]
+
+
+# Images and PDFs get ?v=<their own hash>, so a browser never keeps a stale or broken copy.
+_MEDIA = re.compile(r"((?:assets/(?:img|sprites)|resume)/[\w./-]+\.(?:png|jpe?g|webp|gif|svg|pdf))(?:\?v=\w+)?")
+
+
+def versioned(text):
+    def tag(m):
+        rel = m.group(1)
+        return f"{rel}?v={_file_version(rel)}" if (ROOT / rel).is_file() else m.group(0)
+    return _MEDIA.sub(tag, text)
+
+
+def _version_css():
+    # site.css lives in assets/css, so its url(../img/...) paths resolve from assets/.
+    css = ROOT / "assets/css/site.css"
+    old = css.read_text()
+    new = re.sub(r"url\(\.\./((?:img|sprites)/[^)?]+)(?:\?v=\w+)?\)",
+                 lambda m: f"url(../{m.group(1)}?v={_file_version('assets/' + m.group(1))})", old)
+    if new != old:
+        css.write_text(new)
+
+
+_version_css()
+
+
 def _asset_version():
     import hashlib
     h = hashlib.md5()
@@ -541,7 +575,7 @@ def home(track_key):
 """ + scripts(root, "home", track_key)
     out = ROOT / tr["prefix"] / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(page)
+    out.write_text(versioned(page))
     return out
 
 
@@ -658,7 +692,7 @@ def project(slug):
 """ + scripts(root, "project", track_key, slug)
     out = ROOT / "work" / slug / "index.html"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(page)
+    out.write_text(versioned(page))
     return out
 
 
