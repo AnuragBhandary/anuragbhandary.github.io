@@ -14,7 +14,7 @@ Plain HTML, CSS and JavaScript. No framework, no npm.
 3. Preview: `python3 -m http.server 8765`, then open http://localhost:8765.
 
 Styles are in `assets/css/site.css` (colours are the variables at the top). Interactions are in `assets/js/site.js`.
-Resumes live in `resume/`; `resume.pdf` at the root is kept for old links and is the Software resume.
+Resumes live in `resume/`; `resume.pdf` at the root is kept for old links and is the Full-stack resume (the main page's resume).
 
 ## Live LeetCode stats
 

@@ -361,6 +361,15 @@ kbd {
 .win-score b#gBest { color: var(--yellow); }
 
 .win-term { width: var(--term-w); left: var(--gutter); top: var(--top); }
+/* System info sits between the terminal and the photo, sized to the gap between them. */
+.win-info {
+  width: clamp(200px, calc(100vw - var(--gutter) * 2 - var(--term-w) - var(--photo-w) - 64px), 360px);
+  left: calc(var(--gutter) + var(--term-w) + 32px); top: var(--top);
+}
+.win-body.sysinfo { border: 0; border-radius: 0; padding: 14px 18px 10px; font-size: 13px; line-height: 1.5; }
+.win-body.sysinfo .sys-head { padding-bottom: 12px; margin-bottom: 6px; }
+.win-body.sysinfo .sys-head .logo { font-size: 34px; }
+.win-body.sysinfo dl div { grid-template-columns: 84px 1fr; padding: 6px 0; }
 .term { padding: 14px 16px 12px; font: 400 13.5px/1.7 var(--f-mono); height: 236px; display: flex; flex-direction: column; }
 .term-out { flex: 1; overflow-y: auto; scrollbar-width: none; }
 .term-out::-webkit-scrollbar { display: none; }
@@ -377,7 +386,7 @@ kbd {
 /* Three background dots (28 px apart) right of BHANDARY, the name's widest line at about 3.4 x --name, and centred
    on NAVIN, midway between the first and last name. The name starts 45 px below --mt (the role line plus its margin). */
 .win-note {
-  --note-w: 226px; width: var(--note-w);
+  --note-w: 244px; width: var(--note-w);
   left: calc(var(--gutter) + var(--name) * 3.4 + 28px * 3);
   top: calc(var(--mt) + 45px + var(--name) * .92 * 1.5); transform: translateY(-50%);
 }
@@ -388,6 +397,7 @@ kbd {
 .note a:hover { text-decoration: underline; }
 .note-links { display: flex; flex-wrap: wrap; gap: 0 14px; margin: 0; }
 .note-game button { color: var(--cyan-ink); text-decoration: underline; text-underline-offset: 3px; }
+.note .nw { white-space: nowrap; }
 
 .win-photo { width: var(--photo-w); right: var(--gutter); top: calc(var(--mt) + 44px); }
 .photo-tilt { position: relative; aspect-ratio: 1; overflow: hidden; transition: transform .5s var(--ease); }
@@ -733,6 +743,10 @@ kbd {
 .bc-top { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 18px; padding: 18px 24px; border-bottom: 1px solid var(--line); background: var(--panel2); }
 .bc-live { font: 600 11px var(--f-mono); letter-spacing: .12em; color: #fff; background: var(--pink); padding: 4px 9px; border-radius: 4px; animation: onair 2.4s infinite; }
 @keyframes onair { 50% { opacity: .55; } }
+.exp-stack { display: grid; gap: 22px; }
+h3.bc-co { margin: 0; font-weight: 400; }
+.bc-logo { display: inline-flex; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 7px 14px; }
+.bc-logo img { display: block; height: 36px; width: auto; }
 .bc-co { font: 400 34px/1 var(--f-display); letter-spacing: .04em; }
 .bc-meta { color: var(--muted); font-size: 14px; }
 .bc-roles { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
@@ -761,7 +775,8 @@ kbd {
 .quote:hover .quote-go { opacity: 1; }
 
 /* --- Resume: fax machine --- */
-.fax-stage { display: grid; place-items: center; padding: 20px 0 10px; }
+.fax-stage { display: grid; place-items: center; padding: 20px 0 10px; scroll-margin-top: 90px; }
+.about-grid .fax-stage { position: sticky; top: 60px; padding-top: 0; }
 .fax { position: relative; width: min(440px, 100%); padding-top: 400px; }
 .paper { position: absolute; left: 50%; transform: translateX(-50%); width: 310px; max-width: 76%; top: 0; height: 406px; overflow: hidden; }
 .paper-inner {
@@ -1006,7 +1021,10 @@ kbd {
 
 @media (max-width: 1100px) {
   .desktop { --term-w: 37vw; }
-  .win-note { --note-w: 200px; }
+  .win-info .sys-head { display: none; }
+  .win-body.sysinfo { font-size: 12px; padding-top: 8px; }
+  .win-body.sysinfo dl div { grid-template-columns: 70px 1fr; gap: 6px; }
+  .win-note { --note-w: 214px; }
   .photo-cap span:last-child { display: none; }
   .sk-lang, .sk-back, .sk-dist { grid-column: span 6; }
   .sk-dist { grid-column: span 12; }
@@ -1040,6 +1058,11 @@ kbd {
   .win-note { order: 2; align-self: stretch; transform: none; }
   .win-note .note { height: calc(100% - 34px); font-size: 13px; padding: 12px; }
   .win-term { grid-column: 1 / -1; order: 3; }
+  .win-info { grid-column: 1 / -1; order: 4; }
+  .win-info .sys-head { display: flex; }
+  .win-body.sysinfo { font-size: 13px; }
+  .win-body.sysinfo dl div { grid-template-columns: 90px 1fr; }
+  .about-grid .fax-stage { position: static; }
   .win.closed { display: none; }
   .sheet { border-radius: 22px 22px 0 0; }
   .sec-head { grid-template-columns: 1fr; }

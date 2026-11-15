@@ -41,9 +41,9 @@ ASSISTANT = {
         "waiting_fit": ["Reading the posting…", "Lining his work up with the role…", "Checking each requirement…"],
         "hello": ["Hey! Ask me anything about Anurag's work.", "Hi there! What do you want to know about Anurag?", "Hello! Pick a project, or ask me anything about his work."],
         "not_found": [
-            "I can't find that on this site, and I won't guess. Try his projects, his Fayble work or his skills, or reach Anurag through the contact section.",
+            "I can't find that on this site, and I won't guess. Try his projects, his work at SBM Bank and Fayble, or his skills, or reach Anurag through the contact section.",
             "That one's not in my notes, and I don't make things up. Ask me about his projects, experience or skills instead, or ask Anurag directly through the contact section.",
-            "You've got me there! It's not on this site. I'm good on his projects, his Fayble work and his skills, and the contact section reaches the real Anurag.",
+            "You've got me there! It's not on this site. I'm good on his projects, his work experience and his skills, and the contact section reaches the real Anurag.",
         ],
         # Chit-chat when every model is busy or a reply fails its checks.
         "smalltalk": [
@@ -751,6 +751,17 @@ EXPERIENCE_BASE = [
     "sequence number, with idempotent ingestion into SQLite and in-order reads through a FastAPI API.",
 ]
 
+# SBM Bank (joined 2026-11-09). Public page: no vendor or system names (his call, 2026-11-15), no results claimed yet,
+# nothing about the bank's internal setup.
+SBM_EXPERIENCE = [
+    "Building the React + TypeScript frontend for an internal email campaign portal on a Java backend, where every "
+    "campaign moves from a maker to a checker to two approvers before it is sent.",
+    "The portal is designed around single sign-on, masking of customer data and an append-only audit log of every action.",
+    "Testing, monitoring and maintaining the bank's financial-crime systems: real-time fraud monitoring across payment "
+    "channels, sanctions screening and trade-based money laundering detection.",
+    "Supporting compliance automation and governance reporting for the IT team.",
+]
+
 # Detail on his Fayble work for the AnuRAG chat only (not shown on the page). Facts are checked against his recovered
 # Cursor history; never add speed multiples ("10x", "threefold"), "benchmarked", "real-time" commentary, a full
 # generated game, the wagering work, teammates' names or how the role was paid.
@@ -828,8 +839,8 @@ TRACKS = {
         "role": "Software Engineer",
         "tagline": "Python · Java · React · systems that stay correct",
         "tab": "software",
-        "resume": "resume/Anurag-Bhandary-Software.pdf",
-        "preview": "assets/img/resume-Software.png",
+        "resume": "resume/Anurag-Bhandary-FullStack.pdf",
+        "preview": "assets/img/resume-FullStack.png",
         "terminal": [
             "whoami",
             "> software engineer. python, java, react, postgres, kafka.",
@@ -837,9 +848,12 @@ TRACKS = {
             "> systems that stay correct when things crash.",
         ],
         "about": [
-            "I'm a backend engineer who likes systems that stay calm under load. Queues, streams, and "
-            "services where a hundred milliseconds is a design constraint rather than a rounding error.",
-            "At Fayble I owned the audio side of an AI commentary system. Two synthetic commentators, an "
+            "I'm a full-stack engineer who likes building the whole thing: the React screen people click, the "
+            "APIs and services behind it, and the database underneath, all built to stay correct and calm under load.",
+            "Right now I'm at SBM Bank in Mumbai, in the IT project management team. I'm building the frontend "
+            "for an internal campaign portal where every email goes from a maker to a checker to two approvers "
+            "before it is sent, and I help keep the bank's fraud-monitoring and compliance systems tested and running.",
+            "Before that, at Fayble, I owned the audio side of an AI commentary system. Two synthetic commentators, an "
             "intensity model driven by game state, and per play speech stitched into continuous broadcast "
             "output. The interesting part was never the prompt, it was the time and cost of generating a whole "
             "game. I moved text generation to Groq and kept one emotion per play instead of stitching "
@@ -852,8 +866,9 @@ TRACKS = {
             ("focus", "Backend, full stack & real-time systems"),
             ("based in", "Mumbai, India (IST)"),
             ("education", "M.S. Computer Science"),
-            ("currently", "Open to work · relocation worldwide"),
+            ("currently", "Officer · SBM Bank"),
         ],
+        "sbm": [SBM_EXPERIENCE[0], SBM_EXPERIENCE[1], SBM_EXPERIENCE[2], SBM_EXPERIENCE[3]],
         "experience": EXPERIENCE_BASE,
     },
     "data": {
@@ -875,7 +890,9 @@ TRACKS = {
         "about": [
             "I'm a data engineer who cares whether the number on the dashboard is actually right. Not roughly "
             "right: reconciled against the source, to the cent, on every run.",
-            "At Fayble I replayed 19 recorded football games through Kafka, about 1,274 messages, with idempotent "
+            "Right now I'm at SBM Bank in Mumbai, in the IT project management team, helping test and monitor "
+            "the bank's fraud-monitoring and compliance systems, where a missed alert or a wrong figure is a real problem.",
+            "Before that, at Fayble, I replayed 19 recorded football games through Kafka, about 1,274 messages, with idempotent "
             "ingestion into SQLite and in-order reads through an API. It taught me that Kafka alone doesn't give "
             "you order across partitions: the order has to come from your own sequence numbers.",
             "Since then I've built a dbt warehouse fed by a live replay of 100,000 real orders, with a Power BI "
@@ -888,8 +905,9 @@ TRACKS = {
             ("focus", "Data engineering & analytics"),
             ("based in", "Mumbai, India (IST)"),
             ("education", "M.S. Computer Science"),
-            ("currently", "Open to work · relocation worldwide"),
+            ("currently", "Officer · SBM Bank"),
         ],
+        "sbm": [SBM_EXPERIENCE[2], SBM_EXPERIENCE[0], SBM_EXPERIENCE[3]],
         "experience": [EXPERIENCE_BASE[3], EXPERIENCE_BASE[0], EXPERIENCE_BASE[1], EXPERIENCE_BASE[2]],
     },
     "ai": {
@@ -912,7 +930,10 @@ TRACKS = {
         "about": [
             "I'm an ML engineer who trusts a number only after trying to break it. A model that looks great "
             "in a notebook and falls apart on next month's data isn't a model, it's a demo.",
-            "At Fayble I built the LLM and text-to-speech side of an AI commentary system: two synthetic "
+            "Right now I'm at SBM Bank in Mumbai, in the IT project management team, helping test and monitor the "
+            "bank's real-time fraud monitoring and other financial-crime systems: the production side of the "
+            "kind of model I build in my projects.",
+            "Before that, at Fayble, I built the LLM and text-to-speech side of an AI commentary system: two synthetic "
             "commentators, emotion driven by game state, and a generation design shaped by time and "
             "free-tier cost.",
             "Since then I've built a RAG system where every design choice was measured against human labels, a "
@@ -923,8 +944,9 @@ TRACKS = {
             ("focus", "Applied ML & LLM systems"),
             ("based in", "Mumbai, India (IST)"),
             ("education", "M.S. Computer Science (AI focus)"),
-            ("currently", "Open to work · relocation worldwide"),
+            ("currently", "Officer · SBM Bank"),
         ],
+        "sbm": [SBM_EXPERIENCE[2], SBM_EXPERIENCE[0], SBM_EXPERIENCE[3]],
         "experience": [
             "Built the audio pipeline for an AI sports commentary system, turning LLM-generated "
             "play-by-play into dual-commentator speech with ElevenLabs, stitched into continuous broadcast audio.",
@@ -933,8 +955,15 @@ TRACKS = {
     },
 }
 
-ROLES = [
-    ("Software Development Intern (Founding Team)", "Jul 2025 – Jun 2026"),
+# Experience cards, newest first. "bullets" names the track key that holds each card's points.
+JOBS = [
+    {"company": "SBM Bank (India) Ltd.", "short": "SBM Bank", "logo": "assets/img/logos/sbm.png", "size": (150, 70),
+     "current": True, "meta": "Bank · IT & Digital Initiatives · Mumbai",
+     "roles": [("Officer - IT Project Management, Strategy and Governance Department", "Nov 2026 – Present")], "bullets": "sbm"},
+    {"company": "Fayble Inc.", "short": "Fayble", "logo": "assets/img/logos/fayble.png", "size": (518, 202),
+     "current": False, "meta": "AI sports-simulation startup · California · remote",
+     "roles": [("Software Development Intern (Founding Team)", "Jul 2025 – Jun 2026")], "bullets": "experience",
+     "testimonial": True},
 ]
 
 # ---------------------------------------------------------------------------
@@ -1012,7 +1041,7 @@ USED_EXTRA = {
     "Java": ["Showtime", "Consumer Benchmark"], "SQL": ["every project"], "GitHub Actions": ["CI on every project"],
     "LightGBM": ["Fraud Detection"], "Optuna": ["Fraud Detection"], "LangGraph": ["RAG QA"],
     "Hugging Face": ["RAG QA"], "pgvector": ["RAG QA"], "Playwright": ["Showtime", "Job Scheduler", "Event Streaming"],
-    "Tailwind CSS": ["Showtime", "Job Scheduler", "Event Streaming"], "TypeScript": ["Showtime", "Job Scheduler", "Event Streaming"],
-    "React": ["Showtime", "Job Scheduler", "Event Streaming"], "Evidence": ["A/B Testing"], "SciPy": ["A/B Testing"],
+    "Tailwind CSS": ["Showtime", "Job Scheduler", "Event Streaming"], "TypeScript": ["SBM Bank", "Showtime", "Job Scheduler", "Event Streaming"],
+    "React": ["SBM Bank", "Showtime", "Job Scheduler", "Event Streaming"], "Evidence": ["A/B Testing"], "SciPy": ["A/B Testing"],
     "Spring Boot": ["Showtime"],
 }

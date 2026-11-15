@@ -91,7 +91,9 @@
     });
   }
   var navLinks = $$(".dk[data-nav]");
-  var sections = CFG.page === "home" ? navLinks.map(function (a) { return document.getElementById(a.dataset.nav); }).filter(Boolean) : [];
+  // Only whole page sections light up the dock. The resume fax lives inside About, so it is a jump link only.
+  var sections = CFG.page === "home" ? navLinks.map(function (a) { return document.getElementById(a.dataset.nav); })
+    .filter(function (el) { return el && el.tagName === "SECTION"; }) : [];
   function onScrollNav() {
     if (!sections.length) return;
     var active = null;
@@ -662,7 +664,7 @@
       "<span class=ok>[ ok ]</span> mounting /work (" + nProj + " projects)",
       "<span class=ok>[ ok ]</span> syncing leetcode stats",
       "<span class=ok>[ ok ]</span> calibrating glitch",
-      "<span class=ok>[ ok ]</span> status: open to work"
+      "<span class=ok>[ ok ]</span> status: at SBM Bank, Mumbai"
     ];
     var finished = false;
     var finish = function () {
@@ -782,6 +784,8 @@
     b.addEventListener("click", function () {
       var what = b.dataset.open;
       if (what === "game") openGame();
+      else if (what === "resume") openResume();
+      else if (what === "chat") { var t = $("#askToggle"); if (t && t.getAttribute("aria-expanded") !== "true") t.click(); }
       else openWin(what);
     });
   });
@@ -922,7 +926,7 @@
       case "whoami":
         print("anurag navin bhandary · " + (CFG.role || "software engineer"), "tl-hi");
         print("m.s. computer science, ut arlington. mumbai, ist.");
-        print("status: open to work, open to relocation worldwide", "tl-hi");
+        print("now: it project management at sbm bank, mumbai", "tl-hi");
         break;
       case "ls": case "projects":
         var projectRows = visibleRows();

@@ -9,7 +9,7 @@ import json
 import re
 from pathlib import Path
 
-from content import CATEGORIES, EDUCATION, FAYBLE_DETAIL, PERSON, PROJECTS, ROLES, SKILLS, TESTIMONIAL, TRACKS, USED_EXTRA
+from content import CATEGORIES, EDUCATION, FAYBLE_DETAIL, JOBS, PERSON, PROJECTS, SKILLS, TESTIMONIAL, TRACKS, USED_EXTRA
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "worker" / "src" / "knowledge.json"
@@ -192,10 +192,17 @@ def chunks():
                 + " ".join(f"{d['degree']}, {d['school']}, {d['where']}, {d['when']}, {d['score']}." for d in EDUCATION),
     }
     yield {
-        "id": "experience", "title": "Experience at Fayble Inc.", "url": "#experience",
+        "id": "experience", "title": "Experience at SBM Bank and Fayble Inc.", "url": "#experience",
         "follow": fayble_asks(),
-        "text": "Where he worked, work experience, work history, career, jobs, employers and employment at Fayble Inc. "
-                + " ".join(f"{role}, {when}." for role, when in ROLES) + " " + " ".join(software["experience"]),
+        "text": "Where he worked, work experience, work history, career, jobs, employers and employment at SBM Bank and Fayble Inc. "
+                + " ".join(f"{j['company']}, {j['meta']}: " + " ".join(f"{role}, {when}." for role, when in j["roles"])
+                           + " " + " ".join(software[j["bullets"]]) for j in JOBS),
+    }
+    yield {
+        "id": "sbm", "title": "Current job at SBM Bank", "url": "#experience",
+        "text": "Current job, where he works now, his present role and employer, banking. He joined SBM Bank (India) Ltd. in "
+                "Mumbai in November 2026 as Officer - IT Project Management, Strategy and Governance Department. "
+                + " ".join(software["sbm"]),
     }
     yield {
         "id": "testimonial", "title": f"Reference from {TESTIMONIAL['name']}", "url": "#experience",
@@ -268,7 +275,9 @@ def project_list():
         passage.append(f"{c['label']} projects: " + "; ".join(items) + ".")
     text = ("List of all projects Anurag built, with each one's stack and headline result. The site leads with the "
             "featured projects to show his skills; the ones marked smaller are listed below them. " + " ".join(passage)
-            + " Work experience, alongside the projects: at Fayble Inc. he built the audio pipeline for an AI sports "
+            + " Work experience, alongside the projects: since November 2026 he works at SBM Bank in Mumbai (IT Project "
+            "Management), building the frontend of an internal email campaign portal and helping test and monitor the "
+            "bank's financial-crime systems. Before that, at Fayble Inc. he built the audio pipeline for an AI sports "
             "commentary system (Python, LLMs on Gemini and Groq, ElevenLabs), automated archery match videos with "
             "ffmpeg and 7.1 broadcast audio, and replayed game data through Kafka into SQLite and FastAPI.")
     answer = (f"Anurag has built {len(seen)} projects across software, data and AI / ML. Here they are by area, "

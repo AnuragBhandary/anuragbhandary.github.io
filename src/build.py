@@ -15,7 +15,7 @@ import shutil
 
 import knowledge
 import os
-from content import (ASSISTANT, CATEGORIES, EDUCATION, PERSON, PROJECTS, ROLES, SKILLS, TESTIMONIAL, TRACKS,
+from content import (ASSISTANT, CATEGORIES, EDUCATION, JOBS, PERSON, PROJECTS, SKILLS, TESTIMONIAL, TRACKS,
                      USED_EXTRA, home_category)
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -164,8 +164,8 @@ def dock(home, on_home):
     hl = "" if on_home else " data-home"
     item = lambda key, label: (f'<a class="dk" href="{pre}#{key}" data-nav="{key}"{hl} aria-label="{label}">'
                                f'<span class="dk-tile">{DOCK_ICONS[key]}</span><span class="dk-tip">{label}</span></a>')
-    nav = "".join(item(k, l) for k, l in [("work", "Work"), ("about", "About"), ("skills", "Skills"),
-                                          ("experience", "Experience"), ("resume", "Resume"), ("contact", "Contact")])
+    nav = "".join(item(k, l) for k, l in [("about", "About"), ("resume", "Resume"), ("experience", "Experience"),
+                                          ("work", "Work"), ("skills", "Skills"), ("contact", "Contact")])
     ask = ""
     if CHAT_URL:
         ask = (f'<button class="dk dk-ask" type="button" id="askToggle" aria-label="Ask {ASSISTANT["name"]}" aria-expanded="false" aria-controls="askPanel">'
@@ -341,7 +341,7 @@ def contact_html():
 </a>""" for k, h, i, n, hd, d in cards)
     return f"""<section class="sec contact" id="contact">
     <div class="ct-radar" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-    <div class="sec-head reveal"><span class="sec-num">06</span><h2 class="ct-title">{glitch_word("LET'S TALK")}</h2>
+    <div class="sec-head reveal"><span class="sec-num">05</span><h2 class="ct-title">{glitch_word("LET'S TALK")}</h2>
       <p class="sec-sub"><span class="ct-live"><i></i> online</span> I usually reply within a day.</p></div>
     <div class="ct-grid">
       {big}
@@ -416,9 +416,28 @@ def home(track_key):
   <span>{e(x['school'])}</span>
   <span class="edu-meta">{e(x['score'])} · {e(x['where'])}</span>
 </div>""" for x in EDUCATION)
-    feed = "".join(f"""<li class="feed-item reveal"><span class="feed-tick">{i:02d}'</span><p>{e(b)}</p></li>"""
-                   for i, b in enumerate(tr["experience"], 1))
-    roles = "".join(f'<div class="role"><b>{e(t)}</b><span>{e(w)}</span></div>' for t, w in ROLES)
+    quote = f"""<figure class="quote">
+        <img src="{root}{e(TESTIMONIAL['photo'])}" alt="{e(TESTIMONIAL['name'])}" loading="lazy">
+        <blockquote>“{e(TESTIMONIAL['quote'])}”</blockquote>
+        <figcaption><a class="quote-link" href="{e(TESTIMONIAL['url'])}" target="_blank" rel="noopener"><b>{e(TESTIMONIAL['name'])}</b></a> · {e(TESTIMONIAL['role'])} <span class="quote-go">LinkedIn ↗</span></figcaption>
+      </figure>"""
+    jobs = []
+    for j in JOBS:
+        feed = "".join(f"""<li class="feed-item reveal"><span class="feed-tick">{i:02d}'</span><p>{e(b)}</p></li>"""
+                       for i, b in enumerate(tr[j["bullets"]], 1))
+        roles = "".join(f'<div class="role"><b>{e(t)}</b><span>{e(w)}</span></div>' for t, w in j["roles"])
+        w, h = j["size"]
+        jobs.append(f"""<div class="broadcast card reveal{' bc-now' if j['current'] else ''}">
+      <div class="bc-top">
+        <span class="bc-logo"><img src="{root}{e(j['logo'])}" alt="" width="{w}" height="{h}" loading="lazy" decoding="async"></span>
+        <h3 class="bc-co">{e(j['company'].upper())}</h3>
+        <span class="bc-meta">{e(j['meta'])}</span>
+      </div>
+      <div class="bc-roles">{roles}</div>
+      <ol class="feed">{feed}</ol>
+      {quote if j.get('testimonial') else ''}
+    </div>""")
+    jobs_html = "\n    ".join(jobs)
     resume = tr["resume"]
     preview = tr["preview"]
     resume_name = resume.rsplit("/", 1)[-1]
@@ -434,7 +453,7 @@ def home(track_key):
 <section class="desktop" id="desktop" aria-label="Intro">
   <canvas class="dots" id="dots" aria-hidden="true"></canvas>
   <header class="masthead">
-    <p class="wall-role"><span class="wall-dash"></span>{e(tr['role'])} · {e(tr['tagline'])}<span class="mh-status"><i></i>open to work<span class="mh-sep">·</span><svg class="globe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.4 5.8 12 3z"/></svg>relocation worldwide</span></p>
+    <p class="wall-role"><span class="wall-dash"></span>{e(tr['role'])} · {e(tr['tagline'])}<span class="mh-status"><i></i>now at SBM Bank<span class="mh-sep">·</span><svg class="globe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.4 5.8 12 3z"/></svg>Mumbai, India</span></p>
     <h1 class="wall-name" id="glitchName" aria-label="{e(PERSON['full'])}">
       {glitch_word(PERSON['first'])}
       {glitch_word(PERSON['middle'], 'accent')}
@@ -450,11 +469,20 @@ def home(track_key):
     </div>
   </div>
 
+  <div class="win win-info" data-win="info">
+    <div class="win-bar"><span class="win-dots"><button class="wd wd-close" aria-label="Close system info"></button><i></i><i></i></span><span class="win-title">sysinfo</span></div>
+    <div class="win-body sysinfo">
+      <div class="sys-head">{LOGO}<div><b>anurag@anb</b><span>uptime: shipping since 2025</span></div></div>
+      <dl>{facts}</dl>
+    </div>
+  </div>
+
   <div class="win win-note" data-win="note">
     <div class="win-bar"><span class="win-dots"><button class="wd wd-close" aria-label="Close note"></button><i></i><i></i></span><span class="win-title">now.txt</span></div>
     <div class="win-body note">
-      <p><b>Now:</b> looking for {e(role_words(tr['role']))} roles.</p>
-      <p>Based in Mumbai (IST). Open to relocating anywhere in the world.</p>
+      <p><b>Now:</b> IT Officer at SBM Bank, building an internal campaign portal.</p>
+      <p class="note-game">Hiring? <span class="nw"><button type="button" data-open="resume">Check out my resume</button>.</span></p>
+      {'<p class="note-game">Questions? <span class="nw"><button type="button" data-open="chat">Chat with ' + e(ASSISTANT['name']) + '</button>,</span> my pixel stand-in.</p>' if CHAT_URL else ''}
       <p class="note-game">Bored? Hit the <button type="button" data-open="game">controller</button> in the dock.</p>
       <p class="note-links"><a href="#work">see the work ↓</a><a href="#contact">get in touch ↓</a></p>
     </div>
@@ -469,15 +497,48 @@ def home(track_key):
         <img class="ph-g ph-b" src="{root}assets/img/me.jpg" alt="" aria-hidden="true">
         <span class="photo-shine" aria-hidden="true"></span>
       </div>
-      <div class="photo-cap"><span>{e(PERSON['location'])}</span><span><svg class="globe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.4 5.8 12 3z"/></svg> relocation: worldwide</span></div>
+      <div class="photo-cap"><span>{e(PERSON['location'])}</span><span><svg class="globe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.4 5.8 12 3z"/></svg> IST · UTC+5:30</span></div>
     </div>
   </div>
 </section>
 
 <main class="sheet" id="main">
+  <section class="sec about" id="about">
+    <div class="sec-head reveal"><span class="sec-num">01</span><h2>About</h2></div>
+    <div class="about-grid">
+      <div class="about-text reveal">{''.join(f'<p>{e(p)}</p>' for p in tr['about'])}</div>
+      <div class="fax-stage reveal" id="resume">
+        <div class="fax" id="fax">
+          <div class="paper" id="faxPaper">
+            <button class="paper-inner" type="button" id="paperOpen" aria-label="Open resume">
+              <img src="{root}{preview}" alt="Preview of my resume" loading="lazy">
+            </button>
+          </div>
+          <div class="fax-body">
+            <div class="fax-slot"></div>
+            <div class="fax-panel">
+              <div class="fax-lcd" id="faxLcd">READY · 1 PAGE</div>
+              <button class="fax-btn" id="faxBtn" type="button">print resume</button>
+            </div>
+            <div class="fax-grille"><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <noscript><a href="{root}{e(resume)}">Download my resume (PDF)</a></noscript>
+      </div>
+    </div>
+    <div class="edu-row">{edu}</div>
+  </section>
+
+  <section class="sec exp" id="experience">
+    <div class="sec-head reveal"><span class="sec-num">02</span><h2>Experience</h2></div>
+    <div class="exp-stack">
+    {jobs_html}
+    </div>
+  </section>
+
   <section class="sec" id="work">
     <div class="sec-head reveal">
-      <span class="sec-num">01</span>
+      <span class="sec-num">03</span>
       <h2>Selected work</h2>
       <p class="sec-sub">{n} projects across software, data and AI/ML, each with the tests and numbers that back it up. Hover to peek, click for the full story.</p>
     </div>
@@ -485,62 +546,10 @@ def home(track_key):
     {''.join(panels)}
   </section>
 
-  <section class="sec about" id="about">
-    <div class="sec-head reveal"><span class="sec-num">02</span><h2>About</h2></div>
-    <div class="about-grid">
-      <div class="about-text reveal">{''.join(f'<p>{e(p)}</p>' for p in tr['about'])}</div>
-      <div class="sysinfo card reveal">
-        <div class="sys-head">{LOGO}<div><b>anurag@anb</b><span>uptime: shipping since 2025</span></div></div>
-        <dl>{facts}</dl>
-      </div>
-    </div>
-    <div class="edu-row">{edu}</div>
-  </section>
-
   <section class="sec skills-sec" id="skills">
-    <div class="sec-head reveal"><span class="sec-num">03</span><h2>Skills</h2>
+    <div class="sec-head reveal"><span class="sec-num">04</span><h2>Skills</h2>
       <p class="sec-sub">Hover a skill to see where I've actually used it.</p></div>
     <div class="bento">{skills_html(track_key)}</div>
-  </section>
-
-  <section class="sec exp" id="experience">
-    <div class="sec-head reveal"><span class="sec-num">04</span><h2>Experience</h2></div>
-    <div class="broadcast card reveal">
-      <div class="bc-top">
-        <span class="bc-live">● ON AIR</span>
-        <span class="bc-co">FAYBLE INC.</span>
-        <span class="bc-meta">AI sports-simulation startup · California · remote</span>
-      </div>
-      <div class="bc-roles">{roles}</div>
-      <ol class="feed">{feed}</ol>
-      <figure class="quote">
-        <img src="{root}{e(TESTIMONIAL['photo'])}" alt="{e(TESTIMONIAL['name'])}" loading="lazy">
-        <blockquote>“{e(TESTIMONIAL['quote'])}”</blockquote>
-        <figcaption><a class="quote-link" href="{e(TESTIMONIAL['url'])}" target="_blank" rel="noopener"><b>{e(TESTIMONIAL['name'])}</b></a> · {e(TESTIMONIAL['role'])} <span class="quote-go">LinkedIn ↗</span></figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <section class="sec fax-sec" id="resume">
-    <div class="sec-head reveal"><span class="sec-num">05</span><h2>Resume</h2><p class="sec-sub">One page. Press the button.</p></div>
-    <div class="fax-stage reveal">
-      <div class="fax" id="fax">
-        <div class="paper" id="faxPaper">
-          <button class="paper-inner" type="button" id="paperOpen" aria-label="Open resume">
-            <img src="{root}{preview}" alt="Preview of my resume" loading="lazy">
-          </button>
-        </div>
-        <div class="fax-body">
-          <div class="fax-slot"></div>
-          <div class="fax-panel">
-            <div class="fax-lcd" id="faxLcd">READY · 1 PAGE</div>
-            <button class="fax-btn" id="faxBtn" type="button">print resume</button>
-          </div>
-          <div class="fax-grille"><i></i><i></i><i></i><i></i><i></i></div>
-        </div>
-      </div>
-      <noscript><a href="{root}{e(resume)}">Download my resume (PDF)</a></noscript>
-    </div>
   </section>
 
   {contact_html()}
